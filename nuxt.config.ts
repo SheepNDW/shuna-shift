@@ -3,7 +3,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
-  modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint'],
+  modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint', '@pinia/nuxt'],
 
   runtimeConfig: {
     gsheetsKey: '',
