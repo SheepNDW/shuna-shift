@@ -4,4 +4,9 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
   modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint'],
+
+  runtimeConfig: {
+    gsheetsKey: '',
+    spreadsheetId: '',
+  },
 });
