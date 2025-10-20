@@ -6,6 +6,10 @@ export default defineNuxtConfig({
   ui: {
     colorMode: false,
   },
+  typescript: {
+    typeCheck: true,
+  },
+
   modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint', '@pinia/nuxt'],
 
   runtimeConfig: {
