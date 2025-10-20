@@ -1,3 +1,6 @@
+import type { SheetsResponse } from '~~/shared/types';
+import { transformSheetDataToSchedules } from '../utils/transformer';
+
 export default defineEventHandler(async (_event) => {
   const config = useRuntimeConfig();
   const { gsheetsKey, spreadsheetId } = config;
@@ -9,31 +12,17 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const targetSheets = ['每日班表', '過去班表20250101~'];
+  const ranges = ['每日班表!A5:C40'].join(',');
 
-  // 使用 Google Sheets API 的 batchGet 一次拉取多個 sheet
-  const ranges = targetSheets.map((sheet) => encodeURIComponent(sheet)).join('&ranges=');
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values:batchGet?ranges=${ranges}&key=${gsheetsKey}`;
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?ranges=${encodeURIComponent(
+    ranges
+  )}&fields=sheets.data.rowData.values(userEnteredValue,userEnteredFormat.backgroundColor,textFormatRuns)&key=${gsheetsKey}`;
 
   try {
-    const data = await $fetch<{
-      spreadsheetId: string;
-      valueRanges: Array<{
-        range: string;
-        majorDimension: string;
-        values?: string[][];
-      }>;
-    }>(url);
+    const res = await $fetch<SheetsResponse>(url);
+    const rows = res?.sheets[0]?.data[0]?.rowData ?? [];
 
-    const sheets = data.valueRanges.map((valueRange, index) => ({
-      sheetName: targetSheets[index],
-      values: valueRange.values || [],
-      success: true,
-    }));
-
-    return {
-      sheets,
-    };
+    return transformSheetDataToSchedules(rows);
   } catch (error) {
     throw createError({
       statusCode: 500,
