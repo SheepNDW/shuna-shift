@@ -1,4 +1,3 @@
-import type { RowData, TextFormatRun } from '~~/shared/types';
 import { excelSerialToDateLabel, parseAgents, rgbToHex } from './parser';
 
 export interface ParsedRow {
@@ -11,16 +10,6 @@ export interface ParsedRow {
     name: string;
     textFormatRuns: TextFormatRun[];
   };
-}
-
-export interface ShiftSchedule {
-  date: {
-    datetime: string;
-    backgroundColor: string;
-    description: string;
-  };
-  day: { name: string; textColor: string }[];
-  night: { name: string; textColor: string }[];
 }
 
 /**

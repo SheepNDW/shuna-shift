@@ -4,6 +4,17 @@ export type Agent = {
   instagram?: string;
 };
 
+/** 班表資料結構 */
+export interface ShiftSchedule {
+  date: {
+    datetime: string;
+    backgroundColor: string;
+    description: string;
+  };
+  day: { name: string; textColor: string }[];
+  night: { name: string; textColor: string }[];
+}
+
 /** Google Sheets API 回傳的最外層 */
 export interface SheetsResponse {
   sheets: Sheet[];
