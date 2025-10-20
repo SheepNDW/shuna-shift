@@ -5,6 +5,7 @@ export interface ParsedRow {
   date: {
     datetime: string;
     backgroundColor: string;
+    description: string;
   };
   agents: {
     name: string;
@@ -16,6 +17,7 @@ export interface ShiftSchedule {
   date: {
     datetime: string;
     backgroundColor: string;
+    description: string;
   };
   day: { name: string; textColor: string }[];
   night: { name: string; textColor: string }[];
@@ -35,6 +37,7 @@ export function transformRowToParsedData(row: RowData): ParsedRow {
       backgroundColor: cells[0]?.userEnteredFormat?.backgroundColor
         ? rgbToHex(cells[0].userEnteredFormat.backgroundColor)
         : '',
+      description: cells[0]?.userEnteredValue?.stringValue ?? '',
     },
     agents: {
       name: cells[2]?.userEnteredValue?.stringValue ?? '',
@@ -55,6 +58,7 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
         date: {
           datetime: curr.date.datetime,
           backgroundColor: curr.date.backgroundColor,
+          description: curr.date.description,
         },
         day: parseAgents(curr.agents.name, curr.agents.textFormatRuns),
         night: [],
@@ -64,6 +68,7 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
       const last = acc[acc.length - 1];
       if (last) {
         last.night = parseAgents(curr.agents.name, curr.agents.textFormatRuns);
+        last.date.description = curr.date.description;
       }
     }
     return acc;
