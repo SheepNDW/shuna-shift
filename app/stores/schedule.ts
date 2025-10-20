@@ -4,7 +4,6 @@ export const useScheduleStore = defineStore('schedule', () => {
   const schedules = ref<ShiftSchedule[]>([]);
 
   const todaySchedule = computed(() => {
-    // 取得今日 zh-TW 日期 (MM月dd日)
     const today = new Date();
     const month = today.getMonth() + 1;
     const day = today.getDate();

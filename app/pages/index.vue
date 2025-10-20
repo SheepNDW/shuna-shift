@@ -50,6 +50,9 @@ const greeting = computed(() => {
           <p
             v-if="todaySchedule.date.description"
             class="mt-4 text-lg text-gray-700 dark:text-gray-300 font-medium"
+            :style="{
+              color: todaySchedule.date.backgroundColor,
+            }"
           >
             {{ todaySchedule.date.description }}
           </p>
@@ -86,10 +89,7 @@ const greeting = computed(() => {
             v-else
             class="flex flex-col items-center justify-center py-12 px-4 bg-white dark:bg-gray-800 rounded-2xl shadow-md"
           >
-            <UIcon
-              name="i-heroicons-moon"
-              class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4"
-            />
+            <UIcon name="i-heroicons-sun" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
             <p class="text-center text-gray-500 dark:text-gray-400 text-lg">今日早班無排班</p>
           </div>
         </div>
@@ -125,10 +125,15 @@ const greeting = computed(() => {
             v-else
             class="flex flex-col items-center justify-center py-12 px-4 bg-white dark:bg-gray-800 rounded-2xl shadow-md"
           >
-            <UIcon name="i-heroicons-sun" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
+            <UIcon
+              name="i-heroicons-moon"
+              class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4"
+            />
             <p class="text-center text-gray-500 dark:text-gray-400 text-lg">今日晚班無排班</p>
           </div>
         </div>
+
+        <ColorLegend />
 
         <!-- Call to Action -->
         <div class="text-center mt-12">

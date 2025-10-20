@@ -12,6 +12,7 @@ describe('excelSerialToDateLabel', () => {
 describe('rgbToHex', () => {
   it('應該將 RGB 顏色轉換為十六進位格式', () => {
     expect(rgbToHex({ red: 0.576, green: 0.769, blue: 0.49 })).toBe('#93c47d');
+    expect(rgbToHex({ red: 1, green: 0.6 })).toBe('#ff9900');
   });
 
   it('應該處理純色', () => {
@@ -35,26 +36,103 @@ describe('rgbToHex', () => {
 
 describe('parseAgents', () => {
   it('應該解析帶有顏色格式的探員名單', () => {
-    const name = '、🌙、小春、七尾、紅、百夜';
+    const name = '🐷、🌙、小春、七尾、紅、百夜';
+
     const runs: TextFormatRun[] = [
       {
-        startIndex: 7,
-        format: { foregroundColor: { red: 0.576, green: 0.769, blue: 0.49 } },
+        startIndex: 9,
+        format: {
+          foregroundColor: {
+            red: 0.5764706,
+            green: 0.76862746,
+            blue: 0.49019608,
+          },
+          foregroundColorStyle: {
+            rgbColor: {
+              red: 0.5764706,
+              green: 0.76862746,
+              blue: 0.49019608,
+            },
+          },
+        },
       },
       {
-        startIndex: 9,
-        format: { foregroundColor: {} },
+        startIndex: 11,
+        format: {
+          foregroundColor: {},
+          strikethrough: false,
+          foregroundColorStyle: {
+            rgbColor: {},
+          },
+        },
       },
     ];
 
     const result = parseAgents(name, runs);
 
     expect(result).toEqual([
+      { name: '🐷', textColor: '' },
       { name: '🌙', textColor: '' },
       { name: '小春', textColor: '' },
       { name: '七尾', textColor: '#93c47d' },
       { name: '紅', textColor: '' },
       { name: '百夜', textColor: '' },
+    ]);
+  });
+
+  it('應該解析帶有顏色格式的探員名單', () => {
+    const name = '🐷、🥨、七尾、三里、亞米(和実)、棠棠';
+
+    const runs: TextFormatRun[] = [
+      {
+        startIndex: 12,
+        format: {
+          foregroundColor: {
+            red: 1,
+          },
+          foregroundColorStyle: {
+            rgbColor: {
+              red: 1,
+            },
+          },
+        },
+      },
+      {
+        startIndex: 14,
+        format: {},
+      },
+      {
+        startIndex: 15,
+        format: {
+          foregroundColor: {
+            red: 0.6,
+            green: 0.6,
+            blue: 0.6,
+          },
+          foregroundColorStyle: {
+            rgbColor: {
+              red: 0.6,
+              green: 0.6,
+              blue: 0.6,
+            },
+          },
+        },
+      },
+      {
+        startIndex: 17,
+        format: {},
+      },
+    ];
+
+    const result = parseAgents(name, runs);
+
+    expect(result).toEqual([
+      { name: '🐷', textColor: '' },
+      { name: '🥨', textColor: '' },
+      { name: '七尾', textColor: '' },
+      { name: '三里', textColor: '' },
+      { name: '亞米(和実)', textColor: '#ff0000' },
+      { name: '棠棠', textColor: '' },
     ]);
   });
 });

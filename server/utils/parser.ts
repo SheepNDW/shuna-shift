@@ -30,24 +30,18 @@ export function parseAgents(name: string, runs: TextFormatRun[] = []) {
   });
 
   const result: { name: string; textColor: string }[] = [];
-  let currentIndex = 1; // 1-based index
+  let currentIndex = 0;
 
   for (let i = 0; i < names.length; i++) {
     const agentName = names[i]!;
 
-    // 檢查當前名字開始位置是否有格式定義
+    // 只檢查名字開始位置的格式
     let textColor = '';
 
-    // 遍歷當前名字的每個字符，找到適用的格式
-    for (let charIdx = 0; charIdx < agentName.length; charIdx++) {
-      const pos = currentIndex + charIdx;
-      if (formatMap.has(pos)) {
-        const run = formatMap.get(pos);
-        if (run?.format?.foregroundColor && Object.keys(run.format.foregroundColor).length > 0) {
-          textColor = rgbToHex(run.format.foregroundColor);
-        } else {
-          textColor = '';
-        }
+    if (formatMap.has(currentIndex)) {
+      const run = formatMap.get(currentIndex);
+      if (run?.format?.foregroundColor && Object.keys(run.format.foregroundColor).length > 0) {
+        textColor = rgbToHex(run.format.foregroundColor);
       }
     }
 

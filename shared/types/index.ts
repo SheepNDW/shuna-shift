@@ -68,7 +68,11 @@ export interface TextFormat {
   bold?: boolean;
   italic?: boolean;
   underline?: boolean;
+  strikethrough?: boolean;
   foregroundColor?: RGBColor;
+  foregroundColorStyle?: {
+    rgbColor?: RGBColor;
+  };
 }
 
 /** 局部文字格式變化 */

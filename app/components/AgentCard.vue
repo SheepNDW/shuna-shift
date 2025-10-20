@@ -4,14 +4,20 @@ import { AGENTS } from '~~/shared/constant';
 const { name, textColor } = defineProps<{ name: string; textColor: string }>();
 
 const getAgentInfo = (name: string) => {
-  return AGENTS.get(name) || { name, picture: '', instagram: '' };
+  let searchName = name;
+
+  if (name.includes('(')) {
+    searchName = name.split('(')[0]?.trim() || name;
+  }
+
+  return AGENTS.get(searchName) || { name, picture: '', instagram: '' };
 };
 
 const agentInfo = computed(() => {
   const info = getAgentInfo(name);
 
   return {
-    name: info.name,
+    name: name.includes('(') ? name : info.name,
     picture: info.picture,
     instagram: info.instagram,
     textColor: textColor || '',
