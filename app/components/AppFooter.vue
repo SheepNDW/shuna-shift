@@ -49,7 +49,7 @@ const lastUpdated = new Date().toLocaleString('zh-TW', {
               class="text-xs text-gray-500 dark:text-gray-500 mt-3 flex items-center justify-center gap-1"
             >
               <UIcon name="i-heroicons-clock" class="w-3 h-3" />
-              最後更新：{{ lastUpdated }}
+              最後同步：{{ lastUpdated }}
             </p>
           </div>
 
