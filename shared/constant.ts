@@ -4,7 +4,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '🐷',
     {
-      name: '泠玲',
+      name: '泠泠',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',
       instagram: 'https://www.instagram.com/shuna.rin_/',
     },
