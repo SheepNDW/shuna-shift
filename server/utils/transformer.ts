@@ -13,7 +13,7 @@ export interface ParsedRow {
 }
 
 /**
- * 將 Google Sheets 的原始行資料轉換為結構化的日期和代理資訊
+ * 將 Google Sheets 的原始行資料轉換為結構化的日期和資訊
  */
 export function transformRowToParsedData(row: RowData): ParsedRow {
   const cells = row.values;
