@@ -2,6 +2,11 @@
 const scheduleStore = useScheduleStore();
 
 const { schedules } = storeToRefs(scheduleStore);
+
+const appConfig = useAppConfig();
+useHead({
+  title: `${appConfig.title} - 完整班表`,
+});
 </script>
 
 <template>

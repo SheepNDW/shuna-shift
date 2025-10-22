@@ -9,6 +9,11 @@ const greeting = computed(() => {
   if (currentHour >= 12 && currentHour < 18) return '午安';
   return '晚安';
 });
+
+const appConfig = useAppConfig();
+useHead({
+  title: `${appConfig.title} - 今日班表`,
+});
 </script>
 
 <template>
