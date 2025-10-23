@@ -29,7 +29,7 @@ export function transformRowToParsedData(row: RowData): ParsedRow {
       description: cells[0]?.userEnteredValue?.stringValue ?? '',
     },
     agents: {
-      name: cells[2]?.userEnteredValue?.stringValue ?? '',
+      name: cells[2]?.userEnteredValue?.stringValue?.trim() ?? '',
       textFormatRuns: cells[2]?.textFormatRuns ?? [],
     },
   };
@@ -57,7 +57,10 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
       const last = acc[acc.length - 1];
       if (last) {
         last.night = parseAgents(curr.agents.name, curr.agents.textFormatRuns);
-        last.date.description = curr.date.description;
+        // 只有當早班沒有 description 時，才使用晚班的 description
+        if (!last.date.description && curr.date.description) {
+          last.date.description = curr.date.description;
+        }
       }
     }
     return acc;
