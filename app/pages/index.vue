@@ -18,7 +18,7 @@ useHead({
 
 <template>
   <div
-    class="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
+    class="min-h-screen bg-linear-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
   >
     <UContainer class="py-8 md:py-12">
       <div class="text-center mb-12">
@@ -31,7 +31,7 @@ useHead({
           >
         </div>
         <h2
-          class="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
+          class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
         >
           今日班表
         </h2>
@@ -66,9 +66,9 @@ useHead({
         <!-- Day Shift Section -->
         <div class="mb-12">
           <div class="flex items-center justify-center gap-3 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-yellow-300" />
+            <div class="h-px flex-1 bg-linear-to-r from-transparent to-yellow-300" />
             <div
-              class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"
+              class="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"
             >
               <UIcon name="i-heroicons-sun" class="w-6 h-6 text-white" />
               <h3 class="text-2xl font-bold text-white">早班</h3>
@@ -76,7 +76,7 @@ useHead({
                 {{ todaySchedule.day.length }}
               </UBadge>
             </div>
-            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-yellow-300" />
+            <div class="h-px flex-1 bg-linear-to-l from-transparent to-yellow-300" />
           </div>
 
           <div
@@ -102,9 +102,9 @@ useHead({
         <!-- Night Shift Section -->
         <div class="mb-12">
           <div class="flex items-center justify-center gap-3 mb-6">
-            <div class="h-px flex-1 bg-gradient-to-r from-transparent to-indigo-300" />
+            <div class="h-px flex-1 bg-linear-to-r from-transparent to-indigo-300" />
             <div
-              class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full shadow-lg"
+              class="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-indigo-500 to-purple-500 rounded-full shadow-lg"
             >
               <UIcon name="i-heroicons-moon" class="w-6 h-6 text-white" />
               <h3 class="text-2xl font-bold text-white">晚班</h3>
@@ -112,7 +112,7 @@ useHead({
                 {{ todaySchedule.night.length }}
               </UBadge>
             </div>
-            <div class="h-px flex-1 bg-gradient-to-l from-transparent to-indigo-300" />
+            <div class="h-px flex-1 bg-linear-to-l from-transparent to-indigo-300" />
           </div>
 
           <div
@@ -143,7 +143,7 @@ useHead({
         <!-- Call to Action -->
         <div class="text-center mt-12">
           <div
-            class="inline-block p-1 bg-gradient-to-r from-pink-500 to-purple-500 rounded-2xl shadow-2xl"
+            class="inline-block p-1 bg-linear-to-r from-pink-500 to-purple-500 rounded-2xl shadow-2xl"
           >
             <UButton to="/shifts" size="xl" color="neutral" variant="solid" class="px-8 py-4">
               <UIcon name="i-heroicons-calendar-days" class="w-6 h-6 mr-2" />
@@ -161,5 +161,7 @@ useHead({
         <p class="text-gray-600 dark:text-gray-400">載入班表中...</p>
       </div>
     </UContainer>
+
+    <BackToTop />
   </div>
 </template>
