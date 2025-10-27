@@ -12,7 +12,7 @@ export default defineEventHandler(async (_event) => {
     });
   }
 
-  const ranges = ['每日班表!A5:C43'].join(',');
+  const ranges = ['每日班表!A5:C45'].join(',');
 
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?ranges=${encodeURIComponent(
     ranges
