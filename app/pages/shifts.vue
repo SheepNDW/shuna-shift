@@ -18,10 +18,6 @@ const filteredSchedules = computed(() => {
     .filter((schedule) => schedule.day.length > 0 || schedule.night.length > 0);
 });
 
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
 const appConfig = useAppConfig();
 useHead({
   title: `${appConfig.title} - 完整班表`,
@@ -69,14 +65,6 @@ useHead({
         <div class="mt-12">
           <ColorLegend />
         </div>
-
-        <!-- Back to Top -->
-        <div class="text-center mt-12">
-          <UButton color="neutral" variant="soft" size="xl" @click="scrollToTop">
-            <UIcon name="i-heroicons-arrow-up" class="w-5 h-5 mr-2" />
-            回到頂部
-          </UButton>
-        </div>
       </div>
 
       <!-- Empty State (when filter returns no results) -->
@@ -108,5 +96,8 @@ useHead({
         <p class="text-gray-600 dark:text-gray-400">載入班表中...</p>
       </div>
     </UContainer>
+
+    <!-- Back to Top Button -->
+    <BackToTop />
   </div>
 </template>
