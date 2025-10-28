@@ -3,7 +3,7 @@ const scheduleStore = useScheduleStore();
 
 const { todaySchedule } = storeToRefs(scheduleStore);
 
-const currentHour = new Date().getHours();
+const currentHour = getCurrentHour();
 const greeting = computed(() => {
   if (currentHour >= 5 && currentHour < 12) return '早安';
   if (currentHour >= 12 && currentHour < 18) return '午安';

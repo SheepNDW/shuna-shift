@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const currentYear = new Date().getFullYear();
+const currentYear = getCurrentYear();
 const scheduleStore = useScheduleStore();
 
 const lastUpdated = computed(() => {
@@ -7,13 +7,7 @@ const lastUpdated = computed(() => {
     return '資料載入中...';
   }
 
-  return new Date(scheduleStore.lastUpdated).toLocaleString('zh-TW', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  return formatDateTime(scheduleStore.lastUpdated);
 });
 </script>
 

@@ -5,11 +5,7 @@ export const useScheduleStore = defineStore('schedule', () => {
   const lastUpdated = ref<string>('');
 
   const todaySchedule = computed(() => {
-    const today = new Date();
-    const month = today.getMonth() + 1;
-    const day = today.getDate();
-    const todayLabel = `${month}月${day}日`;
-
+    const todayLabel = getTodayLabel();
     return schedules.value.find((schedule) => schedule.date.datetime === todayLabel);
   });
 
