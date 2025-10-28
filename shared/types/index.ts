@@ -15,6 +15,14 @@ export interface ShiftSchedule {
   night: { name: string; textColor: string }[];
 }
 
+/** API 回傳的班表資料（包含 metadata） */
+export interface ScheduleResponse {
+  schedules: ShiftSchedule[];
+  metadata: {
+    lastUpdated: string;
+  };
+}
+
 /** Google Sheets API 回傳的最外層 */
 export interface SheetsResponse {
   sheets: Sheet[];

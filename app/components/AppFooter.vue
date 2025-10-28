@@ -1,17 +1,25 @@
 <script setup lang="ts">
 const currentYear = new Date().getFullYear();
-const lastUpdated = new Date().toLocaleString('zh-TW', {
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
+const scheduleStore = useScheduleStore();
+
+const lastUpdated = computed(() => {
+  if (!scheduleStore.lastUpdated) {
+    return '資料載入中...';
+  }
+
+  return new Date(scheduleStore.lastUpdated).toLocaleString('zh-TW', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 });
 </script>
 
 <template>
   <footer
-    class="mt-auto bg-gradient-to-r from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 border-t border-pink-200 dark:border-gray-700"
+    class="mt-auto bg-linear-to-r from-pink-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 border-t border-pink-200 dark:border-gray-700"
   >
     <UContainer>
       <div class="py-8">
