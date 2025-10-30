@@ -52,8 +52,8 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
         day: parseAgents(curr.agents.name, curr.agents.textFormatRuns),
         night: [],
       });
-    } else {
-      // 沒有日期表示這是晚班資料，合併到前一筆
+    } else if (curr.agents.name) {
+      // 沒有日期但有班表資料，表示這是晚班資料，合併到前一筆
       const last = acc[acc.length - 1];
       if (last) {
         last.night = parseAgents(curr.agents.name, curr.agents.textFormatRuns);
@@ -63,6 +63,7 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
         }
       }
     }
+    // 如果既沒有日期也沒有班表資料（例如換月標記），則跳過
     return acc;
   }, []);
 }
