@@ -168,3 +168,68 @@ export const expectedScheduleData: ShiftSchedule[] = [
     night: [],
   },
 ];
+
+/**
+ * 對應 mockSheetDataNewMonth 轉換後的結果
+ */
+export const expectedScheduleDataNewMonth: ShiftSchedule[] = [
+  {
+    date: {
+      datetime: '10月31日',
+      backgroundColor: '#b6d7a8',
+      description: '萬聖',
+    },
+    day: [
+      {
+        name: '🌙',
+        textColor: '',
+      },
+      {
+        name: '🥨',
+        textColor: '',
+      },
+      {
+        name: '千熊',
+        textColor: '',
+      },
+      {
+        name: '梂',
+        textColor: '',
+      },
+      {
+        name: '三里',
+        textColor: '',
+      },
+      {
+        name: '景子',
+        textColor: '',
+      },
+    ],
+    night: [
+      {
+        name: '🌙',
+        textColor: '',
+      },
+      {
+        name: '🥨',
+        textColor: '',
+      },
+      {
+        name: '百夜',
+        textColor: '',
+      },
+      {
+        name: '芽',
+        textColor: '',
+      },
+      {
+        name: '亞米',
+        textColor: '',
+      },
+      {
+        name: '棠棠',
+        textColor: '',
+      },
+    ],
+  },
+];

@@ -219,3 +219,70 @@ export const mockSheetData: RowData[] = [
     ],
   },
 ];
+
+/**
+ * 模擬換月的資料
+ */
+export const mockSheetDataNewMonth: RowData[] = [
+  {
+    values: [
+      {
+        userEnteredValue: {
+          numberValue: 45961,
+        },
+        userEnteredFormat: {
+          backgroundColor: {
+            red: 0.7137255,
+            green: 0.84313726,
+            blue: 0.65882355,
+          },
+        },
+      },
+      {
+        userEnteredValue: {
+          stringValue: '早',
+        },
+      },
+      {
+        userEnteredValue: {
+          stringValue: '🌙、🥨、千熊、梂、三里、景子',
+        },
+      },
+    ],
+  },
+  {
+    values: [
+      {
+        userEnteredValue: {
+          stringValue: '萬聖',
+        },
+        userEnteredFormat: {
+          backgroundColor: {
+            red: 0.7137255,
+            green: 0.84313726,
+            blue: 0.65882355,
+          },
+        },
+      },
+      {
+        userEnteredValue: {
+          stringValue: '晚',
+        },
+      },
+      {
+        userEnteredValue: {
+          stringValue: '🌙、🥨、百夜、芽、亞米、棠棠',
+        },
+      },
+    ],
+  },
+  {
+    values: [
+      {
+        userEnteredValue: {
+          stringValue: '11月',
+        },
+      },
+    ],
+  },
+];

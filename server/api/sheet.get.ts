@@ -40,6 +40,7 @@ export default defineCachedEventHandler(
     }
   },
   {
+    name: 'sheet-get',
     // Cache for 3 hours
     maxAge: 60 * 60 * 3,
   }
