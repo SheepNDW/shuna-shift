@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { formatDateTime, getCurrentHour, getCurrentYear, getTodayLabel, isToday } from '../../date';
+import {
+  formatDateTime,
+  getCurrentHour,
+  getCurrentYear,
+  getTodayLabel,
+  isToday,
+  isTodayOrFuture,
+} from '../../date';
 
 describe('date utils', () => {
   // 測試用的時間常數
@@ -184,6 +191,76 @@ describe('date utils', () => {
 
       expect(isToday('12月31日')).toBe(true);
       expect(isToday('1月1日')).toBe(false);
+    });
+  });
+
+  describe('isTodayOrFuture', () => {
+    it('應該判斷今天的日期為 true', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY); // 2024年10月28日
+
+      expect(isTodayOrFuture('10月28日')).toBe(true);
+    });
+
+    it('應該判斷未來的日期為 true', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY); // 2024年10月28日
+
+      expect(isTodayOrFuture('10月29日')).toBe(true);
+      expect(isTodayOrFuture('10月30日')).toBe(true);
+      expect(isTodayOrFuture('11月1日')).toBe(true);
+      expect(isTodayOrFuture('12月31日')).toBe(true);
+    });
+
+    it('應該判斷過去的日期為 false', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY); // 2024年10月28日
+
+      expect(isTodayOrFuture('10月27日')).toBe(false);
+      expect(isTodayOrFuture('10月1日')).toBe(false);
+      expect(isTodayOrFuture('9月30日')).toBe(false);
+      expect(isTodayOrFuture('1月1日')).toBe(false);
+    });
+
+    it('應該處理空字串', () => {
+      expect(isTodayOrFuture('')).toBe(false);
+    });
+
+    it('應該處理格式不符的日期標籤', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY);
+
+      expect(isTodayOrFuture('2024-10-28')).toBe(false);
+      expect(isTodayOrFuture('October 28')).toBe(false);
+      expect(isTodayOrFuture('28/10')).toBe(false);
+    });
+
+    it('應該在午夜時正確判斷', () => {
+      vi.setSystemTime(TEST_DATES.MIDNIGHT); // 2024年10月28日 00:00:00
+
+      expect(isTodayOrFuture('10月28日')).toBe(true);
+      expect(isTodayOrFuture('10月27日')).toBe(false);
+    });
+
+    it('應該在接近午夜時正確判斷', () => {
+      vi.setSystemTime(TEST_DATES.ALMOST_MIDNIGHT); // 2024年10月28日 23:59:59
+
+      expect(isTodayOrFuture('10月28日')).toBe(true);
+      expect(isTodayOrFuture('10月29日')).toBe(true);
+      expect(isTodayOrFuture('10月27日')).toBe(false);
+    });
+
+    it('應該處理跨年情況', () => {
+      vi.setSystemTime(TEST_DATES.YEAR_END); // 2024年12月31日
+
+      expect(isTodayOrFuture('12月31日')).toBe(true);
+      // 注意：因為我們只比較月日，所以 1月1日 會被視為過去（去年的 1月1日）
+      expect(isTodayOrFuture('1月1日')).toBe(false);
+      expect(isTodayOrFuture('12月30日')).toBe(false);
+    });
+
+    it('應該處理月份邊界', () => {
+      vi.setSystemTime(new Date(2024, 9, 1, 12, 0, 0)); // 2024年10月1日
+
+      expect(isTodayOrFuture('10月1日')).toBe(true);
+      expect(isTodayOrFuture('10月2日')).toBe(true);
+      expect(isTodayOrFuture('9月30日')).toBe(false);
     });
   });
 

@@ -7,9 +7,13 @@ const { schedules } = storeToRefs(scheduleStore);
 const selectedAgent = ref<{ label: string; name: string } | null>(null);
 
 const filteredSchedules = computed(() => {
-  if (!selectedAgent.value) return schedules.value;
+  const futureSchedules = schedules.value.filter((schedule) =>
+    isTodayOrFuture(schedule.date.datetime)
+  );
 
-  return schedules.value
+  if (!selectedAgent.value) return futureSchedules;
+
+  return futureSchedules
     .map((schedule) => ({
       ...schedule,
       day: schedule.day.filter((agent) => agent.name === selectedAgent.value?.name),
