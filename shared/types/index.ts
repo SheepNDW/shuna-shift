@@ -1,4 +1,5 @@
 export type Agent = {
+  id: string;
   name: string;
   picture: string;
   instagram?: string;

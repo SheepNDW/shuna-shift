@@ -4,6 +4,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '🐷',
     {
+      id: 'rin',
       name: '泠泠',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',
       instagram: 'https://www.instagram.com/shuna.rin_/',
@@ -12,6 +13,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '🥨',
     {
+      id: 'juano',
       name: '米捲',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu7J0xbXvvpE8xoHPWJ9UdMK4hqGBQZDu0XmAN',
       instagram: 'https://www.instagram.com/shuna.juano/',
@@ -20,6 +22,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '🌙',
     {
+      id: 'luna',
       name: 'Luna',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuzacqGE5HmVSe98IXu62QYspBgGU51Owt0P3c',
       instagram: 'https://www.instagram.com/shuna.luna_/',
@@ -28,6 +31,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     'Ruby',
     {
+      id: 'ruby',
       name: 'Ruby',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuCBHoQf34YAXeLkv6NxtVOjMJsu01RWdITqoB',
       instagram: 'https://www.instagram.com/shuna.ruby/',
@@ -36,6 +40,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '梂',
     {
+      id: 'chu',
       name: '梂',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWEfQoDpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
       instagram: 'https://www.instagram.com/shuna.chu/',
@@ -44,6 +49,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '紅',
     {
+      id: 'kurenai',
       name: '紅',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu89N0JuMnaK4tR7Jbfz0B9DuAdOjWgeEI5lcH',
       instagram: 'https://www.instagram.com/shuna.kurenai/',
@@ -52,6 +58,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '百夜',
     {
+      id: 'hyakuya',
       name: '百夜',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuNo5lFU88pmAd1J73OGKcWTRwZxlv4CI9kyLg',
       instagram: 'https://www.instagram.com/shuna.hyakuya/',
@@ -60,6 +67,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '凜奈',
     {
+      id: 'rinna',
       name: '凜奈',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWJA9nSpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
       instagram: 'https://www.instagram.com/shuna.rinna/',
@@ -68,6 +76,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '千熊',
     {
+      id: 'senku',
       name: '千熊',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu6KxRdxfJAvDsOl9UNkiP7qSKXjIuRWradT06',
       instagram: 'https://www.instagram.com/shuna.senku/',
@@ -76,6 +85,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '熊子',
     {
+      id: 'kumako',
       name: '熊子',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuBNj0lPVW0tLQAXzj1cFSCJk7agwsuPDWmhxq',
       instagram: 'https://www.instagram.com/shuna.kumako/',
@@ -84,6 +94,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     'Kikimi',
     {
+      id: 'kikimi',
       name: 'Kikimi',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuBCG3upW0tLQAXzj1cFSCJk7agwsuPDWmhxqZ',
       instagram: 'https://www.instagram.com/shuna.kikimi/',
@@ -92,6 +103,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '小楓',
     {
+      id: 'mepuru',
       name: '小楓',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuZ8qdjuaceCOgjTpr60Y3f8w4unidbFXvkB9l',
       instagram: 'https://www.instagram.com/shuna.mepuru/',
@@ -100,6 +112,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '音',
     {
+      id: 'non',
       name: '音',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuuK2cuXClhNn8bH5me2PWRkg9GVoL1q6viOCw',
       instagram: 'https://www.instagram.com/shuna.non/',
@@ -108,6 +121,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '花緒',
     {
+      id: 'kao',
       name: '花緒',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuQfQDiPtpzcu0lMI5wN6vjb9iD3GyHLY1anXJ',
       instagram: 'https://www.instagram.com/shuna.kao_/',
@@ -116,6 +130,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '三里',
     {
+      id: 'miri',
       name: '三里',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu81F7gUUMnaK4tR7Jbfz0B9DuAdOjWgeEI5lc',
       instagram: 'https://www.instagram.com/shuna.miri_ps5/',
@@ -124,6 +139,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '井野',
     {
+      id: 'ino',
       name: '井野',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuUpzp9PkBHCabipIoGJADkslqFegBjxv6QEnc',
       instagram: 'https://www.instagram.com/shuna.ino/',
@@ -132,6 +148,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '小春',
     {
+      id: 'koharu',
       name: '小春',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu1QJxdNFQhXuDmRLFk4l9Zyps5I7ztcgBGf6N',
       instagram: 'https://www.instagram.com/shuna.koharu/',
@@ -140,6 +157,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '綾音',
     {
+      id: 'ayane',
       name: '綾音',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu0SpbxJyn8Sp9RqhgC4y0juW5saEdQbxvM7NI',
       instagram: 'https://www.instagram.com/shuna.ayane/',
@@ -148,6 +166,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '棠棠',
     {
+      id: 'tang',
       name: '棠棠',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWE8nrzpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
       instagram: 'https://www.instagram.com/shuna.tang/',
@@ -156,6 +175,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '明里',
     {
+      id: 'akari',
       name: '明里',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuTrvkSAdA95N1PDLEqaCVyK37J0cOZt8mQXIn',
       instagram: 'https://www.instagram.com/shuna.akari/',
@@ -164,6 +184,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '酒玖',
     {
+      id: 'nine',
       name: '酒玖',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuiLiBp1xAFjVWdv9lIeQuasrSZ3bRhx80gimC',
       instagram: 'https://www.instagram.com/shuna.nine/',
@@ -172,6 +193,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '璐奈',
     {
+      id: 'runai',
       name: '璐奈',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuchDyYcnjQYKVGoj2PySknsNLbWCRdxtmHIq8',
       instagram: 'https://www.instagram.com/shuna.runai_/',
@@ -180,6 +202,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '景子',
     {
+      id: 'keiko',
       name: '景子',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcumoIWb52jqZfLa4Yz1d2UTnO3AV6G7cpgyiHw',
       instagram: 'https://www.instagram.com/shuna.keiko/',
@@ -188,6 +211,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '莉央',
     {
+      id: 'rio',
       name: '莉央',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcudNlWqsY9QEtrNiWVku3w0MsvybnKR6aXFlOe',
       instagram: 'https://www.instagram.com/shuna.rio/',
@@ -196,6 +220,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '和実',
     {
+      id: 'nagomi',
       name: '和実',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuKhFBIKgXkOU7gfRyl8YI1w4WhNSZedJjCHbc',
       instagram: 'https://www.instagram.com/shuna.nagomi/',
@@ -204,6 +229,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '子子',
     {
+      id: 'smilyzi',
       name: '子子',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcumUzNLq2jqZfLa4Yz1d2UTnO3AV6G7cpgyiHw',
       instagram: 'https://www.instagram.com/shuna.smilyzi/',
@@ -212,6 +238,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '芽',
     {
+      id: 'yia',
       name: '芽',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuddvu6lY9QEtrNiWVku3w0MsvybnKR6aXFlOe',
       instagram: 'https://www.instagram.com/shuna.yia/',
@@ -220,6 +247,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '亞米',
     {
+      id: 'yami',
       name: '亞米',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcunmcVNlm1zw2bvJEWMYq7dnLm0r3cflgZeSRs',
       instagram: 'https://www.instagram.com/shuna.yami_/',
@@ -228,6 +256,7 @@ export const AGENTS = new Map<string, Agent>([
   [
     '七尾',
     {
+      id: 'nanao',
       name: '七尾',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuCUMTJa34YAXeLkv6NxtVOjMJsu01RWdITqoB',
       instagram: 'https://www.instagram.com/shuna.nanao/',
