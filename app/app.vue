@@ -2,7 +2,7 @@
 const scheduleStore = useScheduleStore();
 
 const { fetchSchedules } = scheduleStore;
-await fetchSchedules();
+await callOnce('fetchSchedules', () => fetchSchedules());
 </script>
 
 <template>
