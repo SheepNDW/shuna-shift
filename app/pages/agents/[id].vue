@@ -1,58 +1,15 @@
 <script setup lang="ts">
-import { AGENTS } from '~~/shared/constant';
 import { DATE_COLOR_MAP, getNightShiftIconColor, getNightShiftTime } from '~/utils/colors';
 
 const route = useRoute();
-const scheduleStore = useScheduleStore();
 
 const agentId = computed(() => route.params.id as string);
 
-const agentInfo = computed(() => {
-  const agent = Array.from(AGENTS.values()).find((a) => a.id === agentId.value);
-  if (!agent) {
-    navigateTo('/shifts');
-    return null;
-  }
-  return agent;
-});
+const { agentInfo, agentSchedules } = useAgent(agentId.value);
 
-// 篩選該探員的排班資料
-interface AgentScheduleItem {
-  date: {
-    datetime: string;
-    backgroundColor: string;
-    description: string;
-  };
-  dayShifts: { name: string; textColor: string }[];
-  nightShifts: { name: string; textColor: string }[];
+if (!agentInfo.value) {
+  await navigateTo('/shifts', { replace: true });
 }
-
-const agentSchedules = computed<AgentScheduleItem[]>(() => {
-  if (!agentInfo.value) return [];
-
-  return scheduleStore.schedules
-    .map((schedule) => {
-      const dayShifts = schedule.day.filter((agent) => {
-        const name = agent.name.split('(')[0]?.trim() || agent.name;
-        return AGENTS.get(name)?.id === agentId.value;
-      });
-
-      const nightShifts = schedule.night.filter((agent) => {
-        const name = agent.name.split('(')[0]?.trim() || agent.name;
-        return AGENTS.get(name)?.id === agentId.value;
-      });
-
-      if (dayShifts.length > 0 || nightShifts.length > 0) {
-        return {
-          date: schedule.date,
-          dayShifts,
-          nightShifts,
-        };
-      }
-      return null;
-    })
-    .filter((item) => item !== null);
-});
 
 // 判斷日期特殊事件
 const getDateEventInfo = (backgroundColor: string) => {
@@ -88,8 +45,9 @@ const parseShiftInfo = (name: string, textColor: string) => {
   };
 };
 
+const appConfig = useAppConfig();
 useHead({
-  title: `${agentInfo.value?.name} - 探員資訊 | 喫茶 朱雫`,
+  title: `${appConfig.title} | ${agentInfo.value?.name} - 排班資訊 `,
   meta: [
     {
       name: 'description',
