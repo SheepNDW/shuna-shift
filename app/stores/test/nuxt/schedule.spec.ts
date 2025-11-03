@@ -57,7 +57,7 @@ describe('useScheduleStore', () => {
     });
   });
 
-  it('當沒有今日班表時應該回傳 undefined', () => {
+  it('當沒有今日班表時應該回傳 null', () => {
     const store = useScheduleStore();
 
     store.schedules = [
@@ -72,12 +72,12 @@ describe('useScheduleStore', () => {
       },
     ];
 
-    expect(store.todaySchedule).toBeUndefined();
+    expect(store.todaySchedule).toBeNull();
   });
 
   it('應該處理空班表的情況', () => {
     const store = useScheduleStore();
 
-    expect(store.todaySchedule).toBeUndefined();
+    expect(store.todaySchedule).toBeNull();
   });
 });
