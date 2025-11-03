@@ -6,7 +6,12 @@ export const useScheduleStore = defineStore('schedule', () => {
 
   const todaySchedule = computed(() => {
     const todayLabel = getTodayLabel();
-    return schedules.value.find((schedule) => schedule.date.datetime === todayLabel);
+    const today = schedules.value.find((schedule) => schedule.date.datetime === todayLabel);
+
+    if (!today) {
+      return null;
+    }
+    return today;
   });
 
   const { data, execute, status } = useFetch<ScheduleResponse>('/api/sheet', {
