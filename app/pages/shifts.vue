@@ -54,51 +54,65 @@ useHead({
         </p>
       </div>
 
-      <!-- Schedule Filter -->
-      <ScheduleFilter v-model="selectedAgent" />
+      <ClientOnly>
+        <!-- Schedule Filter -->
+        <ScheduleFilter v-model="selectedAgent" />
 
-      <!-- Schedules List -->
-      <div v-if="filteredSchedules && filteredSchedules.length > 0" class="max-w-6xl mx-auto">
-        <DailyScheduleCard
-          v-for="schedule in filteredSchedules"
-          :key="schedule.date.datetime"
-          :schedule="schedule"
-        />
-
-        <!-- Color Legend -->
-        <div class="mt-12">
-          <ColorLegend />
-        </div>
-      </div>
-
-      <!-- Empty State (when filter returns no results) -->
-      <div
-        v-else-if="selectedAgent"
-        class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto"
-      >
-        <div
-          class="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 dark:border-gray-600"
-        >
-          <UIcon
-            name="i-heroicons-magnifying-glass"
-            class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4"
+        <!-- Schedules List -->
+        <div v-if="filteredSchedules && filteredSchedules.length > 0" class="max-w-6xl mx-auto">
+          <DailyScheduleCard
+            v-for="schedule in filteredSchedules"
+            :key="schedule.date.datetime"
+            :schedule="schedule"
           />
-          <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">找不到班表</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">
-            探員 <strong>{{ selectedAgent.name }}</strong> 在近期沒有排班記錄
-          </p>
-          <UButton color="primary" size="lg" @click="selectedAgent = null">
-            <UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
-            查看所有班表
-          </UButton>
-        </div>
-      </div>
 
-      <!-- Loading State -->
-      <div v-else class="flex flex-col items-center justify-center py-20">
-        <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 text-pink-500 animate-spin mb-4" />
-        <p class="text-gray-600 dark:text-gray-400">載入班表中...</p>
-      </div>
+          <!-- Color Legend -->
+          <div class="mt-12">
+            <ColorLegend />
+          </div>
+        </div>
+
+        <!-- Empty State (when filter returns no results) -->
+        <div
+          v-else-if="selectedAgent"
+          class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto"
+        >
+          <div
+            class="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 dark:border-gray-600"
+          >
+            <UIcon
+              name="i-heroicons-magnifying-glass"
+              class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4"
+            />
+            <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">找不到班表</h3>
+            <p class="text-gray-600 dark:text-gray-400 mb-6">
+              探員 <strong>{{ selectedAgent.name }}</strong> 在近期沒有排班記錄
+            </p>
+            <UButton color="primary" size="lg" @click="selectedAgent = null">
+              <UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
+              查看所有班表
+            </UButton>
+          </div>
+        </div>
+
+        <!-- Empty State (no future schedules) -->
+        <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
+          <div
+            class="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 dark:border-gray-600"
+          >
+            <UIcon
+              name="i-heroicons-calendar-days"
+              class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4"
+            />
+            <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">沒有未來班表</h3>
+            <p class="text-gray-600 dark:text-gray-400">目前沒有已排定的未來班表資料</p>
+          </div>
+        </div>
+
+        <template #fallback>
+          <LoadingState />
+        </template>
+      </ClientOnly>
     </UContainer>
 
     <!-- Back to Top Button -->
