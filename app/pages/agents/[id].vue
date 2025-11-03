@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { DATE_COLOR_MAP, getNightShiftIconColor, getNightShiftTime } from '~/utils/colors';
-
 const route = useRoute();
 
 const agentId = computed(() => route.params.id as string);
@@ -10,40 +8,6 @@ const { agentInfo, agentSchedules } = useAgent(agentId.value);
 if (!agentInfo.value) {
   await navigateTo('/shifts', { replace: true });
 }
-
-// 判斷日期特殊事件
-const getDateEventInfo = (backgroundColor: string) => {
-  const eventMap = {
-    [DATE_COLOR_MAP.SPECIAL_DAY]: { icon: 'i-heroicons-star', label: '一日限定' },
-    [DATE_COLOR_MAP.EVENT_WEEK]: { icon: 'i-heroicons-fire', label: '活動週' },
-    [DATE_COLOR_MAP.BIRTHDAY]: { icon: 'i-heroicons-cake', label: '生誕祭/生誕出勤' },
-  };
-
-  return eventMap[backgroundColor] || null;
-};
-
-// 解析代班/換班資訊
-const parseShiftInfo = (name: string, textColor: string) => {
-  const isSubstitute = name.includes('(');
-  let displayName = name;
-  let originalAgent = '';
-
-  if (isSubstitute) {
-    const match = name.match(/(.+?)\((.+?)\)/);
-    if (match) {
-      displayName = match[1]?.trim() || name;
-      originalAgent = match[2]?.trim() || '';
-    }
-  }
-
-  return {
-    displayName,
-    originalAgent,
-    isSubstitute,
-    substituteType:
-      textColor === '#ef4444' ? 'substitute' : textColor === '#3b82f6' ? 'exchange' : null,
-  };
-};
 
 const appConfig = useAppConfig();
 useHead({
@@ -65,51 +29,15 @@ useHead({
       </UButton>
     </div>
 
-    <!-- 個人資訊區 -->
-    <div v-if="agentInfo" class="flex flex-col items-center mb-12">
-      <div class="relative w-40 h-40 md:w-48 md:h-48 mb-6">
-        <div
-          class="w-full h-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 dark:from-pink-900 dark:to-purple-900 ring-4 ring-pink-100 dark:ring-pink-900/50 hover:ring-pink-300 dark:hover:ring-pink-700 transition-all"
-        >
-          <NuxtImg
-            :src="agentInfo.picture"
-            :alt="agentInfo.name"
-            class="w-full h-full object-cover"
-          />
-        </div>
-        <div
-          class="absolute -bottom-2 -right-2 w-12 h-12 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800"
-        >
-          <UIcon name="i-heroicons-star-solid" class="w-6 h-6 text-white" />
-        </div>
-      </div>
-
-      <h1
-        class="text-4xl font-bold mb-4 bg-linear-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent"
-      >
-        {{ agentInfo.name }}
-      </h1>
-
-      <a
-        v-if="agentInfo.instagram"
-        :href="agentInfo.instagram"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex items-center gap-2 px-4 py-2 rounded-full bg-linear-to-r from-pink-500 to-purple-500 text-white font-medium hover:from-pink-600 hover:to-purple-600 transition-all shadow-md hover:shadow-lg"
-      >
-        <UIcon name="i-mdi-instagram" class="w-5 h-5" />
-        <span>Instagram</span>
-      </a>
-    </div>
+    <AgentProfile v-if="agentInfo" :agent-info="agentInfo" />
 
     <!-- 排班記錄區 -->
     <div class="max-w-3xl mx-auto">
       <div class="flex items-center gap-2 mb-6">
         <UIcon name="i-heroicons-calendar-days" class="w-6 h-6 text-pink-500" />
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">排班記錄</h2>
+        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">近期排班記錄</h2>
       </div>
 
-      <!-- 空狀態 -->
       <div v-if="agentSchedules.length === 0" class="text-center py-12">
         <UIcon name="i-heroicons-calendar-days" class="w-16 h-16 mx-auto mb-4 text-gray-400" />
         <p class="text-gray-600 dark:text-gray-400 mb-4">目前沒有排班記錄</p>
@@ -118,165 +46,14 @@ useHead({
 
       <!-- 排班列表 -->
       <div v-else class="space-y-4">
-        <UCard
+        <AgentScheduleCard
           v-for="(schedule, index) in agentSchedules"
           :key="index"
-          class="hover:shadow-lg transition-shadow"
-        >
-          <!-- 日期標題 -->
-          <div class="mb-4 pb-3 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center gap-2 flex-wrap">
-              <h3
-                class="text-lg font-bold"
-                :class="
-                  getDateEventInfo(schedule.date.backgroundColor)
-                    ? ''
-                    : 'text-gray-800 dark:text-gray-200'
-                "
-                :style="
-                  getDateEventInfo(schedule.date.backgroundColor)
-                    ? { color: schedule.date.backgroundColor }
-                    : {}
-                "
-              >
-                {{ schedule.date.datetime }}
-              </h3>
-              <!-- 特殊事件圖示 -->
-              <template v-if="getDateEventInfo(schedule.date.backgroundColor)">
-                <UIcon
-                  :name="getDateEventInfo(schedule.date.backgroundColor)!.icon"
-                  class="w-5 h-5"
-                  :style="{ color: schedule.date.backgroundColor }"
-                />
-                <span class="text-sm font-medium" :style="{ color: schedule.date.backgroundColor }">
-                  {{ getDateEventInfo(schedule.date.backgroundColor)!.label }}
-                </span>
-              </template>
-            </div>
-            <p
-              v-if="schedule.date.description"
-              class="text-sm mt-1"
-              :class="
-                getDateEventInfo(schedule.date.backgroundColor)
-                  ? ''
-                  : 'text-gray-600 dark:text-gray-400'
-              "
-              :style="
-                getDateEventInfo(schedule.date.backgroundColor)
-                  ? { color: schedule.date.backgroundColor }
-                  : {}
-              "
-            >
-              {{ schedule.date.description }}
-            </p>
-          </div>
-
-          <!-- 班別資訊 -->
-          <div class="space-y-4">
-            <!-- 早班 -->
-            <div
-              v-for="(shift, shiftIndex) in schedule.dayShifts"
-              :key="`day-${shiftIndex}`"
-              class="flex items-start gap-3"
-            >
-              <UIcon name="i-heroicons-sun" class="w-5 h-5 shrink-0 mt-0.5" />
-              <div class="flex-1">
-                <p class="font-medium text-gray-900 dark:text-gray-100">早班 13:30 ~ 17:30</p>
-                <!-- 代班/換班資訊 -->
-                <template v-if="parseShiftInfo(shift.name, shift.textColor).isSubstitute">
-                  <div class="flex items-center gap-2 mt-1">
-                    <UIcon
-                      :name="
-                        parseShiftInfo(shift.name, shift.textColor).substituteType === 'substitute'
-                          ? 'i-heroicons-arrow-path'
-                          : 'i-heroicons-arrow-path-rounded-square'
-                      "
-                      class="w-4 h-4"
-                      :style="{ color: shift.textColor }"
-                    />
-                    <span class="text-sm" :style="{ color: shift.textColor }">
-                      {{
-                        parseShiftInfo(shift.name, shift.textColor).substituteType === 'substitute'
-                          ? '代班'
-                          : '換班'
-                      }}
-                      <span class="text-gray-600 dark:text-gray-400">
-                        (原:
-                        {{ parseShiftInfo(shift.name, shift.textColor).originalAgent }})
-                      </span>
-                    </span>
-                  </div>
-                </template>
-              </div>
-            </div>
-
-            <!-- 晚班 -->
-            <div
-              v-for="(shift, shiftIndex) in schedule.nightShifts"
-              :key="`night-${shiftIndex}`"
-              class="flex items-start gap-3"
-            >
-              <UIcon
-                name="i-heroicons-moon"
-                class="w-5 h-5 shrink-0 mt-0.5"
-                :class="
-                  getNightShiftIconColor(shift.textColor) ? '' : 'text-gray-900 dark:text-gray-100'
-                "
-                :style="
-                  getNightShiftIconColor(shift.textColor)
-                    ? { color: getNightShiftIconColor(shift.textColor) }
-                    : {}
-                "
-              />
-              <div class="flex-1">
-                <p
-                  class="font-medium"
-                  :class="
-                    getNightShiftIconColor(shift.textColor)
-                      ? ''
-                      : 'text-gray-900 dark:text-gray-100'
-                  "
-                  :style="
-                    getNightShiftIconColor(shift.textColor)
-                      ? { color: getNightShiftIconColor(shift.textColor) }
-                      : {}
-                  "
-                >
-                  晚班 {{ getNightShiftTime(shift.textColor) }}
-                </p>
-                <!-- 代班/換班資訊 -->
-                <template v-if="parseShiftInfo(shift.name, shift.textColor).isSubstitute">
-                  <div class="flex items-center gap-2 mt-1">
-                    <UIcon
-                      :name="
-                        parseShiftInfo(shift.name, shift.textColor).substituteType === 'substitute'
-                          ? 'i-heroicons-arrow-path'
-                          : 'i-heroicons-arrow-path-rounded-square'
-                      "
-                      class="w-4 h-4"
-                      :style="{ color: shift.textColor }"
-                    />
-                    <span class="text-sm" :style="{ color: shift.textColor }">
-                      {{
-                        parseShiftInfo(shift.name, shift.textColor).substituteType === 'substitute'
-                          ? '代班'
-                          : '換班'
-                      }}
-                      <span class="text-gray-600 dark:text-gray-400">
-                        (原:
-                        {{ parseShiftInfo(shift.name, shift.textColor).originalAgent }})
-                      </span>
-                    </span>
-                  </div>
-                </template>
-              </div>
-            </div>
-          </div>
-        </UCard>
+          :schedule="schedule"
+        />
       </div>
     </div>
 
-    <!-- 回到頂部按鈕 -->
     <BackToTop />
   </UContainer>
 </template>
