@@ -47,15 +47,6 @@ export const AGENTS = new Map<string, Agent>([
     },
   ],
   [
-    '紅',
-    {
-      id: 'kurenai',
-      name: '紅',
-      picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu89N0JuMnaK4tR7Jbfz0B9DuAdOjWgeEI5lcH',
-      instagram: 'https://www.instagram.com/shuna.kurenai/',
-    },
-  ],
-  [
     '百夜',
     {
       id: 'hyakuya',
