@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { SpeedInsights } from '@vercel/speed-insights/nuxt';
+</script>
 
 <template>
   <div class="min-h-screen flex flex-col">
@@ -13,5 +15,6 @@
     </main>
 
     <AppFooter />
+    <SpeedInsights />
   </div>
 </template>
