@@ -78,6 +78,15 @@ const lastUpdated = computed(() => {
                 <UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
                 完整班表
               </NuxtLink>
+              <a
+                href="https://inline.app/booking/-NdeCHclNdQ-Yuxen_np:inline-live-3/-NdeCHpH1ow_BuIvlFhM"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors flex items-center gap-1"
+              >
+                <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
+                線上訂位
+              </a>
             </div>
           </div>
         </div>
