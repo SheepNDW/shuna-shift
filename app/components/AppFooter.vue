@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { BOOKING_URL } from '~~/shared/constant';
+
 const currentYear = getCurrentYear();
 const scheduleStore = useScheduleStore();
 
@@ -79,7 +81,7 @@ const lastUpdated = computed(() => {
                 完整班表
               </NuxtLink>
               <a
-                href="https://inline.app/booking/-NdeCHclNdQ-Yuxen_np:inline-live-3/-NdeCHpH1ow_BuIvlFhM"
+                :href="BOOKING_URL"
                 target="_blank"
                 rel="noopener noreferrer"
                 class="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-600 dark:hover:text-pink-400 transition-colors flex items-center gap-1"

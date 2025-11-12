@@ -1,5 +1,8 @@
 import type { Agent } from './types';
 
+export const BOOKING_URL =
+  'https://inline.app/booking/-NdeCHclNdQ-Yuxen_np:inline-live-3/-NdeCHpH1ow_BuIvlFhM';
+
 export const AGENTS = new Map<string, Agent>([
   [
     '🐷',
