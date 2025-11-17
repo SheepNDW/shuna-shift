@@ -14,7 +14,7 @@ defineProps<Props>();
     <div class="flex items-center justify-center gap-3 mb-6">
       <div
         :class="[
-          'h-px flex-1 bg-gradient-to-r from-transparent',
+          'h-px flex-1 bg-linear-to-r from-transparent',
           shiftType === 'day' ? 'to-yellow-300' : 'to-indigo-300',
         ]"
       />
@@ -22,8 +22,8 @@ defineProps<Props>();
         :class="[
           'flex items-center gap-2 px-6 py-3 rounded-full shadow-lg',
           shiftType === 'day'
-            ? 'bg-gradient-to-r from-yellow-400 to-orange-400'
-            : 'bg-gradient-to-r from-indigo-500 to-purple-500',
+            ? 'bg-linear-to-r from-yellow-400 to-orange-400'
+            : 'bg-linear-to-r from-indigo-500 to-purple-500',
         ]"
       >
         <UIcon
@@ -37,7 +37,7 @@ defineProps<Props>();
       </div>
       <div
         :class="[
-          'h-px flex-1 bg-gradient-to-l from-transparent',
+          'h-px flex-1 bg-linear-to-l from-transparent',
           shiftType === 'day' ? 'to-yellow-300' : 'to-indigo-300',
         ]"
       />
