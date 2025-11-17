@@ -1,9 +1,7 @@
 <script setup lang="ts">
-interface Props {
+defineProps<{
   schedule: ShiftSchedule;
-}
-
-defineProps<Props>();
+}>();
 </script>
 
 <template>
