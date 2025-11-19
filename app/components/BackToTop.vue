@@ -2,9 +2,13 @@
 import { BOOKING_URL } from '~~/shared/constant';
 
 const isVisible = ref(false);
+const isAtPageBottom = ref(false);
 
 const checkScroll = () => {
-  isVisible.value = window.scrollY > 300;
+  const { scrollY, innerHeight } = window;
+  const { scrollHeight } = document.documentElement;
+  isVisible.value = scrollY > 300;
+  isAtPageBottom.value = innerHeight + scrollY >= scrollHeight - 50;
 };
 
 const scrollToTop = () => {
@@ -34,8 +38,8 @@ onUnmounted(() => {
     leave-to-class="opacity-0 translate-y-4"
   >
     <div v-if="isVisible" class="fixed bottom-8 right-8 z-50 flex flex-col gap-3">
-      <!-- 訂位按鈕 - 使用 primary 色系，更醒目 -->
       <UButton
+        v-if="!isAtPageBottom"
         color="primary"
         variant="solid"
         size="lg"
@@ -46,7 +50,6 @@ onUnmounted(() => {
         <span class="hidden sm:inline">線上訂位</span>
       </UButton>
 
-      <!-- 回到頂部按鈕 -->
       <UButton
         color="neutral"
         variant="solid"
