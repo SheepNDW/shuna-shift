@@ -4,20 +4,27 @@ const scheduleStore = useScheduleStore();
 const { schedules } = storeToRefs(scheduleStore);
 
 // 探員篩選
-const selectedAgent = ref<{ label: string; name: string } | null>(null);
+type SelectedAgent = { label: string; name: string };
+const selectedAgent = ref<SelectedAgent[]>([]);
+const hasAgentFilter = computed(() => selectedAgent.value.length > 0);
+const selectedAgentNames = computed(() =>
+  selectedAgent.value.map((agent) => agent.label).join('、')
+);
 
 const filteredSchedules = computed(() => {
   const futureSchedules = schedules.value.filter((schedule) =>
     isTodayOrFuture(schedule.date.datetime)
   );
 
-  if (!selectedAgent.value) return futureSchedules;
+  if (!hasAgentFilter.value) return futureSchedules;
+
+  const selectedNameSet = new Set(selectedAgent.value.map((agent) => agent.name));
 
   return futureSchedules
     .map((schedule) => ({
       ...schedule,
-      day: schedule.day.filter((agent) => agent.name === selectedAgent.value?.name),
-      night: schedule.night.filter((agent) => agent.name === selectedAgent.value?.name),
+      day: schedule.day.filter((agent) => selectedNameSet.has(agent.name)),
+      night: schedule.night.filter((agent) => selectedNameSet.has(agent.name)),
     }))
     .filter((schedule) => schedule.day.length > 0 || schedule.night.length > 0);
 });
@@ -69,7 +76,7 @@ useHead({
 
       <!-- Empty State (when filter returns no results) -->
       <div
-        v-else-if="selectedAgent"
+        v-else-if="hasAgentFilter"
         class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto"
       >
         <div
@@ -81,10 +88,10 @@ useHead({
           />
           <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">找不到班表</h3>
           <p class="text-gray-600 dark:text-gray-400 mb-6">
-            探員 <strong>{{ selectedAgent.name }}</strong> 在近期沒有排班記錄
+            探員 <strong>{{ selectedAgentNames }}</strong> 在近期沒有排班記錄
           </p>
-          <UButton color="primary" size="lg" @click="selectedAgent = null">
-            <UIcon name="i-heroicons-arrow-path" class="w-5 h-5 mr-2" />
+          <UButton color="primary" size="lg" @click="selectedAgent = []">
+            <UIcon name="i-heroicons-arrow-path" class="w-5 h-5" />
             查看所有班表
           </UButton>
         </div>
