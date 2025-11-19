@@ -15,6 +15,7 @@ import { SpeedInsights } from '@vercel/speed-insights/nuxt';
     </main>
 
     <AppFooter />
+    <BackToTop />
     <SpeedInsights />
   </div>
 </template>

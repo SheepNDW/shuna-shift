@@ -177,6 +177,5 @@ useHead({
         <LoadingState />
       </template>
     </ClientOnly>
-    <BackToTop />
   </UContainer>
 </template>
