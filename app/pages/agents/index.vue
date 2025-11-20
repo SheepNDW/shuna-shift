@@ -24,7 +24,7 @@ const { fullTimeAgents, partTimeAgents } = groupAgentsByStatus(agents);
 
 const appConfig = useAppConfig();
 useHead({
-  title: `${appConfig.title} - 探員列表`,
+  title: `${appConfig.title} - 探員圖鑑`,
   meta: [
     {
       name: 'description',
