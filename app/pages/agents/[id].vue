@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const route = useRoute();
+const router = useRouter();
 
 const agentId = computed(() => route.params.id as string);
 
@@ -8,6 +9,14 @@ const { agentInfo, agentSchedules } = useAgent(agentId.value);
 if (!agentInfo.value) {
   await navigateTo('/shifts', { replace: true });
 }
+
+const handleBack = () => {
+  if (window.history.length > 1) {
+    router.back();
+  } else {
+    navigateTo('/agents');
+  }
+};
 
 const appConfig = useAppConfig();
 useHead({
@@ -24,8 +33,14 @@ useHead({
 <template>
   <UContainer class="py-8">
     <div class="mb-6">
-      <UButton to="/shifts" icon="i-heroicons-arrow-left" variant="ghost" color="neutral" size="lg">
-        返回班表
+      <UButton
+        icon="i-heroicons-arrow-left"
+        variant="ghost"
+        color="neutral"
+        size="lg"
+        @click="handleBack"
+      >
+        返回上一頁
       </UButton>
     </div>
 

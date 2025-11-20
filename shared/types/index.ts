@@ -3,6 +3,7 @@ export type Agent = {
   name: string;
   picture: string;
   instagram?: string;
+  isFullTime?: boolean;
 };
 
 /** 班表資料結構 */

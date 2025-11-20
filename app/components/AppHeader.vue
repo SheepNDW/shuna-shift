@@ -16,6 +16,12 @@ const items = computed<NavigationMenuItem[]>(() => [
     icon: 'i-heroicons-calendar',
     active: route.path === '/shifts',
   },
+  {
+    label: '探員圖鑑',
+    to: '/agents',
+    icon: 'i-heroicons-users',
+    active: route.path === '/agents',
+  },
 ]);
 </script>
 

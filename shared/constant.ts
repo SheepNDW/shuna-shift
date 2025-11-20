@@ -11,6 +11,7 @@ export const AGENTS = new Map<string, Agent>([
       name: '泠泠',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',
       instagram: 'https://www.instagram.com/shuna.rin_/',
+      isFullTime: true,
     },
   ],
   [
@@ -20,6 +21,7 @@ export const AGENTS = new Map<string, Agent>([
       name: '米捲',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu7J0xbXvvpE8xoHPWJ9UdMK4hqGBQZDu0XmAN',
       instagram: 'https://www.instagram.com/shuna.juano/',
+      isFullTime: true,
     },
   ],
   [
@@ -29,6 +31,7 @@ export const AGENTS = new Map<string, Agent>([
       name: 'Luna',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuzacqGE5HmVSe98IXu62QYspBgGU51Owt0P3c',
       instagram: 'https://www.instagram.com/shuna.luna_/',
+      isFullTime: true,
     },
   ],
   [
