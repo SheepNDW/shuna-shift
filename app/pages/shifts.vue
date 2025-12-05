@@ -11,6 +11,11 @@ const selectedAgentNames = computed(() =>
   selectedAgent.value.map((agent) => agent.label).join('、')
 );
 
+// 高亮探員名稱集合
+const highlightedAgentNames = computed(
+  () => new Set(selectedAgent.value.map((agent) => agent.name))
+);
+
 const filteredSchedules = computed(() => {
   const futureSchedules = schedules.value.filter((schedule) =>
     isTodayOrFuture(schedule.date.datetime)
@@ -18,15 +23,12 @@ const filteredSchedules = computed(() => {
 
   if (!hasAgentFilter.value) return futureSchedules;
 
-  const selectedNameSet = new Set(selectedAgent.value.map((agent) => agent.name));
-
-  return futureSchedules
-    .map((schedule) => ({
-      ...schedule,
-      day: schedule.day.filter((agent) => selectedNameSet.has(agent.name)),
-      night: schedule.night.filter((agent) => selectedNameSet.has(agent.name)),
-    }))
-    .filter((schedule) => schedule.day.length > 0 || schedule.night.length > 0);
+  // 只保留「有選中探員值班」的日期，但保留該日期所有探員
+  return futureSchedules.filter(
+    (schedule) =>
+      schedule.day.some((agent) => highlightedAgentNames.value.has(agent.name)) ||
+      schedule.night.some((agent) => highlightedAgentNames.value.has(agent.name))
+  );
 });
 
 // 日期快速跳轉
@@ -94,6 +96,7 @@ useHead({
           :id="`schedule-${schedule.date.datetime}`"
           :key="schedule.date.datetime"
           :schedule="schedule"
+          :highlighted-agents="hasAgentFilter ? highlightedAgentNames : undefined"
         />
 
         <!-- Color Legend -->

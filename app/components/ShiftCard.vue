@@ -3,9 +3,25 @@ interface Props {
   shiftType: 'day' | 'night';
   agents: { name: string; textColor: string }[];
   isEmpty?: boolean;
+  highlightedAgents?: Set<string>;
 }
 
-defineProps<Props>();
+const props = defineProps<Props>();
+
+// 排序：高亮探員排在前面
+const sortedAgents = computed(() => {
+  if (!props.highlightedAgents || props.highlightedAgents.size === 0) {
+    return props.agents;
+  }
+
+  return [...props.agents].sort((a, b) => {
+    const aHighlighted = props.highlightedAgents!.has(a.name);
+    const bHighlighted = props.highlightedAgents!.has(b.name);
+    if (aHighlighted && !bHighlighted) return -1;
+    if (!aHighlighted && bHighlighted) return 1;
+    return 0;
+  });
+});
 </script>
 
 <template>
@@ -49,10 +65,11 @@ defineProps<Props>();
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
     >
       <AgentCard
-        v-for="agent in agents"
+        v-for="agent in sortedAgents"
         :key="agent.name"
         :name="agent.name"
         :text-color="agent.textColor"
+        :is-highlighted="highlightedAgents?.has(agent.name)"
       />
     </div>
 
