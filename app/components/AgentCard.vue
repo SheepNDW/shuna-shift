@@ -1,7 +1,15 @@
 <script setup lang="ts">
 import { AGENTS } from '~~/shared/constant';
 
-const { name, textColor } = defineProps<{ name: string; textColor: string }>();
+const {
+  name,
+  textColor,
+  isHighlighted = false,
+} = defineProps<{
+  name: string;
+  textColor: string;
+  isHighlighted?: boolean;
+}>();
 
 const getAgentInfo = (name: string) => {
   let searchName = name;
@@ -28,7 +36,10 @@ const agentInfo = computed(() => {
 
 <template>
   <div
-    class="group flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700"
+    :class="[
+      'group flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700',
+      isHighlighted && 'ring-4 ring-primary/80',
+    ]"
   >
     <NuxtLink :to="`/agents/${agentInfo.id}`">
       <div class="relative w-28 h-28 mb-4">

@@ -26,9 +26,13 @@ const ShiftCardStub = defineComponent({
       type: Array,
       default: () => [],
     },
+    highlightedAgents: {
+      type: Set,
+      default: undefined,
+    },
   },
   template:
-    '<div data-testid="shift-card"><span>{{ shiftType }}</span><slot>{{ agents.length }}</slot></div>',
+    '<div data-testid="shift-card" :data-highlighted="highlightedAgents ? Array.from(highlightedAgents).join(\',\') : \'\'"><span>{{ shiftType }}</span><slot>{{ agents.length }}</slot></div>',
 });
 
 const IconStub = defineComponent({
@@ -104,5 +108,88 @@ describe('DailyScheduleCard', () => {
     expect(shiftCards[0]?.text()).toContain('2');
     expect(shiftCards[1]?.text()).toContain('night');
     expect(shiftCards[1]?.text()).toContain('1');
+  });
+
+  it('應將 highlightedAgents 傳遞給 ShiftCard', async () => {
+    // 選擇早班和晚班都有的探員組合
+    const highlightedAgents = new Set(['泠泠', '米捲']);
+
+    const wrapper = await mountSuspended(DailyScheduleCard, {
+      props: {
+        schedule: scheduleMock,
+        highlightedAgents,
+      },
+      global: {
+        stubs: {
+          ShiftCard: ShiftCardStub,
+          UIcon: IconStub,
+        },
+      },
+    });
+
+    const shiftCards = wrapper.findAll('[data-testid="shift-card"]');
+    expect(shiftCards).toHaveLength(2);
+    expect(shiftCards[0]?.attributes('data-highlighted')).toContain('泠泠');
+    expect(shiftCards[1]?.attributes('data-highlighted')).toContain('米捲');
+  });
+
+  it('當高亮探員只有早班時，只顯示早班', async () => {
+    const highlightedAgents = new Set(['泠泠']);
+
+    const wrapper = await mountSuspended(DailyScheduleCard, {
+      props: {
+        schedule: scheduleMock,
+        highlightedAgents,
+      },
+      global: {
+        stubs: {
+          ShiftCard: ShiftCardStub,
+          UIcon: IconStub,
+        },
+      },
+    });
+
+    const shiftCards = wrapper.findAll('[data-testid="shift-card"]');
+    expect(shiftCards).toHaveLength(1);
+    expect(shiftCards[0]?.text()).toContain('day');
+  });
+
+  it('當高亮探員只有晚班時，只顯示晚班', async () => {
+    const highlightedAgents = new Set(['米捲']);
+
+    const wrapper = await mountSuspended(DailyScheduleCard, {
+      props: {
+        schedule: scheduleMock,
+        highlightedAgents,
+      },
+      global: {
+        stubs: {
+          ShiftCard: ShiftCardStub,
+          UIcon: IconStub,
+        },
+      },
+    });
+
+    const shiftCards = wrapper.findAll('[data-testid="shift-card"]');
+    expect(shiftCards).toHaveLength(1);
+    expect(shiftCards[0]?.text()).toContain('night');
+  });
+
+  it('當沒有 highlightedAgents 時，ShiftCard 不應收到高亮資訊', async () => {
+    const wrapper = await mountSuspended(DailyScheduleCard, {
+      props: {
+        schedule: scheduleMock,
+      },
+      global: {
+        stubs: {
+          ShiftCard: ShiftCardStub,
+          UIcon: IconStub,
+        },
+      },
+    });
+
+    const shiftCards = wrapper.findAll('[data-testid="shift-card"]');
+    expect(shiftCards[0]?.attributes('data-highlighted')).toBe('');
+    expect(shiftCards[1]?.attributes('data-highlighted')).toBe('');
   });
 });

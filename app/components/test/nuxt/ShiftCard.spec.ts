@@ -114,4 +114,80 @@ describe('ShiftCard', () => {
       expect(wrapper.text()).toContain('米捲-#93c47d');
     });
   });
+
+  describe('高亮探員功能', () => {
+    it('當有 highlightedAgents 時，高亮探員應排在前面', async () => {
+      const agents = [
+        { name: '泠泠', textColor: '#000000' },
+        { name: '七尾', textColor: '#ff9900' },
+        { name: '米捲', textColor: '#93c47d' },
+      ];
+      const highlightedAgents = new Set(['米捲']);
+
+      const wrapper = await mountSuspended(ShiftCard, {
+        props: {
+          shiftType: 'day',
+          agents,
+          highlightedAgents,
+        },
+        global: {
+          stubs: globalStubs,
+        },
+      });
+
+      const agentCards = wrapper.findAll('[data-testid="agent-card"]');
+      expect(agentCards).toHaveLength(3);
+      // 高亮的 米捲 應該排在第一個
+      expect(agentCards[0]?.text()).toContain('米捲');
+    });
+
+    it('當沒有 highlightedAgents 時，維持原本順序', async () => {
+      const agents = [
+        { name: '泠泠', textColor: '#000000' },
+        { name: '七尾', textColor: '#ff9900' },
+      ];
+
+      const wrapper = await mountSuspended(ShiftCard, {
+        props: {
+          shiftType: 'day',
+          agents,
+        },
+        global: {
+          stubs: globalStubs,
+        },
+      });
+
+      const agentCards = wrapper.findAll('[data-testid="agent-card"]');
+      expect(agentCards[0]?.text()).toContain('泠泠');
+      expect(agentCards[1]?.text()).toContain('七尾');
+    });
+
+    it('多個高亮探員時，高亮探員皆應排在前面', async () => {
+      const agents = [
+        { name: '泠泠', textColor: '#000000' },
+        { name: '七尾', textColor: '#ff9900' },
+        { name: '米捲', textColor: '#93c47d' },
+        { name: '小花', textColor: '#ff0000' },
+      ];
+      const highlightedAgents = new Set(['米捲', '小花']);
+
+      const wrapper = await mountSuspended(ShiftCard, {
+        props: {
+          shiftType: 'day',
+          agents,
+          highlightedAgents,
+        },
+        global: {
+          stubs: globalStubs,
+        },
+      });
+
+      const agentCards = wrapper.findAll('[data-testid="agent-card"]');
+      // 高亮的探員應排在前兩個（維持原本相對順序）
+      expect(agentCards[0]?.text()).toContain('米捲');
+      expect(agentCards[1]?.text()).toContain('小花');
+      expect(agentCards[2]?.text()).toContain('泠泠');
+      expect(agentCards[3]?.text()).toContain('七尾');
+    });
+  });
 });
