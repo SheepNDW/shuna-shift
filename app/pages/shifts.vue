@@ -29,6 +29,21 @@ const filteredSchedules = computed(() => {
     .filter((schedule) => schedule.day.length > 0 || schedule.night.length > 0);
 });
 
+// 日期快速跳轉
+const availableDates = computed(() =>
+  filteredSchedules.value.map((schedule) => ({
+    label: schedule.date.datetime,
+    value: schedule.date.datetime,
+  }))
+);
+
+function scrollToDate(datetime: string) {
+  const element = document.getElementById(`schedule-${datetime}`);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
 const appConfig = useAppConfig();
 useHead({
   title: `${appConfig.title} - 完整班表`,
@@ -53,17 +68,30 @@ useHead({
       >
         完整班表
       </h1>
-      <p class="text-gray-600 dark:text-gray-400 text-lg">查看表單最近 20 天已排班日期的值班安排</p>
+      <p class="text-gray-600 dark:text-gray-400 text-lg">查看表單最近已排班日期的值班安排</p>
     </div>
 
     <ClientOnly>
-      <!-- Schedule Filter -->
-      <ScheduleFilter v-model="selectedAgent" />
+      <!-- Schedule Filter & Date Jump -->
+      <div class="max-w-4xl mx-auto mb-8">
+        <div
+          class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
+        >
+          <div class="flex flex-col sm:flex-row gap-4 sm:items-start">
+            <!-- Agent Filter -->
+            <ScheduleFilter v-model="selectedAgent" class="flex-1" />
+
+            <!-- Date Quick Jump -->
+            <DateJumper :dates="availableDates" @jump="scrollToDate" />
+          </div>
+        </div>
+      </div>
 
       <!-- Schedules List -->
       <div v-if="filteredSchedules && filteredSchedules.length > 0" class="max-w-6xl mx-auto">
         <DailyScheduleCard
           v-for="schedule in filteredSchedules"
+          :id="`schedule-${schedule.date.datetime}`"
           :key="schedule.date.datetime"
           :schedule="schedule"
         />
