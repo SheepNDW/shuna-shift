@@ -16,12 +16,36 @@ const removeAgent = (name: string) => {
   selectedAgent.value = selectedAgent.value.filter((agent) => agent.name !== name);
 };
 
-const agents: AgentSelectOption[] = [...AGENTS].map((item) => {
-  return {
+const preferredAgents: string[] = ['景子', '和実', '音', '芽', '百夜'];
+
+const agents: AgentSelectOption[] = [...AGENTS]
+  .map((item) => ({
     label: item[1].name,
     name: item[0],
-  };
-});
+    isFullTime: item[1].isFullTime ?? false,
+  }))
+  .sort((a, b) => {
+    // 1. 正職排最前面
+    if (a.isFullTime && !b.isFullTime) return -1;
+    if (!a.isFullTime && b.isFullTime) return 1;
+
+    // 2. 偏好探員排在正職之後
+    const aPreferredIndex = preferredAgents.indexOf(a.name);
+    const bPreferredIndex = preferredAgents.indexOf(b.name);
+    const aPreferred = aPreferredIndex !== -1;
+    const bPreferred = bPreferredIndex !== -1;
+
+    if (aPreferred && !bPreferred) return -1;
+    if (!aPreferred && bPreferred) return 1;
+
+    // 3. 如果都是偏好，按照 preferredAgents 的順序排列
+    if (aPreferred && bPreferred) {
+      return aPreferredIndex - bPreferredIndex;
+    }
+
+    // 4. 其他探員保持原順序
+    return 0;
+  });
 </script>
 
 <template>
