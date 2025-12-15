@@ -61,15 +61,15 @@ export const AGENTS = new Map<string, Agent>([
       instagram: 'https://www.instagram.com/shuna.hyakuya/',
     },
   ],
-  [
-    '凜奈',
-    {
-      id: 'rinna',
-      name: '凜奈',
-      picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWJA9nSpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
-      instagram: 'https://www.instagram.com/shuna.rinna/',
-    },
-  ],
+  // [
+  //   '凜奈',
+  //   {
+  //     id: 'rinna',
+  //     name: '凜奈',
+  //     picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWJA9nSpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
+  //     instagram: 'https://www.instagram.com/shuna.rinna/',
+  //   },
+  // ],
   [
     '千熊',
     {
