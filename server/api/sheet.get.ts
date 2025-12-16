@@ -13,7 +13,7 @@ export default defineCachedEventHandler(
       });
     }
 
-    const ranges = ['每日班表!A5:C45'].join(',');
+    const ranges = '每日班表!A5:C45';
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?ranges=${encodeURIComponent(
       ranges
