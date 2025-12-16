@@ -90,3 +90,27 @@ export interface TextFormatRun {
   startIndex?: number;
   format?: TextFormat;
 }
+
+/** 探員值班統計 */
+export interface AgentStatistics {
+  agentId: string;
+  name: string;
+  picture: string;
+  dayCount: number;
+  nightCount: number;
+  total: number;
+  isFullTime?: boolean;
+}
+
+/** 統計 API 回應 */
+export interface StatisticsResponse {
+  statistics: AgentStatistics[];
+  metadata: {
+    lastUpdated: string;
+    dateRange: {
+      from: string;
+      to: string;
+    };
+    totalSchedules: number;
+  };
+}

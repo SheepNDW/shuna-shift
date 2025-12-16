@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import { defineVitestProject } from '@nuxt/test-utils/config';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
   test: {
@@ -13,6 +14,12 @@ export default defineConfig({
             'app/**/test/{e2e,unit}/**/*.{test,spec}.ts',
           ],
           environment: 'node',
+        },
+        resolve: {
+          alias: {
+            '~~/': fileURLToPath(new URL('./', import.meta.url)),
+            '~~': fileURLToPath(new URL('./', import.meta.url)),
+          },
         },
       },
       await defineVitestProject({
