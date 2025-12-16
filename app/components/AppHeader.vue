@@ -17,7 +17,7 @@ const items = computed<NavigationMenuItem[]>(() => [
     active: route.path === '/shifts',
   },
   {
-    label: '值班統計',
+    label: '出勤統計',
     to: '/statistics',
     icon: 'i-heroicons-chart-bar',
     active: route.path === '/statistics',
