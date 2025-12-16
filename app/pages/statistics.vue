@@ -31,7 +31,7 @@ useHead({
       <h1
         class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
       >
-        值班統計
+        出勤統計
       </h1>
       <p class="text-gray-600 dark:text-gray-400 text-lg">近三個月排班紀錄</p>
     </div>

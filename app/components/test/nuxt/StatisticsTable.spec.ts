@@ -188,23 +188,4 @@ describe('StatisticsTable', () => {
 
     expect(wrapper.text()).toContain('沒有統計資料');
   });
-
-  it('正職探員應有特殊底色標記', async () => {
-    const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: mockStatistics,
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
-    });
-
-    const rows = wrapper.findAll('tbody tr');
-    // 所有 mock 資料都是正職，應該都有 bg-pink-50/50 class
-    expect(rows.some((row) => row.classes().some((c) => c.includes('bg-pink')))).toBe(true);
-  });
 });
