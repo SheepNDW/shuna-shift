@@ -98,22 +98,9 @@ function getSortIcon(key: SortKey): string {
             densities="x1"
             loading="lazy"
           />
-          <div class="min-w-0">
-            <span
-              class="font-medium text-gray-900 dark:text-gray-100 truncate block text-sm sm:text-base"
-            >
-              {{ stat.name }}
-            </span>
-            <UBadge
-              v-if="stat.isFullTime"
-              color="primary"
-              variant="subtle"
-              size="xs"
-              class="mt-0.5"
-            >
-              正職
-            </UBadge>
-          </div>
+          <span class="font-medium text-gray-900 dark:text-gray-100 truncate text-sm sm:text-base">
+            {{ stat.name }}
+          </span>
         </div>
 
         <!-- Day Count -->
