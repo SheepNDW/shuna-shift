@@ -2,6 +2,7 @@ export type Agent = {
   id: string;
   name: string;
   picture: string;
+  photos: string[];
   instagram?: string;
   isFullTime?: boolean;
 };

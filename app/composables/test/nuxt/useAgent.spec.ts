@@ -1,6 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAgent } from '~/composables/useAgent';
+import { IMAGE_BASE_URL } from '~~/shared/constant';
 import { mockSchedules } from './fixtures/mockSchedules';
 
 vi.mock('~/stores/schedule', () => ({
@@ -23,6 +24,10 @@ describe('useAgent', () => {
         id: 'rin',
         name: '泠泠',
         picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',
+        photos: [
+          `${IMAGE_BASE_URL}Mzc5MDJocGltYWdl/2224de6882064993_1440x1440.jpg`,
+          `${IMAGE_BASE_URL}Mzc5MDNocGltYWdl/b8ea736090a94bf5_1440x1440.jpg`,
+        ],
         instagram: 'https://www.instagram.com/shuna.rin_/',
         isFullTime: true,
       });

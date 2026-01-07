@@ -38,10 +38,11 @@ describe('AgentListCard', () => {
     NuxtImg: NuxtImgStub,
   } as const;
 
-  const baseAgent = {
+  const baseAgent: Agent = {
     id: 'rin',
     name: '泠泠',
     picture: 'https://example.com/rin.jpg',
+    photos: [],
     instagram: 'https://instagram.com/rin',
   };
 
