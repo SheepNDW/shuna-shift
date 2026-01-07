@@ -20,7 +20,7 @@ export default defineCachedEventHandler(
     }
 
     // 取得當前班表和歷史班表
-    const ranges = ['每日班表!A5:C45', '過去班表20250101~!A497:C743'];
+    const ranges = ['每日班表!A5:C45', '過去班表20250101~20251231!A497:C743'];
     const rangesParam = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join('&');
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?${rangesParam}&fields=sheets.data.rowData.values(userEnteredValue,userEnteredFormat.backgroundColor,textFormatRuns)&key=${gsheetsKey}`;
