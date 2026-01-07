@@ -18,9 +18,8 @@ const handleBack = () => {
   }
 };
 
-const appConfig = useAppConfig();
 useHead({
-  title: `${appConfig.title} | ${agentInfo.value?.name} - 排班資訊 `,
+  title: `${agentInfo.value?.name} - 排班資訊 `,
   meta: [
     {
       name: 'description',
