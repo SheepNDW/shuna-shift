@@ -379,4 +379,24 @@ export const AGENTS = new Map<string, Agent>([
       instagram: 'https://www.instagram.com/shuna.mikan/',
     },
   ],
+  [
+    '悠莉',
+    {
+      id: 'yuri',
+      name: '悠莉',
+      picture: ``,
+      photos: [],
+      instagram: 'https://www.instagram.com/shuna.yuri_/',
+    },
+  ],
+  [
+    '律',
+    {
+      id: 'ritsu',
+      name: '律',
+      picture: ``,
+      photos: [],
+      instagram: 'https://www.instagram.com/shuna.ritsu/',
+    },
+  ],
 ]);
