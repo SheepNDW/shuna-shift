@@ -366,4 +366,17 @@ export const AGENTS = new Map<string, Agent>([
       instagram: 'https://www.instagram.com/shuna.nanao/',
     },
   ],
+  [
+    '蜜柑',
+    {
+      id: 'mikan',
+      name: '蜜柑',
+      picture: `${IMAGE_BASE_URL}MzgxNzNocGltYWdl/96c92060c9b34fe2_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}MzgxNzNocGltYWdl/96c92060c9b34fe2_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}MzgxNzRocGltYWdl/e9aea30b5a5e4504_1440x1440.jpg`,
+      ],
+      instagram: 'https://www.instagram.com/shuna.mikan/',
+    },
+  ],
 ]);
