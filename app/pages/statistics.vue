@@ -9,7 +9,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: '查看喫茶 朱雫 Maid Café 探員近三個月的值班統計資料',
+      content: '查看喫茶 朱雫 Maid Café 探員近期的值班統計資料',
     },
   ],
 });
@@ -33,7 +33,7 @@ useHead({
       >
         出勤統計
       </h1>
-      <p class="text-gray-600 dark:text-gray-400 text-lg">近三個月排班紀錄</p>
+      <p class="text-gray-600 dark:text-gray-400 text-lg">近期排班紀錄</p>
     </div>
 
     <!-- Loading State -->

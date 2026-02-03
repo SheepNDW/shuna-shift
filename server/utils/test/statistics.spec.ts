@@ -195,7 +195,7 @@ describe('calculateAgentStatistics', () => {
   const createSchedule = (
     datetime: string,
     dayAgents: string[],
-    nightAgents: string[]
+    nightAgents: string[],
   ): ShiftSchedule => ({
     date: { datetime, backgroundColor: '', description: '' },
     day: dayAgents.map((name) => ({ name, textColor: '' })),
@@ -268,27 +268,53 @@ describe('calculateAgentStatistics', () => {
 });
 
 describe('getDateRange', () => {
-  it('應該以參考日期為基準計算日期範圍', () => {
-    const referenceDate = new Date('2025-12-16');
-    const result = getDateRange(3, referenceDate);
+  const createSchedule = (datetime: string): ShiftSchedule => ({
+    date: { datetime, backgroundColor: '', description: '' },
+    day: [],
+    night: [],
+  });
+
+  it('應該回傳實際資料的日期範圍', () => {
+    const schedules = [
+      createSchedule('9月16日'),
+      createSchedule('10月1日'),
+      createSchedule('11月1日'),
+      createSchedule('12月16日'),
+    ];
+
+    const result = getDateRange(schedules);
 
     expect(result.from).toBe('9月16日');
     expect(result.to).toBe('12月16日');
   });
 
   it('應該正確處理跨年的情況', () => {
-    const referenceDate = new Date('2025-02-15');
-    const result = getDateRange(3, referenceDate);
+    const schedules = [
+      createSchedule('11月15日'),
+      createSchedule('12月1日'),
+      createSchedule('1月1日'),
+      createSchedule('2月15日'),
+    ];
+
+    const result = getDateRange(schedules);
 
     expect(result.from).toBe('11月15日');
     expect(result.to).toBe('2月15日');
   });
 
-  it('應該預設使用當前日期', () => {
-    const result = getDateRange(3);
-    const today = new Date();
-    const expectedTo = `${today.getMonth() + 1}月${today.getDate()}日`;
+  it('空陣列應該回傳空字串', () => {
+    const result = getDateRange([]);
 
-    expect(result.to).toBe(expectedTo);
+    expect(result.from).toBe('');
+    expect(result.to).toBe('');
+  });
+
+  it('應該處理單筆資料', () => {
+    const schedules = [createSchedule('12月16日')];
+
+    const result = getDateRange(schedules);
+
+    expect(result.from).toBe('12月16日');
+    expect(result.to).toBe('12月16日');
   });
 });

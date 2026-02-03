@@ -20,7 +20,7 @@ export default defineCachedEventHandler(
     }
 
     // 取得當前班表和歷史班表
-    const ranges = ['每日班表!A5:C45', '過去班表20250101~20251231!A497:C743'];
+    const ranges = ['每日班表!A5:C45', '過去班表20260101~!A5:C743'];
     const rangesParam = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join('&');
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?${rangesParam}&fields=sheets.data.rowData.values(userEnteredValue,userEnteredFormat.backgroundColor,textFormatRuns)&key=${gsheetsKey}`;
@@ -49,8 +49,8 @@ export default defineCachedEventHandler(
       // 計算統計資料
       const statistics = calculateAgentStatistics(recentSchedules);
 
-      // 取得日期範圍（以資料最後一筆日期為基準往前推 3 個月）
-      const dateRange = getDateRange(3, lastDate ?? undefined);
+      // 取得實際資料的日期範圍
+      const dateRange = getDateRange(recentSchedules);
 
       return {
         statistics,
@@ -71,5 +71,5 @@ export default defineCachedEventHandler(
     name: 'statistics-get',
     // Cache for 6 hours
     maxAge: 6 * 60 * 60 * 1000,
-  }
+  },
 );

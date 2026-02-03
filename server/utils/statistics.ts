@@ -79,7 +79,7 @@ export function getLastScheduleDate(schedules: ShiftSchedule[]): Date | null {
 export function filterRecentMonths(
   schedules: ShiftSchedule[],
   months: number,
-  referenceDate?: Date
+  referenceDate?: Date,
 ): ShiftSchedule[] {
   if (schedules.length === 0) return [];
 
@@ -165,7 +165,7 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
       nightCount,
       total: dayCount + nightCount,
       isFullTime: agentData.isFullTime,
-    })
+    }),
   );
 
   // 按總班次降序排列
@@ -173,17 +173,14 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
 }
 
 /**
- * 取得日期範圍描述
- * @param months - 往前推算的月份數
- * @param referenceDate - 參考日期（預設為當前日期）
+ * 取得日期範圍描述（基於實際班表資料）
+ * @param schedules - 班表資料陣列
+ * @returns 實際資料的起始和結束日期
  */
-export function getDateRange(
-  months: number,
-  referenceDate: Date = new Date()
-): { from: string; to: string } {
-  // 計算起始日期（N 個月前）
-  const fromDate = new Date(referenceDate);
-  fromDate.setMonth(fromDate.getMonth() - months);
+export function getDateRange(schedules: ShiftSchedule[]): { from: string; to: string } {
+  if (schedules.length === 0) {
+    return { from: '', to: '' };
+  }
 
   const formatDate = (date: Date): string => {
     const month = date.getMonth() + 1;
@@ -191,8 +188,20 @@ export function getDateRange(
     return `${month}月${day}日`;
   };
 
+  // 取得第一筆資料的日期
+  const firstSchedule = schedules[0]!;
+  const firstDate = parseDateString(firstSchedule.date.datetime);
+
+  // 取得最後一筆資料的日期
+  const lastSchedule = schedules[schedules.length - 1]!;
+  const lastDate = parseDateString(lastSchedule.date.datetime);
+
+  if (!firstDate || !lastDate) {
+    return { from: '', to: '' };
+  }
+
   return {
-    from: formatDate(fromDate),
-    to: formatDate(referenceDate),
+    from: formatDate(firstDate),
+    to: formatDate(lastDate),
   };
 }
