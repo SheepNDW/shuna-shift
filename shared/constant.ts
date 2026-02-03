@@ -384,8 +384,11 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'yuri',
       name: '悠莉',
-      picture: ``,
-      photos: [],
+      picture: `${IMAGE_BASE_URL}MzgzMzZocGltYWdl/b1831cc8181e46b6_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}MzgzMzZocGltYWdl/b1831cc8181e46b6_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}MzgzMzdocGltYWdl/628abe051a52493f_1440x1440.jpg`,
+      ],
       instagram: 'https://www.instagram.com/shuna.yuri_/',
     },
   ],
@@ -394,8 +397,11 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'ritsu',
       name: '律',
-      picture: ``,
-      photos: [],
+      picture: `${IMAGE_BASE_URL}MzgzMzhocGltYWdl/339c463fcc414b36_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}MzgzMzhocGltYWdl/339c463fcc414b36_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}MzgzMzlocGltYWdl/210fcc13cbbc4d45_1440x1440.jpg`,
+      ],
       instagram: 'https://www.instagram.com/shuna.ritsu/',
     },
   ],
