@@ -405,4 +405,17 @@ export const AGENTS = new Map<string, Agent>([
       instagram: 'https://www.instagram.com/shuna.ritsu/',
     },
   ],
+  [
+    'Iroha',
+    {
+      id: 'iroha',
+      name: 'Iroha',
+      picture: `${IMAGE_BASE_URL}MzgzNTFocGltYWdl/9a829da0bef14b6f_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}MzgzNTFocGltYWdl/9a829da0bef14b6f_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}MzgzNTJocGltYWdl/d078eec3eaae4b1c_1440x1440.jpg`,
+      ],
+      instagram: 'https://www.instagram.com/shuna.iroha/',
+    },
+  ],
 ]);
