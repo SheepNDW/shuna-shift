@@ -1,7 +1,21 @@
 <script setup lang="ts">
 import type { StatisticsResponse } from '~~/shared/types';
 
-const { data, status } = await useFetch<StatisticsResponse>('/api/statistics');
+const TWO_HOURS = 2 * 60 * 60 * 1000;
+
+const { data, status } = await useFetch<StatisticsResponse>('/api/statistics', {
+  getCachedData(key, nuxtApp) {
+    const cached = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
+    if (!cached) return undefined;
+
+    const fetchedAt = new Date(cached.metadata?.lastUpdated).getTime();
+    if (Number.isNaN(fetchedAt) || Date.now() - fetchedAt > TWO_HOURS) {
+      return undefined;
+    }
+
+    return cached;
+  },
+});
 
 const appConfig = useAppConfig();
 useHead({

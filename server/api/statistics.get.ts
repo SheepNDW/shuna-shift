@@ -69,7 +69,7 @@ export default defineCachedEventHandler(
   },
   {
     name: 'statistics-get',
-    // Cache for 6 hours
-    maxAge: 6 * 60 * 60 * 1000,
+    // Cache for 6 hours (maxAge is in seconds)
+    maxAge: 6 * 60 * 60,
   },
 );
