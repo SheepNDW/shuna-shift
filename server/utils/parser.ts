@@ -1,3 +1,4 @@
+import { normalizeAgentName } from '~~/shared/constant';
 import type { TextFormatRun } from '~~/shared/types';
 
 export function excelSerialToDateLabel(serial: number): string {
@@ -45,7 +46,7 @@ export function parseAgents(name: string, runs: TextFormatRun[] = []) {
       }
     }
 
-    result.push({ name: agentName, textColor });
+    result.push({ name: normalizeAgentName(agentName), textColor });
 
     // 更新索引：名字長度 + 頓號（1個字符）
     currentIndex += agentName.length + 1;

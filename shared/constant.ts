@@ -2,6 +2,35 @@ import type { Agent } from './types';
 
 export const IMAGE_BASE_URL = 'https://image-dev.houseprice.tw/p1-hpimage/';
 
+/**
+ * 探員名稱別名對照表
+ * 用於將表單中的變體名稱正規化為 AGENTS Map 中的標準鍵值
+ */
+export const NAME_ALIASES: ReadonlyMap<string, string> = new Map([['いろは', 'Iroha']]);
+
+/**
+ * 正規化探員名稱
+ * 1. 先以別名對照表進行完全匹配
+ * 2. 再以不區分大小寫的方式比對 AGENTS Map 的鍵值
+ * 若均無匹配則回傳原名稱
+ */
+export function normalizeAgentName(name: string): string {
+  // 完全匹配別名
+  if (NAME_ALIASES.has(name)) {
+    return NAME_ALIASES.get(name)!;
+  }
+
+  // 延遲初始化的不區分大小寫查找（避免在模組頂層存取 AGENTS）
+  const lowerName = name.toLowerCase();
+  for (const key of AGENTS.keys()) {
+    if (key.toLowerCase() === lowerName) {
+      return key;
+    }
+  }
+
+  return name;
+}
+
 export const BOOKING_URL =
   'https://inline.app/booking/-NdeCHclNdQ-Yuxen_np:inline-live-3/-NdeCHpH1ow_BuIvlFhM';
 

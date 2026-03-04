@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { TextFormatRun } from '~~/shared/types';
+import { normalizeAgentName } from '~~/shared/constant';
 import { excelSerialToDateLabel, parseAgents, rgbToHex } from '../parser';
 
 describe('excelSerialToDateLabel', () => {
@@ -134,5 +135,45 @@ describe('parseAgents', () => {
       { name: '亞米(和実)', textColor: '#ff0000' },
       { name: '棠棠', textColor: '' },
     ]);
+  });
+
+  it('應該將 いろは 正規化為 Iroha', () => {
+    const name = 'いろは、百夜';
+    const result = parseAgents(name);
+
+    expect(result).toEqual([
+      { name: 'Iroha', textColor: '' },
+      { name: '百夜', textColor: '' },
+    ]);
+  });
+
+  it('應該將 kikimi 正規化為 Kikimi（不區分大小寫）', () => {
+    const name = 'kikimi、小楓';
+    const result = parseAgents(name);
+
+    expect(result).toEqual([
+      { name: 'Kikimi', textColor: '' },
+      { name: '小楓', textColor: '' },
+    ]);
+  });
+});
+
+describe('normalizeAgentName', () => {
+  it('應該將 いろは 轉換為 Iroha', () => {
+    expect(normalizeAgentName('いろは')).toBe('Iroha');
+  });
+
+  it('應該將 kikimi 轉換為 Kikimi（不區分大小寫）', () => {
+    expect(normalizeAgentName('kikimi')).toBe('Kikimi');
+  });
+
+  it('應該保留已正確的名稱不變', () => {
+    expect(normalizeAgentName('Iroha')).toBe('Iroha');
+    expect(normalizeAgentName('Kikimi')).toBe('Kikimi');
+    expect(normalizeAgentName('百夜')).toBe('百夜');
+  });
+
+  it('應該保留未知名稱不變', () => {
+    expect(normalizeAgentName('不存在的探員')).toBe('不存在的探員');
   });
 });
