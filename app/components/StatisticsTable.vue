@@ -82,7 +82,12 @@ function getSortIcon(key: SortKey): string {
         v-for="(stat, index) in sortedStatistics"
         :key="stat.agentId"
         :to="`/agents/${stat.agentId}`"
-        class="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+        :class="[
+          'grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors',
+          stat.isFullTime
+            ? 'border-pink-200 dark:border-pink-800 bg-pink-50 dark:bg-pink-900/10 hover:bg-pink-100 dark:hover:bg-pink-900/20'
+            : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50',
+        ]"
       >
         <!-- Rank -->
         <span class="text-sm text-gray-500 dark:text-gray-400 text-center">
