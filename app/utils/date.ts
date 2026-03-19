@@ -10,17 +10,21 @@ export function getTodayLabel(): string {
 
 /**
  * 格式化 ISO 時間戳為本地化顯示
+ * 使用手動格式化確保 SSR 與瀏覽器輸出一致，避免 toLocaleString ICU 差異造成 hydration mismatch
  */
-export function formatDateTime(isoString: string, locale = 'zh-TW'): string {
+export function formatDateTime(isoString: string): string {
   if (!isoString) return '';
 
-  return new Date(isoString).toLocaleString(locale, {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const d = new Date(isoString);
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const hour = d.getHours();
+  const minute = String(d.getMinutes()).padStart(2, '0');
+  const period = hour < 12 ? '上午' : '下午';
+  const hour12 = String(hour % 12 || 12).padStart(2, '0');
+
+  return `${year}/${month}/${day} ${period}${hour12}:${minute}`;
 }
 
 /**

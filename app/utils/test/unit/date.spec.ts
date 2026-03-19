@@ -73,21 +73,20 @@ describe('date utils', () => {
       expect(formatDateTime('')).toBe('');
     });
 
-    it('應該使用自定義 locale', () => {
-      const isoString = '2024-10-28T14:30:00.000Z';
-      const result = formatDateTime(isoString, 'en-US');
-
-      expect(result).toBeTruthy();
-      expect(result).toMatch(/2024/);
-    });
-
-    it('應該使用預設 locale (zh-TW)', () => {
-      const isoString = '2024-10-28T14:30:00.000Z';
+    it('應該回傳固定格式 yyyy/mm/dd 上午|下午hh:mm', () => {
+      vi.setSystemTime(new Date(2024, 9, 28, 14, 30, 0)); // 本地時間 2024/10/28 14:30
+      const isoString = new Date(2024, 9, 28, 14, 30, 0).toISOString();
       const result = formatDateTime(isoString);
 
-      // zh-TW 格式通常包含年月日
-      expect(result).toBeTruthy();
-      expect(result).toMatch(/2024/);
+      expect(result).toMatch(/^2024\/10\/28 (上午|下午)\d{2}:\d{2}$/);
+    });
+
+    it('應該正確區分上午與下午', () => {
+      const morning = new Date(2024, 9, 28, 9, 5, 0);
+      const afternoon = new Date(2024, 9, 28, 14, 30, 0);
+
+      expect(formatDateTime(morning.toISOString())).toContain('上午');
+      expect(formatDateTime(afternoon.toISOString())).toContain('下午');
     });
 
     it('應該包含時間資訊', () => {
