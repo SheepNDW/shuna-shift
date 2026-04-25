@@ -10,7 +10,15 @@ export default defineNuxtConfig({
     typeCheck: true,
   },
 
-  modules: ['@nuxt/ui', '@nuxt/test-utils/module', '@nuxt/eslint', '@pinia/nuxt', '@nuxt/image'],
+  modules: [
+    '@nuxt/ui',
+    '@nuxt/test-utils/module',
+    '@nuxt/eslint',
+    '@pinia/nuxt',
+    '@nuxt/image',
+    '@vercel/speed-insights',
+    '@vueuse/nuxt',
+  ],
 
   runtimeConfig: {
     gsheetsKey: '',
