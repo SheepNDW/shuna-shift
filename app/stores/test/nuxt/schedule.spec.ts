@@ -2,9 +2,13 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useScheduleStore } from '~/stores/schedule';
 
-vi.mock('#app', () => ({
-  useFetch: vi.fn(),
-}));
+vi.mock('#app', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('#app')>();
+  return {
+    ...actual,
+    useFetch: vi.fn(),
+  };
+});
 
 describe('useScheduleStore', () => {
   beforeEach(() => {
