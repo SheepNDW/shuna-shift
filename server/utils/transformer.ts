@@ -69,9 +69,35 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
 }
 
 /**
- * 將 Google Sheets API 的原始資料轉換為班表資料
+ * 表單會把未來日期格預先以純白底填好，待實際排班時才上色。
+ * 因此「純白底」是「尚未排班」獨有的訊號（歷史班表中完全不出現白底）。
+ */
+const UNSCHEDULED_BACKGROUND = '#ffffff';
+
+/**
+ * 判斷是否為「尚未排班」的日期：兩班皆無人、無節日標記，且為純白底。
+ *
+ * 店休日（灰底 `#999999`）與節日（帶 description）雖然也可能兩班無人，
+ * 但屬於有意義的排班資訊，不應被視為尚未排班。
+ */
+export function isUnscheduledSchedule(schedule: ShiftSchedule): boolean {
+  return (
+    schedule.day.length === 0 &&
+    schedule.night.length === 0 &&
+    schedule.date.description === '' &&
+    schedule.date.backgroundColor === UNSCHEDULED_BACKGROUND
+  );
+}
+
+/**
+ * 將 Google Sheets API 的原始資料轉換為班表資料。
+ *
+ * 開放式範圍會一併讀到表單預先填好、但尚未排班的未來日期列，
+ * 這些列在此過濾掉，只保留實際已排班與店休／節日等有意義的日期。
  */
 export function transformSheetDataToSchedules(rows: RowData[]): ShiftSchedule[] {
   const parsedRows = rows.map(transformRowToParsedData);
-  return mergeDayAndNightShifts(parsedRows);
+  return mergeDayAndNightShifts(parsedRows).filter(
+    (schedule) => !isUnscheduledSchedule(schedule),
+  );
 }
