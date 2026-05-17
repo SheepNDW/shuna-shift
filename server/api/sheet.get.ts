@@ -22,7 +22,7 @@ export default defineCachedEventHandler(
     try {
       console.log('fetch Sheets...');
       const res = await $fetch<SheetsResponse>(url);
-      const rows = res?.sheets[0]?.data[0]?.rowData ?? [];
+      const rows = res?.sheets?.[0]?.data?.[0]?.rowData ?? [];
 
       const schedules = transformSheetDataToSchedules(rows);
 
