@@ -156,6 +156,15 @@ describe('parseAgents', () => {
       { name: '小楓', textColor: '' },
     ]);
   });
+
+  it('應該將 🍊 與 蜜柑 正規化為同一位探員（蜜柑轉正職後的 emoji 標示）', () => {
+    const result = parseAgents('🍊、蜜柑');
+
+    expect(result).toEqual([
+      { name: '蜜柑', textColor: '' },
+      { name: '蜜柑', textColor: '' },
+    ]);
+  });
 });
 
 describe('normalizeAgentName', () => {
@@ -165,6 +174,10 @@ describe('normalizeAgentName', () => {
 
   it('應該將 kikimi 轉換為 Kikimi（不區分大小寫）', () => {
     expect(normalizeAgentName('kikimi')).toBe('Kikimi');
+  });
+
+  it('應該將 🍊 轉換為 蜜柑（蜜柑轉正職後的 emoji 標示）', () => {
+    expect(normalizeAgentName('🍊')).toBe('蜜柑');
   });
 
   it('應該保留已正確的名稱不變', () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ShiftSchedule } from '~~/shared/types';
+import type { RowData, ShiftSchedule } from '~~/shared/types';
 import {
   calculateAgentStatistics,
   extractAgentName,
@@ -9,6 +9,7 @@ import {
   getLastScheduleDate,
   parseDateString,
 } from '../statistics';
+import { transformSheetDataToSchedules } from '../transformer';
 
 describe('extractAgentName', () => {
   it('應該回傳原始名稱（無括號）', () => {
@@ -316,5 +317,33 @@ describe('getDateRange', () => {
 
     expect(result.from).toBe('12月16日');
     expect(result.to).toBe('12月16日');
+  });
+});
+
+describe('蜜柑 emoji 與文字名稱的統計整合', () => {
+  // 建立含日期（早班）的原始 row：A 欄為 Excel 日期序號，C 欄為人員名稱
+  const createDayRow = (dateSerial: number, agents: string): RowData => ({
+    values: [
+      { userEnteredValue: { numberValue: dateSerial } },
+      {},
+      { userEnteredValue: { stringValue: agents } },
+    ],
+  });
+
+  it('應該將 🍊 與「蜜柑」的班次併入同一位探員', () => {
+    // 蜜柑轉正職後的班次以 🍊 標示，轉正職前則為文字「蜜柑」
+    const rows: RowData[] = [
+      createDayRow(45292, '🍊'), // 轉正職後
+      createDayRow(45293, '蜜柑'), // 轉正職前
+    ];
+
+    const schedules = transformSheetDataToSchedules(rows);
+    const result = calculateAgentStatistics(schedules);
+
+    expect(result.length).toBe(1);
+    expect(result[0]?.agentId).toBe('mikan');
+    expect(result[0]?.dayCount).toBe(2);
+    expect(result[0]?.total).toBe(2);
+    expect(result[0]?.isFullTime).toBe(true);
   });
 });

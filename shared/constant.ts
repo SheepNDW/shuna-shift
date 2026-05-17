@@ -6,7 +6,11 @@ export const IMAGE_BASE_URL = 'https://image-dev.houseprice.tw/p1-hpimage/';
  * 探員名稱別名對照表
  * 用於將表單中的變體名稱正規化為 AGENTS Map 中的標準鍵值
  */
-export const NAME_ALIASES: ReadonlyMap<string, string> = new Map([['いろは', 'Iroha']]);
+export const NAME_ALIASES: ReadonlyMap<string, string> = new Map([
+  ['いろは', 'Iroha'],
+  // 蜜柑轉正職後出勤改以 emoji 標示，需正規化回「蜜柑」以併入舊班次統計
+  ['🍊', '蜜柑'],
+]);
 
 /**
  * 正規化探員名稱
@@ -406,6 +410,7 @@ export const AGENTS = new Map<string, Agent>([
         `${IMAGE_BASE_URL}MzgxNzRocGltYWdl/e9aea30b5a5e4504_1440x1440.jpg`,
       ],
       instagram: 'https://www.instagram.com/shuna.mikan/',
+      isFullTime: true,
     },
   ],
   [
