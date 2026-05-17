@@ -1,5 +1,7 @@
-import type { SheetsResponse, StatisticsResponse } from '~~/shared/types';
+import type { StatisticsResponse } from '~~/shared/types';
 import { transformSheetDataToSchedules } from '../utils/transformer';
+import { fetchSheetRanges, sheetTitleFromRange } from '../utils/sheets';
+import { shouldBypassCache } from '../utils/cache';
 import {
   calculateAgentStatistics,
   filterRecentMonths,
@@ -7,34 +9,22 @@ import {
   getLastScheduleDate,
 } from '../utils/statistics';
 
+/** 當期班表範圍 */
+const CURRENT_SHEET_RANGE = '每日班表!A5:C';
+/** 歷史班表範圍：開放式結束列，歷史資料累積也不會被截斷 */
+const HISTORY_SHEET_RANGE = '過去班表20260101~!A5:C';
+
 export default defineCachedEventHandler(
   async (_event) => {
-    const config = useRuntimeConfig();
-    const { gsheetsKey, spreadsheetId } = config;
-
-    if (!gsheetsKey || !spreadsheetId) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Missing google sheets key or spreadsheet id',
-      });
-    }
-
-    // 取得當前班表和歷史班表
-    const ranges = ['每日班表!A5:C45', '過去班表20260101~!A5:C743'];
-    const rangesParam = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join('&');
-
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?${rangesParam}&fields=sheets.data.rowData.values(userEnteredValue,userEnteredFormat.backgroundColor,textFormatRuns)&key=${gsheetsKey}`;
-
     try {
       console.log('fetch Sheets for statistics...');
-      const res = await $fetch<SheetsResponse>(url);
+      const sheetData = await fetchSheetRanges([CURRENT_SHEET_RANGE, HISTORY_SHEET_RANGE]);
 
-      // 取得當前班表資料
-      const currentRows = res?.sheets[0]?.data[0]?.rowData ?? [];
+      // 以 sheet 標題對應資料，不依賴回傳順序
+      const currentRows = sheetData.get(sheetTitleFromRange(CURRENT_SHEET_RANGE)) ?? [];
+      const historyRows = sheetData.get(sheetTitleFromRange(HISTORY_SHEET_RANGE)) ?? [];
+
       const currentSchedules = transformSheetDataToSchedules(currentRows);
-
-      // 取得歷史班表資料
-      const historyRows = res?.sheets[1]?.data[0]?.rowData ?? [];
       const historySchedules = transformSheetDataToSchedules(historyRows);
 
       // 合併班表資料（歷史資料在前，當前資料在後）
@@ -71,5 +61,6 @@ export default defineCachedEventHandler(
     name: 'statistics-get',
     // Cache for 6 hours (maxAge is in seconds)
     maxAge: 6 * 60 * 60,
+    shouldBypassCache,
   },
 );

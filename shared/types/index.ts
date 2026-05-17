@@ -33,7 +33,13 @@ export interface SheetsResponse {
 
 /** 每個 sheet 的資料 */
 export interface Sheet {
-  data: SheetData[];
+  properties?: SheetProperties;
+  data?: SheetData[];
+}
+
+/** sheet 屬性（目前僅取標題，用於以名稱對應資料） */
+export interface SheetProperties {
+  title: string;
 }
 
 /** 每個資料區塊 (range) */

@@ -1,28 +1,17 @@
-import type { SheetsResponse, ScheduleResponse } from '~~/shared/types';
+import type { ScheduleResponse } from '~~/shared/types';
 import { transformSheetDataToSchedules } from '../utils/transformer';
+import { fetchSheetRanges, sheetTitleFromRange } from '../utils/sheets';
+import { shouldBypassCache } from '../utils/cache';
+
+/** 當期班表範圍：開放式結束列，多排幾天也不會被截斷 */
+const CURRENT_SHEET_RANGE = '每日班表!A5:C';
 
 export default defineCachedEventHandler(
   async (_event) => {
-    const config = useRuntimeConfig();
-    const { gsheetsKey, spreadsheetId } = config;
-
-    if (!gsheetsKey || !spreadsheetId) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Missing google sheets key or spreadsheet id',
-      });
-    }
-
-    const ranges = '每日班表!A5:C45';
-
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}?ranges=${encodeURIComponent(
-      ranges
-    )}&fields=sheets.data.rowData.values(userEnteredValue,userEnteredFormat.backgroundColor,textFormatRuns)&key=${gsheetsKey}`;
-
     try {
       console.log('fetch Sheets...');
-      const res = await $fetch<SheetsResponse>(url);
-      const rows = res?.sheets?.[0]?.data?.[0]?.rowData ?? [];
+      const sheetData = await fetchSheetRanges([CURRENT_SHEET_RANGE]);
+      const rows = sheetData.get(sheetTitleFromRange(CURRENT_SHEET_RANGE)) ?? [];
 
       const schedules = transformSheetDataToSchedules(rows);
 
@@ -43,5 +32,6 @@ export default defineCachedEventHandler(
     name: 'sheet-get',
     // Cache for 3 hours
     maxAge: 60 * 60 * 3,
+    shouldBypassCache,
   }
 );
