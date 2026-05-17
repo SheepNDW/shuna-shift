@@ -41,7 +41,8 @@
 
 - **問題**：`每日班表!A5:C45`、`過去班表20260101~!A5:C743` 寫死結束列數，多排幾天或歷史累積就被截斷或讀到空列。
 - **作法**：A1 notation 省略結束列，改為 `每日班表!A5:C`、`過去班表!A5:C`，API 只回傳有資料的列。
-- **影響檔案**：`server/utils/sheets.ts`（於新 client 內實作）。
+- **附帶處理**：表單會把未來日期格預先以純白底填好待排班，開放式範圍會一併讀到（實測 76 筆中 62 筆）。transformer 新增 `isUnscheduledSchedule`，過濾「兩班皆空 + 無 description + 純白底 `#ffffff`」的列；店休日（灰底 `#999999`）與節日（帶 description）保留。
+- **影響檔案**：`server/utils/sheets.ts`（於新 client 內實作）、`server/utils/transformer.ts`。
 
 ### #3 以 sheet title 對應資料，不靠陣列索引（高優先）
 
@@ -61,12 +62,13 @@
 - [x] #6：新增 `server/utils/sheets.ts`，提供 `fetchSheetRanges(ranges)` 回傳 `Map<sheetTitle, RowData[]>`
 - [x] #6：以 Zod 驗證 Sheets 回應結構，失敗時 log 出 range／列資訊
 - [x] #1：range 改為開放式 `A5:C`
+- [x] #1：transformer 過濾尚未排班的未來空白日期（純白底、兩班空白、無 description）
 - [x] #3：抓 `sheets.properties.title`，以 title 對應資料取代 `sheets[0]`/`sheets[1]`
 - [x] #7：dev 環境縮短 `maxAge` 或支援 `?nocache` 繞過參數（`server/utils/cache.ts` 的 `shouldBypassCache`）
 - [x] `sheet.get.ts`、`statistics.get.ts` 改用共用 client
 - [x] 新增/更新單元測試，`pnpm test` 通過（unit 98、nuxt 53）
 - [x] `pnpm lint`、`pnpm typecheck` 通過
-- [ ] **驗收**：表單新增/刪除列、調整 `ranges` 順序後，班表與統計仍正確（需實機）
+- [x] **驗收**：實機 smoke test —— `/api/sheet` 回 14 筆（過濾 62 筆未排班空列）、`/api/statistics` 日期範圍正確（`3月3日~5月31日`）；`ranges` 順序無關性由單元測試 `sheets.spec.ts` 涵蓋
 - [ ] 發 PR 回 `main` 並 merge（PR [#13](https://github.com/SheepNDW/shuna-shift/pull/13) 已開，待審查 merge）
 - [ ] 更新本檔「進度總覽」PR 1 狀態為 ✅ 並附 PR 連結
 
