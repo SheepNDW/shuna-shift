@@ -48,6 +48,28 @@ describe('parseSheetsResponse', () => {
     expect(result.get('過去班表')).toHaveLength(2);
   });
 
+  it('當 sheets 回傳順序顛倒時，仍應以 title 對應到正確資料', () => {
+    const ordered = {
+      sheets: [
+        { properties: { title: '每日班表' }, data: [{ rowData: [{ values: [] }] }] },
+        {
+          properties: { title: '過去班表' },
+          data: [{ rowData: [{ values: [] }, { values: [] }] }],
+        },
+      ],
+    };
+    const reversed = { sheets: [...ordered.sheets].reverse() };
+
+    const fromOrdered = parseSheetsResponse(ordered);
+    const fromReversed = parseSheetsResponse(reversed);
+
+    // 不論回傳順序，依 title 取值結果一致（#3：不靠陣列索引）
+    expect(fromReversed.get('每日班表')).toHaveLength(1);
+    expect(fromReversed.get('過去班表')).toHaveLength(2);
+    expect(fromReversed.get('每日班表')).toEqual(fromOrdered.get('每日班表'));
+    expect(fromReversed.get('過去班表')).toEqual(fromOrdered.get('過去班表'));
+  });
+
   it('應該把同一 sheet 內多個 data 區塊的列攤平合併', () => {
     const raw = {
       sheets: [
