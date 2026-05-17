@@ -16,7 +16,7 @@
 | PR | 包含項目 | 主題 | 相依 | 狀態 |
 |----|---------|------|------|------|
 | —  | #0a / #0b | 防禦性解析、蜜柑 🍊 統計修正 | — | ✅ 已完成（`d5f5268`、`cd19644`）|
-| PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | ⬜ 待處理 |
+| PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | 🔍 待審查（[#13](https://github.com/SheepNDW/shuna-shift/pull/13)）|
 | PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | ⬜ 待處理 |
 | PR 3 | #4 | 班別解析改用 B 欄 | 無 | ⬜ 待處理 |
 | PR 4 | #5 | AGENTS emoji 結構統一 | 無 | ⬜ 待處理 |
@@ -57,17 +57,17 @@
 
 ### 檢查清單
 
-- [ ] 從 `main` 開出開發分支
-- [ ] #6：新增 `server/utils/sheets.ts`，提供 `fetchSheetRanges(ranges)` 回傳 `Map<sheetTitle, RowData[]>`
-- [ ] #6：以 Zod 驗證 Sheets 回應結構，失敗時 log 出 range／列資訊
-- [ ] #1：range 改為開放式 `A5:C`
-- [ ] #3：抓 `sheets.properties.title`，以 title 對應資料取代 `sheets[0]`/`sheets[1]`
-- [ ] #7：dev 環境縮短 `maxAge` 或支援 `?nocache` 繞過參數
-- [ ] `sheet.get.ts`、`statistics.get.ts` 改用共用 client
-- [ ] 新增/更新單元測試，`pnpm test` 通過
-- [ ] `pnpm lint`、`pnpm typecheck` 通過
-- [ ] **驗收**：表單新增/刪除列、調整 `ranges` 順序後，班表與統計仍正確
-- [ ] 發 PR 回 `main` 並 merge
+- [x] 從 `main` 開出開發分支
+- [x] #6：新增 `server/utils/sheets.ts`，提供 `fetchSheetRanges(ranges)` 回傳 `Map<sheetTitle, RowData[]>`
+- [x] #6：以 Zod 驗證 Sheets 回應結構，失敗時 log 出 range／列資訊
+- [x] #1：range 改為開放式 `A5:C`
+- [x] #3：抓 `sheets.properties.title`，以 title 對應資料取代 `sheets[0]`/`sheets[1]`
+- [x] #7：dev 環境縮短 `maxAge` 或支援 `?nocache` 繞過參數（`server/utils/cache.ts` 的 `shouldBypassCache`）
+- [x] `sheet.get.ts`、`statistics.get.ts` 改用共用 client
+- [x] 新增/更新單元測試，`pnpm test` 通過（unit 98、nuxt 53）
+- [x] `pnpm lint`、`pnpm typecheck` 通過
+- [ ] **驗收**：表單新增/刪除列、調整 `ranges` 順序後，班表與統計仍正確（需實機）
+- [ ] 發 PR 回 `main` 並 merge（PR [#13](https://github.com/SheepNDW/shuna-shift/pull/13) 已開，待審查 merge）
 - [ ] 更新本檔「進度總覽」PR 1 狀態為 ✅ 並附 PR 連結
 
 ---
