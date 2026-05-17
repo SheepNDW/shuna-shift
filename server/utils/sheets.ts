@@ -11,6 +11,18 @@ const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 const SHEETS_FIELDS =
   'sheets.properties.title,sheets.data.rowData.values(userEnteredValue,userEnteredFormat.backgroundColor,textFormatRuns)';
 
+/** 只取 sheet 標題的輕量欄位，用於動態解析 sheet 名稱 */
+const TITLES_FIELDS = 'sheets.properties.title';
+
+/**
+ * 歷史班表「使用中」的命名標記。
+ *
+ * 命名慣例：使用中的 sheet 以 `~` 結尾代表「起始日起持續累積」
+ * （如 `過去班表20260101~`）；換期時舊 sheet 補上結束日封存
+ * （如 `過去班表20250101~20251231`）。
+ */
+const OPEN_ENDED_MARKER = '~';
+
 /**
  * Sheets 回應的寬鬆 schema：只驗證轉換班表所需的骨架結構
  * （`sheets` 為陣列、`properties.title`、`data`/`rowData` 為陣列），
@@ -41,26 +53,31 @@ export function sheetTitleFromRange(range: string): string {
 /**
  * 組裝 Google Sheets API 的查詢 URL。
  * @param spreadsheetId 試算表 ID
- * @param ranges A1 notation 範圍陣列，例如 `['每日班表!A5:C']`
+ * @param ranges A1 notation 範圍陣列，例如 `['每日班表!A5:C']`；傳空陣列代表只取 metadata
  * @param apiKey Google Sheets API key
+ * @param fields 要取的欄位遮罩，預設為轉換班表所需的完整欄位
  */
-export function buildSheetsUrl(spreadsheetId: string, ranges: string[], apiKey: string): string {
+export function buildSheetsUrl(
+  spreadsheetId: string,
+  ranges: string[],
+  apiKey: string,
+  fields: string = SHEETS_FIELDS,
+): string {
   const params = new URLSearchParams();
   for (const range of ranges) {
     params.append('ranges', range);
   }
-  params.append('fields', SHEETS_FIELDS);
+  params.append('fields', fields);
   params.append('key', apiKey);
 
   return `${SHEETS_API_BASE}/${spreadsheetId}?${params.toString()}`;
 }
 
 /**
- * 驗證 Sheets API 回應結構，並轉為以 sheet 標題為 key 的 Map。
+ * 以 Zod 驗證 Sheets API 回應的骨架結構。
  * 結構不符時拋錯，錯誤訊息帶有 Zod 的路徑資訊（哪個 sheet／哪一列），方便定位。
- * @param raw $fetch 取回的原始回應
  */
-export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
+function validateSheetsResponse(raw: unknown): z.infer<typeof sheetsResponseSchema> {
   const result = sheetsResponseSchema.safeParse(raw);
 
   if (!result.success) {
@@ -71,9 +88,18 @@ export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
     throw new Error(`Google Sheets 回應結構異常: ${issues}`);
   }
 
+  return result.data;
+}
+
+/**
+ * 驗證 Sheets API 回應結構，並轉為以 sheet 標題為 key 的 Map。
+ * @param raw $fetch 取回的原始回應
+ */
+export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
+  const data = validateSheetsResponse(raw);
   const map = new Map<string, RowData[]>();
 
-  result.data.sheets.forEach((sheet, index) => {
+  data.sheets.forEach((sheet, index) => {
     const title = sheet.properties?.title;
     if (!title) {
       console.warn(`[sheets] 第 ${index} 個 sheet 缺少 properties.title，已略過`);
@@ -90,6 +116,63 @@ export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
 }
 
 /**
+ * 驗證 Sheets API 回應結構，並取出所有 sheet 的標題。
+ * @param raw $fetch 取回的原始回應
+ */
+export function parseSheetTitles(raw: unknown): string[] {
+  return validateSheetsResponse(raw)
+    .sheets.map((sheet) => sheet.properties?.title)
+    .filter((title): title is string => Boolean(title));
+}
+
+/**
+ * 從 sheet 標題清單中找出「使用中」的歷史班表 sheet。
+ *
+ * 歷史班表名稱帶日期後綴（如 `過去班表20260101~`），換期改名後無法寫死，
+ * 改以固定前綴動態解析。由於舊期會逐一封存累積（`過去班表20250101~20251231`
+ * 等），通常會有多個 sheet 相符 —— 使用中者以 {@link OPEN_ENDED_MARKER}
+ * 結尾，據此鎖定。若無法唯一判定，退而取字典序最大者（起始日最新）並警告。
+ * @throws 找不到符合前綴的 sheet 時拋錯
+ */
+export function resolveSheetTitle(titles: string[], prefix: string): string {
+  const matched = titles.filter((title) => title.startsWith(prefix));
+
+  if (matched.length === 0) {
+    throw new Error(`找不到符合前綴「${prefix}」的 sheet`);
+  }
+  if (matched.length === 1) {
+    return matched[0]!;
+  }
+
+  // 多個相符屬常態（舊期封存累積）：鎖定唯一以 `~` 結尾的「使用中」sheet
+  const ongoing = matched.filter((title) => title.endsWith(OPEN_ENDED_MARKER));
+  if (ongoing.length === 1) {
+    return ongoing[0]!;
+  }
+
+  // 無法唯一判定使用中者才視為異常：退而取字典序最大者並警告
+  const latest = [...matched].sort().at(-1)!;
+  console.warn(
+    `[sheets] 前綴「${prefix}」無法唯一判定使用中的 sheet（${matched.join('、')}），採用 ${latest}`,
+  );
+  return latest;
+}
+
+/** 取得並驗證 Sheets API 所需的設定 */
+function getSheetsConfig(): { gsheetsKey: string; spreadsheetId: string } {
+  const { gsheetsKey, spreadsheetId } = useRuntimeConfig();
+
+  if (!gsheetsKey || !spreadsheetId) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Missing google sheets key or spreadsheet id',
+    });
+  }
+
+  return { gsheetsKey, spreadsheetId };
+}
+
+/**
  * 向 Google Sheets API 取得指定範圍的資料。
  *
  * 回傳以 sheet 標題為 key 的 Map，呼叫端用 sheet 名稱取值，
@@ -101,17 +184,25 @@ export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
  * @param ranges A1 notation 範圍陣列，例如 `['每日班表!A5:C']`
  */
 export async function fetchSheetRanges(ranges: string[]): Promise<Map<string, RowData[]>> {
-  const { gsheetsKey, spreadsheetId } = useRuntimeConfig();
-
-  if (!gsheetsKey || !spreadsheetId) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Missing google sheets key or spreadsheet id',
-    });
-  }
+  const { gsheetsKey, spreadsheetId } = getSheetsConfig();
 
   const url = buildSheetsUrl(spreadsheetId, ranges, gsheetsKey);
   const raw = await $fetch<unknown>(url);
 
   return parseSheetsResponse(raw);
+}
+
+/**
+ * 以輕量 metadata request 取得試算表所有 sheet 的標題。
+ *
+ * 用於動態解析名稱會變動的 sheet（如帶日期後綴的歷史班表），
+ * 搭配 {@link resolveSheetTitle} 使用。
+ */
+export async function fetchSheetTitles(): Promise<string[]> {
+  const { gsheetsKey, spreadsheetId } = getSheetsConfig();
+
+  const url = buildSheetsUrl(spreadsheetId, [], gsheetsKey, TITLES_FIELDS);
+  const raw = await $fetch<unknown>(url);
+
+  return parseSheetTitles(raw);
 }

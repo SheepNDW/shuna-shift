@@ -1,5 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
-import { buildSheetsUrl, parseSheetsResponse, sheetTitleFromRange } from '../sheets';
+import {
+  buildSheetsUrl,
+  parseSheetTitles,
+  parseSheetsResponse,
+  resolveSheetTitle,
+  sheetTitleFromRange,
+} from '../sheets';
 
 describe('sheetTitleFromRange', () => {
   it('應該取出 `!` 之前的 sheet 標題', () => {
@@ -23,6 +29,87 @@ describe('buildSheetsUrl', () => {
     expect(parsed.searchParams.getAll('ranges')).toEqual(['每日班表!A5:C', '過去班表!A5:C']);
     expect(parsed.searchParams.get('key')).toBe('my-key');
     expect(parsed.searchParams.get('fields')).toContain('sheets.properties.title');
+  });
+
+  it('傳入自訂 fields 與空 ranges 時（metadata request），應該據此組裝', () => {
+    const url = buildSheetsUrl('sheet-id', [], 'my-key', 'sheets.properties.title');
+    const parsed = new URL(url);
+
+    expect(parsed.searchParams.getAll('ranges')).toEqual([]);
+    expect(parsed.searchParams.get('fields')).toBe('sheets.properties.title');
+  });
+});
+
+describe('parseSheetTitles', () => {
+  it('應該取出所有 sheet 的標題', () => {
+    const raw = {
+      sheets: [
+        { properties: { title: '每日班表' } },
+        { properties: { title: '過去班表20260101~' } },
+      ],
+    };
+
+    expect(parseSheetTitles(raw)).toEqual(['每日班表', '過去班表20260101~']);
+  });
+
+  it('應該略過缺少 properties.title 的 sheet', () => {
+    const raw = { sheets: [{ properties: { title: '每日班表' } }, { data: [] }] };
+
+    expect(parseSheetTitles(raw)).toEqual(['每日班表']);
+  });
+
+  it('當回應結構異常時，應該拋錯', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    expect(() => parseSheetTitles({})).toThrow(/Google Sheets 回應結構異常/);
+    errorSpy.mockRestore();
+  });
+});
+
+describe('resolveSheetTitle', () => {
+  it('唯一符合前綴時，應該直接回傳該標題', () => {
+    const titles = ['每日班表', '過去班表20260101~'];
+
+    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
+  });
+
+  it('多個相符時，應該鎖定唯一以 `~` 結尾的使用中 sheet，且不警告', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    // 比照實際試算表：使用中 + 兩個已封存的歷史 sheet
+    const titles = [
+      '每日班表',
+      '過去班表20260101~',
+      '過去班表20250101~20251231',
+      '過去班表20240501~20241231',
+    ];
+
+    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  it('多個相符但無一以 `~` 結尾時，應該退回字典序最大者並警告', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const titles = ['過去班表20250101~20251231', '過去班表20240501~20241231'];
+
+    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20250101~20251231');
+    expect(warnSpy).toHaveBeenCalledOnce();
+    warnSpy.mockRestore();
+  });
+
+  it('多個相符且多個以 `~` 結尾時，應該退回字典序最大者並警告', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const titles = ['過去班表20260101~', '過去班表20270101~'];
+
+    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20270101~');
+    expect(warnSpy).toHaveBeenCalledOnce();
+    warnSpy.mockRestore();
+  });
+
+  it('找不到符合前綴的 sheet 時，應該拋出帶前綴的錯誤', () => {
+    expect(() => resolveSheetTitle(['每日班表'], '過去班表')).toThrow(
+      /找不到符合前綴「過去班表」的 sheet/,
+    );
   });
 });
 

@@ -1,6 +1,11 @@
 import type { StatisticsResponse } from '~~/shared/types';
 import { transformSheetDataToSchedules } from '../utils/transformer';
-import { fetchSheetRanges, sheetTitleFromRange } from '../utils/sheets';
+import {
+  fetchSheetRanges,
+  fetchSheetTitles,
+  resolveSheetTitle,
+  sheetTitleFromRange,
+} from '../utils/sheets';
 import { shouldBypassCache } from '../utils/cache';
 import {
   calculateAgentStatistics,
@@ -11,18 +16,27 @@ import {
 
 /** 當期班表範圍 */
 const CURRENT_SHEET_RANGE = '每日班表!A5:C';
-/** 歷史班表範圍：開放式結束列，歷史資料累積也不會被截斷 */
-const HISTORY_SHEET_RANGE = '過去班表20260101~!A5:C';
+/**
+ * 歷史班表 sheet 名稱前綴。
+ * 實際名稱帶日期後綴（如 `過去班表20260101~`），換期會改名，故不寫死整個名稱，
+ * 改以此前綴在執行期動態解析。
+ */
+const HISTORY_SHEET_PREFIX = '過去班表';
 
 export default defineCachedEventHandler(
   async (_event) => {
     try {
       console.log('fetch Sheets for statistics...');
-      const sheetData = await fetchSheetRanges([CURRENT_SHEET_RANGE, HISTORY_SHEET_RANGE]);
+
+      // 先以輕量 metadata request 動態解析歷史 sheet 的實際名稱
+      const titles = await fetchSheetTitles();
+      const historyTitle = resolveSheetTitle(titles, HISTORY_SHEET_PREFIX);
+
+      const sheetData = await fetchSheetRanges([CURRENT_SHEET_RANGE, `${historyTitle}!A5:C`]);
 
       // 以 sheet 標題對應資料，不依賴回傳順序
       const currentRows = sheetData.get(sheetTitleFromRange(CURRENT_SHEET_RANGE)) ?? [];
-      const historyRows = sheetData.get(sheetTitleFromRange(HISTORY_SHEET_RANGE)) ?? [];
+      const historyRows = sheetData.get(historyTitle) ?? [];
 
       const currentSchedules = transformSheetDataToSchedules(currentRows);
       const historySchedules = transformSheetDataToSchedules(historyRows);
