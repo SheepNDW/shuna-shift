@@ -26,30 +26,15 @@ export interface ScheduleResponse {
   };
 }
 
-/** Google Sheets API 回傳的最外層 */
-export interface SheetsResponse {
-  sheets: Sheet[];
-}
-
-/** 每個 sheet 的資料 */
-export interface Sheet {
-  properties?: SheetProperties;
-  data?: SheetData[];
-}
-
-/** sheet 屬性（目前僅取標題，用於以名稱對應資料） */
-export interface SheetProperties {
-  title: string;
-}
-
-/** 每個資料區塊 (range) */
-export interface SheetData {
-  rowData: RowData[];
-}
-
-/** 每一列 (row) */
+/**
+ * 每一列 (row)。
+ *
+ * Sheets API 回應的整體結構（sheets / data / rowData）由 `server/utils/sheets.ts`
+ * 的 Zod schema 負責驗證，這裡只保留 `transformer`／`parser` 實際取用的列與儲存格型別。
+ * 空列在 API 回應中為 `{}`（無 `values`），故 `values` 為選填。
+ */
 export interface RowData {
-  values: Cell[];
+  values?: Cell[];
 }
 
 /** 每個儲存格 (cell) */

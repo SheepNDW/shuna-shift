@@ -81,6 +81,8 @@ export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
     }
 
     const rows = (sheet.data ?? []).flatMap((data) => data.rowData ?? []);
+    // Zod 已驗證列的骨架；儲存格內容刻意保持寬鬆（z.unknown），
+    // 在此邊界斷言為 Cell —— transformer／parser 後續以可選鏈防禦性讀取。
     map.set(title, rows as RowData[]);
   });
 
@@ -92,6 +94,10 @@ export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
  *
  * 回傳以 sheet 標題為 key 的 Map，呼叫端用 sheet 名稱取值，
  * 不再耦合 `ranges` 陣列的順序。
+ *
+ * 注意：若對「同一張 sheet」請求多個 range，Google 會合併為單一 sheet
+ * 物件、多個 `data` 區塊，攤平後會落在同一個 key 而無法區分。目前各
+ * range 分屬不同 sheet，不受此限制影響。
  * @param ranges A1 notation 範圍陣列，例如 `['每日班表!A5:C']`
  */
 export async function fetchSheetRanges(ranges: string[]): Promise<Map<string, RowData[]>> {
