@@ -76,13 +76,13 @@ const sortedAgents = computed(() => {
     <!-- Empty State -->
     <div
       v-else
-      class="flex flex-col items-center justify-center py-8 px-4 bg-white dark:bg-gray-800 rounded-2xl shadow-md"
+      class="flex flex-col items-center justify-center py-8 px-4 bg-white rounded-2xl shadow-md"
     >
       <UIcon
         :name="shiftType === 'day' ? 'i-heroicons-sun' : 'i-heroicons-moon'"
-        class="w-12 h-12 text-gray-300 dark:text-gray-600 mb-3"
+        class="w-12 h-12 text-gray-300 mb-3"
       />
-      <p class="text-center text-gray-500 dark:text-gray-400">
+      <p class="text-center text-gray-500">
         {{ shiftType === 'day' ? '早班' : '晚班' }}無排班
       </p>
     </div>

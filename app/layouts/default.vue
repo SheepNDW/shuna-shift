@@ -1,13 +1,9 @@
 <template>
-  <div class="min-h-screen flex flex-col">
+  <div class="min-h-screen flex flex-col paper-grain">
     <AppHeader />
 
-    <main class="flex-1">
-      <div
-        class="min-h-screen bg-linear-to-br from-pink-50 via-purple-50 to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900"
-      >
-        <slot />
-      </div>
+    <main class="flex-1 relative z-10">
+      <slot />
     </main>
 
     <AppFooter />
