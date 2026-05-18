@@ -1,4 +1,4 @@
-import { AGENTS } from '~~/shared/constant';
+import { AGENTS, normalizeAgentName } from '~~/shared/constant';
 import type { AgentStatistics, ShiftSchedule } from '~~/shared/types';
 
 /**
@@ -11,9 +11,10 @@ export function extractAgentName(name: string): string {
 }
 
 /**
- * 從 AGENTS 常數中根據名稱或 key（emoji）找到對應的 Agent 資料
- * 班表中正職探員可能使用 emoji（如 🐷、🥨、🌙），非正職則使用名字
- * 比對時會忽略大小寫
+ * 從 AGENTS 常數中找到對應的 Agent 資料。
+ *
+ * 先以 `normalizeAgentName` 將輸入（可能為 emoji、大小寫變體或名稱別名）
+ * 正規化為正式名稱，再以正式名稱查表。
  */
 export function findAgentByName(name: string): {
   id: string;
@@ -21,20 +22,17 @@ export function findAgentByName(name: string): {
   picture: string;
   isFullTime?: boolean;
 } | null {
-  const normalizedName = name.toLowerCase();
-
-  for (const [key, agent] of AGENTS) {
-    // 同時比對 key（emoji）和 name，忽略大小寫
-    if (agent.name.toLowerCase() === normalizedName || key.toLowerCase() === normalizedName) {
-      return {
-        id: agent.id,
-        name: agent.name,
-        picture: agent.picture,
-        isFullTime: agent.isFullTime,
-      };
-    }
+  const agent = AGENTS.get(normalizeAgentName(name));
+  if (!agent) {
+    return null;
   }
-  return null;
+
+  return {
+    id: agent.id,
+    name: agent.name,
+    picture: agent.picture,
+    isFullTime: agent.isFullTime,
+  };
 }
 
 /**

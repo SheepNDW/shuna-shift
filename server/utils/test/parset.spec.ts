@@ -72,8 +72,8 @@ describe('parseAgents', () => {
     const result = parseAgents(name, runs);
 
     expect(result).toEqual([
-      { name: '🐷', textColor: '' },
-      { name: '🌙', textColor: '' },
+      { name: '泠泠', textColor: '' },
+      { name: 'Luna', textColor: '' },
       { name: '小春', textColor: '' },
       { name: '七尾', textColor: '#93c47d' },
       { name: '紅', textColor: '' },
@@ -128,8 +128,8 @@ describe('parseAgents', () => {
     const result = parseAgents(name, runs);
 
     expect(result).toEqual([
-      { name: '🐷', textColor: '' },
-      { name: '🥨', textColor: '' },
+      { name: '泠泠', textColor: '' },
+      { name: '米捲', textColor: '' },
       { name: '七尾', textColor: '' },
       { name: '三里', textColor: '' },
       { name: '亞米(和実)', textColor: '#ff0000' },
@@ -199,6 +199,12 @@ describe('normalizeAgentName', () => {
 
   it('應該將 🍊 轉換為 蜜柑（蜜柑轉正職後的 emoji 標示）', () => {
     expect(normalizeAgentName('🍊')).toBe('蜜柑');
+  });
+
+  it('應該將正職探員的 emoji 轉換為正式名稱（由 AGENTS 的 emoji 欄位自動建表）', () => {
+    expect(normalizeAgentName('🐷')).toBe('泠泠');
+    expect(normalizeAgentName('🌙')).toBe('Luna');
+    expect(normalizeAgentName('🥨')).toBe('米捲');
   });
 
   it('應該保留已正確的名稱不變', () => {

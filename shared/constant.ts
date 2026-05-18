@@ -3,28 +3,34 @@ import type { Agent } from './types';
 export const IMAGE_BASE_URL = 'https://image-dev.houseprice.tw/p1-hpimage/';
 
 /**
- * 探員名稱別名對照表
- * 用於將表單中的變體名稱正規化為 AGENTS Map 中的標準鍵值
+ * 探員名稱別名對照表（非 emoji 的變體寫法）。
+ *
+ * emoji → 正式名稱的對應改由 `AGENTS` 各 entry 的 `emoji` 欄位自動建立
+ * （見 {@link EMOJI_TO_NAME}），不再於此手動維護。
  */
-export const NAME_ALIASES: ReadonlyMap<string, string> = new Map([
-  ['いろは', 'Iroha'],
-  // 蜜柑轉正職後出勤改以 emoji 標示，需正規化回「蜜柑」以併入舊班次統計
-  ['🍊', '蜜柑'],
-]);
+export const NAME_ALIASES: ReadonlyMap<string, string> = new Map([['いろは', 'Iroha']]);
 
 /**
- * 正規化探員名稱
- * 1. 先以別名對照表進行完全匹配
- * 2. 再以不區分大小寫的方式比對 AGENTS Map 的鍵值
- * 若均無匹配則回傳原名稱
+ * 正規化探員名稱，將表單中的變體寫法對應回 `AGENTS` 的正式名稱鍵值。
+ * 1. emoji → 正式名稱（由 `AGENTS` 的 `emoji` 欄位自動建立）
+ * 2. 名稱別名對照表完全匹配
+ * 3. 不區分大小寫比對 `AGENTS` 的鍵值
+ * 若均無匹配則回傳原名稱。
  */
 export function normalizeAgentName(name: string): string {
-  // 完全匹配別名
-  if (NAME_ALIASES.has(name)) {
-    return NAME_ALIASES.get(name)!;
+  // 1. emoji → 正式名稱
+  const nameFromEmoji = EMOJI_TO_NAME.get(name);
+  if (nameFromEmoji) {
+    return nameFromEmoji;
   }
 
-  // 延遲初始化的不區分大小寫查找（避免在模組頂層存取 AGENTS）
+  // 2. 名稱別名完全匹配
+  const alias = NAME_ALIASES.get(name);
+  if (alias) {
+    return alias;
+  }
+
+  // 3. 不區分大小寫比對 AGENTS 鍵值
   const lowerName = name.toLowerCase();
   for (const key of AGENTS.keys()) {
     if (key.toLowerCase() === lowerName) {
@@ -40,10 +46,11 @@ export const BOOKING_URL =
 
 export const AGENTS = new Map<string, Agent>([
   [
-    '🐷',
+    '泠泠',
     {
       id: 'rin',
       name: '泠泠',
+      emoji: '🐷',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',
       photos: [
         `${IMAGE_BASE_URL}Mzc5MDJocGltYWdl/2224de6882064993_1440x1440.jpg`,
@@ -54,10 +61,11 @@ export const AGENTS = new Map<string, Agent>([
     },
   ],
   [
-    '🥨',
+    '米捲',
     {
       id: 'juano',
       name: '米捲',
+      emoji: '🥨',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu7J0xbXvvpE8xoHPWJ9UdMK4hqGBQZDu0XmAN',
       photos: [
         `${IMAGE_BASE_URL}Mzc5MTdocGltYWdl/60368d70b8684442_1440x1440.jpg`,
@@ -68,10 +76,11 @@ export const AGENTS = new Map<string, Agent>([
     },
   ],
   [
-    '🌙',
+    'Luna',
     {
       id: 'luna',
       name: 'Luna',
+      emoji: '🌙',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuzacqGE5HmVSe98IXu62QYspBgGU51Owt0P3c',
       photos: [
         `${IMAGE_BASE_URL}Mzc5MDRocGltYWdl/145a109aa9e94d06_1440x1440.jpg`,
@@ -404,6 +413,7 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'mikan',
       name: '蜜柑',
+      emoji: '🍊',
       picture: `${IMAGE_BASE_URL}MzgxNzNocGltYWdl/96c92060c9b34fe2_1440x1440.jpg`,
       photos: [
         `${IMAGE_BASE_URL}MzgxNzNocGltYWdl/96c92060c9b34fe2_1440x1440.jpg`,
@@ -453,3 +463,15 @@ export const AGENTS = new Map<string, Agent>([
     },
   ],
 ]);
+
+/**
+ * emoji → 正式名稱查表，由 `AGENTS` 各 entry 的 `emoji` 欄位自動建立。
+ *
+ * 新增／調整探員 emoji 時只需維護 `AGENTS`，此表會自動同步，
+ * 不必再手動維護 emoji 別名。
+ */
+export const EMOJI_TO_NAME: ReadonlyMap<string, string> = new Map(
+  Array.from(AGENTS.values())
+    .filter((agent): agent is Agent & { emoji: string } => Boolean(agent.emoji))
+    .map((agent) => [agent.emoji, agent.name]),
+);

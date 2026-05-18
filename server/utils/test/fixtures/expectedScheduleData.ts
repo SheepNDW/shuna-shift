@@ -13,11 +13,11 @@ export const expectedScheduleData: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -31,11 +31,11 @@ export const expectedScheduleData: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -60,11 +60,11 @@ export const expectedScheduleData: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🐷',
+        name: '泠泠',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -82,11 +82,11 @@ export const expectedScheduleData: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🐷',
+        name: '泠泠',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -111,11 +111,11 @@ export const expectedScheduleData: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🐷',
+        name: '泠泠',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -133,11 +133,11 @@ export const expectedScheduleData: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🐷',
+        name: '泠泠',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -181,11 +181,11 @@ export const expectedScheduleDataNewMonth: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -207,11 +207,11 @@ export const expectedScheduleDataNewMonth: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {

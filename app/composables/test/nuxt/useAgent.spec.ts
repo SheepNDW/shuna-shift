@@ -30,6 +30,7 @@ describe('useAgent', () => {
         ],
         instagram: 'https://www.instagram.com/shuna.rin_/',
         isFullTime: true,
+        emoji: '🐷',
       });
     });
 
@@ -58,16 +59,16 @@ describe('useAgent', () => {
     it('應該篩選出該探員的日班和夜班排班資料', () => {
       const { agentSchedules } = useAgent('rin');
 
-      // 🐷 在 10月30日有日班和夜班
+      // 泠泠 在 10月30日有日班和夜班
       expect(agentSchedules.value).toHaveLength(1);
       if (agentSchedules.value[0]) {
         expect(agentSchedules.value[0].date.datetime).toBe('10月30日');
         expect(agentSchedules.value[0].dayShifts).toContainEqual({
-          name: '🐷',
+          name: '泠泠',
           textColor: '',
         });
         expect(agentSchedules.value[0].nightShifts).toContainEqual({
-          name: '🐷',
+          name: '泠泠',
           textColor: '',
         });
       }
@@ -76,7 +77,7 @@ describe('useAgent', () => {
     it('應該篩選出該探員在多個日期的排班', () => {
       const { agentSchedules } = useAgent('luna');
 
-      // 🌙 在多個日期都有班
+      // Luna 在多個日期都有班
       expect(agentSchedules.value.length).toBeGreaterThan(1);
 
       const dates = agentSchedules.value.map((s) => s.date.datetime);
@@ -106,7 +107,7 @@ describe('useAgent', () => {
     it('應該過濾掉沒有該探員的日期', () => {
       const { agentSchedules } = useAgent('rin');
 
-      // 🐷 只在 10月30日 有班，不應該出現其他日期
+      // 泠泠 只在 10月30日 有班，不應該出現其他日期
       expect(agentSchedules.value).toHaveLength(1);
       const dates = agentSchedules.value.map((s) => s.date.datetime);
       expect(dates).not.toContain('10月31日');
@@ -150,7 +151,7 @@ describe('useAgent', () => {
     it('應該正確篩選出探員在多個日期的排班', () => {
       const { agentSchedules } = useAgent('juano');
 
-      // 🥨 在多個日期都有班
+      // 米捲 在多個日期都有班
       expect(agentSchedules.value.length).toBeGreaterThan(5);
 
       const dates = agentSchedules.value.map((s) => s.date.datetime);

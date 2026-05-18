@@ -5,6 +5,8 @@ export type Agent = {
   photos: string[];
   instagram?: string;
   isFullTime?: boolean;
+  /** 班表中代表此探員的 emoji（正職探員適用），用於自動建立 emoji → 名稱查表 */
+  emoji?: string;
 };
 
 /** 班表資料結構 */
