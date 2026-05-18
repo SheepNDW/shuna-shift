@@ -39,17 +39,17 @@ useHead({
     <!-- 頁面標題區 -->
     <div class="text-center mb-12">
       <div
-        class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 dark:bg-pink-900/30 rounded-full mb-4"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 rounded-full mb-4"
       >
-        <UIcon name="i-heroicons-users" class="w-5 h-5 text-pink-600 dark:text-pink-400" />
-        <span class="text-sm font-medium text-pink-700 dark:text-pink-300">探員一覽</span>
+        <UIcon name="i-heroicons-users" class="w-5 h-5 text-pink-600" />
+        <span class="text-sm font-medium text-pink-700">探員一覽</span>
       </div>
       <h1
         class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
       >
         探員圖鑑
       </h1>
-      <p class="text-gray-600 dark:text-gray-400 text-lg">認識所有探員們</p>
+      <p class="text-gray-600 text-lg">認識所有探員們</p>
     </div>
 
     <!-- 正職探員區 -->
@@ -65,7 +65,7 @@ useHead({
             color="neutral"
             variant="solid"
             size="lg"
-            class="bg-white! text-pink-600! dark:bg-gray-200/80! dark:text-pink-700!"
+            class="bg-white! text-pink-600!"
           >
             {{ fullTimeAgents.length }}
           </UBadge>
@@ -94,7 +94,7 @@ useHead({
             color="neutral"
             variant="solid"
             size="lg"
-            class="bg-white! text-blue-600! dark:bg-gray-200/80! dark:text-blue-700!"
+            class="bg-white! text-blue-600!"
           >
             {{ partTimeAgents.length }}
           </UBadge>
@@ -120,7 +120,7 @@ useHead({
           查看班表
         </UButton>
       </div>
-      <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">查看近期排班資訊</p>
+      <p class="mt-4 text-sm text-gray-500">查看近期排班資訊</p>
     </div>
   </UContainer>
 </template>

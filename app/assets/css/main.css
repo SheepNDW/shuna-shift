@@ -1,2 +1,144 @@
+/* ============================================================
+   朱雫 — main.css
+   Tailwind v4 + @nuxt/ui v3 + 朱雫 design tokens
+   ============================================================ */
+
 @import 'tailwindcss';
 @import '@nuxt/ui';
+@import './components.css';
+
+/* ============================================================
+   @theme — 把所有 design token 暴露為 Tailwind utility
+   產出的 utility 範例：
+     bg-paper / text-ink / font-serif / rounded-lg /
+     tracking-stamp / text-shu / border-rule
+   ============================================================ */
+@theme {
+  /* —— Color: 紙感底色 —— */
+  --color-paper:        oklch(0.972 0.014 78);
+  --color-paper-2:      oklch(0.952 0.018 78);
+  --color-surface:      oklch(0.985 0.010 78);
+  --color-rule:         oklch(0.86  0.020 70);
+  --color-rule-2:       oklch(0.91  0.018 75);
+
+  /* —— Ink: 深墨棕文字 —— */
+  --color-ink:          oklch(0.24  0.025 55);
+  --color-ink-soft:     oklch(0.40  0.022 60);
+  --color-ink-mute:     oklch(0.58  0.018 65);
+
+  /* —— Brand: 朱 (cinnabar / vermilion) —— */
+  --color-shu-50:       oklch(0.97  0.012 35);
+  --color-shu-100:      oklch(0.93  0.038 35);
+  --color-shu-200:      oklch(0.86  0.070 33);
+  --color-shu-300:      oklch(0.78  0.090 32);
+  --color-shu-400:      oklch(0.66  0.140 32);
+  --color-shu-500:      oklch(0.55  0.165 32);
+  --color-shu-600:      oklch(0.48  0.160 31);
+  --color-shu-700:      oklch(0.43  0.150 30);
+  --color-shu-800:      oklch(0.36  0.130 28);
+  --color-shu-900:      oklch(0.28  0.100 26);
+  --color-shu-950:      oklch(0.18  0.060 24);
+
+  /* alias，給語意命名用 */
+  --color-shu:          var(--color-shu-500);
+  --color-shu-deep:     var(--color-shu-700);
+  --color-shu-soft:     var(--color-shu-100);
+  --color-shu-line:     var(--color-shu-300);
+
+  /* —— Semantic: 早班 / 晚班 —— */
+  --color-day:          oklch(0.70  0.115 70);
+  --color-day-soft:     oklch(0.95  0.040 78);
+  --color-day-deep:     oklch(0.52  0.115 65);
+
+  --color-night:        oklch(0.42  0.080 255);
+  --color-night-soft:   oklch(0.93  0.025 255);
+  --color-night-deep:   oklch(0.32  0.080 260);
+
+  /* —— Auxiliary tone —— */
+  --color-matcha:       oklch(0.58  0.080 145);
+  --color-matcha-soft:  oklch(0.93  0.030 140);
+
+  /* —— Font families —— */
+  --font-serif: "Noto Serif TC", "Shippori Mincho", "Songti TC", "STSong", serif;
+  --font-sans:  "Noto Sans TC", "Inter", -apple-system, "PingFang TC",
+                "Microsoft JhengHei", sans-serif;
+  --font-mono:  "JetBrains Mono", "IBM Plex Mono", ui-monospace,
+                "SFMono-Regular", monospace;
+
+  /* —— Radius —— */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   14px;
+  --radius-xl:   14px;   /* 收斂：所有 2xl/3xl 都收回 lg */
+  --radius-2xl:  14px;
+  --radius-3xl:  14px;
+  --radius-pill: 999px;
+
+  /* —— Custom letter-spacing —— */
+  --tracking-stamp: 0.18em;
+  --tracking-label: 0.08em;
+
+  /* —— Shadow (極克制) —— */
+  --shadow-paper-1: 0 1px 0 0 rgb(60 40 20 / 0.04),
+                    0 1px 2px rgb(60 40 20 / 0.05);
+  --shadow-paper-2: 0 2px 1px -1px rgb(60 40 20 / 0.06),
+                    0 6px 14px -8px rgb(60 40 20 / 0.10);
+
+  /* —— Container width —— */
+  --container-shuna: 1180px;
+}
+
+/* ============================================================
+   @nuxt/ui primary palette 覆蓋
+   ============================================================ */
+@theme {
+  /* @nuxt/ui 用 color="primary" 時讀的就是 --color-primary-* */
+  --color-primary-50:  var(--color-shu-50);
+  --color-primary-100: var(--color-shu-100);
+  --color-primary-200: var(--color-shu-200);
+  --color-primary-300: var(--color-shu-300);
+  --color-primary-400: var(--color-shu-400);
+  --color-primary-500: var(--color-shu-500);
+  --color-primary-600: var(--color-shu-600);
+  --color-primary-700: var(--color-shu-700);
+  --color-primary-800: var(--color-shu-800);
+  --color-primary-900: var(--color-shu-900);
+  --color-primary-950: var(--color-shu-950);
+}
+
+/* ============================================================
+   Base / Reset
+   ============================================================ */
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  color: var(--color-ink);
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "palt";
+}
+
+::selection { background: var(--color-shu); color: var(--color-paper); }
+
+:where(button, a, input, [role="button"]):focus-visible {
+  outline: 2px solid var(--color-shu);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ============================================================
+   Utility 短捷（@nuxt/ui 無法產生的）
+   ============================================================ */
+.serif       { font-family: var(--font-serif); font-weight: 500; line-height: 1.15; }
+.mono        { font-family: var(--font-mono); font-feature-settings: "tnum"; }
+.tnum        { font-variant-numeric: tabular-nums; }
+.stamp-label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: var(--tracking-stamp);
+  text-transform: uppercase;
+  color: var(--color-ink-soft);
+}
+.hairline-t  { border-top: 1px solid var(--color-rule); }
+.hairline-b  { border-bottom: 1px solid var(--color-rule); }

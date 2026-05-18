@@ -1,0 +1,191 @@
+/* ============================================================
+   朱雫 — components.css
+   保留必須以原生 CSS 撰寫的元件（複雜偽元素、動態探員色）。
+   單純 utility 能解決的（color / spacing / radius）寫在 Vue
+   template class 即可，不放這裡。
+   ============================================================ */
+
+@layer components {
+  /* —— 紙感顆粒 overlay —— */
+  .paper-grain::before {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    opacity: 0.4;
+    z-index: 0;
+    background-image:
+      radial-gradient(circle at 12% 18%, rgb(120 80 50 / 0.03) 0, transparent 30%),
+      radial-gradient(circle at 88% 70%, rgb(120 80 50 / 0.025) 0, transparent 35%),
+      repeating-linear-gradient(0deg, rgb(120 80 50 / 0.012) 0 1px, transparent 1px 3px);
+  }
+
+  /* —— 朱字章 —— */
+  .shu-stamp {
+    display: inline-flex;
+    align-items: center; justify-content: center;
+    border: 1.5px solid var(--color-shu);
+    color: var(--color-shu);
+    font-family: var(--font-serif);
+    border-radius: 6px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .shu-stamp::after {
+    content: "";
+    position: absolute; inset: 3px;
+    border: 1px solid var(--color-shu);
+    border-radius: 4px;
+    opacity: 0.4;
+  }
+
+  /* —— 漢字小圖章（用於 section heading） —— */
+  .kanji-mark {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px;
+    border: 1px solid var(--color-shu);
+    color: var(--color-shu);
+    font-family: var(--font-serif);
+    font-size: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  /* —— 印章式日期框（首頁 hero） —— */
+  /* 四角描邊裝飾，Tailwind 無法直接表達 */
+  .date-stamp-frame {
+    border: 1.5px solid var(--color-ink);
+    padding: 24px 32px;
+    background: var(--color-paper);
+    position: relative;
+  }
+  .date-stamp-frame::before,
+  .date-stamp-frame::after {
+    content: ""; position: absolute;
+    width: 12px; height: 12px;
+    border: 1.5px solid var(--color-ink);
+    background: var(--color-paper);
+  }
+  .date-stamp-frame::before {
+    top: -6px; left: -6px;
+    border-right: 0; border-bottom: 0;
+  }
+  .date-stamp-frame::after {
+    bottom: -6px; right: -6px;
+    border-left: 0; border-top: 0;
+  }
+
+  /* —— 今日卡片左側朱紅實線 —— */
+  .daily-card-today {
+    border-color: var(--color-shu) !important;
+    box-shadow: -4px 0 0 var(--color-shu);
+  }
+
+  /* —— 探員 chip（動態色用 --agent-color） —— */
+  .agent-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule);
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .agent-chip__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--agent-color, var(--color-ink-mute));
+  }
+  .agent-chip__name { color: var(--agent-color, var(--color-ink)); font-weight: 500; }
+  .agent-chip:hover { border-color: var(--agent-color, var(--color-ink)); }
+  .agent-chip.is-highlighted {
+    border-color: var(--agent-color);
+    background: color-mix(in oklab, var(--agent-color) 12%, var(--color-paper));
+    box-shadow: 0 0 0 1px var(--agent-color);
+  }
+
+  /* —— 篩選 chip（active 反白） —— */
+  .filter-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--color-rule);
+    background: var(--color-paper);
+    font-size: 13px;
+    cursor: pointer;
+    color: var(--color-ink);
+  }
+  .filter-chip__dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--agent-color);
+  }
+  .filter-chip:hover { border-color: var(--agent-color); }
+  .filter-chip.is-active {
+    background: var(--agent-color);
+    color: white;
+    border-color: var(--agent-color);
+  }
+  .filter-chip.is-active .filter-chip__dot { background: white; }
+
+  /* —— 探員頭像（動態色 ring） —— */
+  .agent-portrait-photo {
+    border-radius: 50%;
+    overflow: visible;
+    background: var(--color-paper-2);
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 0 0 4px var(--color-paper),
+      0 0 0 5px var(--agent-color, var(--color-rule));
+    transition: box-shadow 0.2s ease;
+  }
+  .agent-portrait-photo > img {
+    width: 100%; height: 100%; object-fit: cover;
+    border-radius: 50%; display: block;
+  }
+
+  /* —— 探員詳情頁照片（方形 + 雙重 ring） —— */
+  .agent-profile-photo {
+    aspect-ratio: 1;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 1px var(--color-rule),
+      0 0 0 8px var(--color-paper),
+      0 0 0 9px var(--agent-color);
+    background: var(--color-paper-2);
+  }
+
+  /* —— 出勤統計 stacked bar —— */
+  .stat-bar {
+    display: flex;
+    width: 100%;
+    height: 18px;
+    background: var(--color-paper-2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .stat-bar__day   { background: var(--color-day); }
+  .stat-bar__night { background: var(--color-night); }
+
+  /* —— 班次小圖示底色（用 currentColor） —— */
+  .shift-icon-day {
+    color: var(--color-day-deep);
+    background: var(--color-day-soft);
+    border: 1px solid var(--color-day);
+  }
+  .shift-icon-night {
+    color: var(--color-night-deep);
+    background: var(--color-night-soft);
+    border: 1px solid var(--color-night);
+  }
+
+  /* —— EmptyState 大漢字圖章 —— */
+  .empty-kanji {
+    font-family: var(--font-serif);
+    font-size: 56px;
+    color: var(--color-shu);
+    border: 1.5px solid var(--color-shu);
+    width: 88px; height: 88px;
+    display: flex; align-items: center; justify-content: center;
+  }
+}

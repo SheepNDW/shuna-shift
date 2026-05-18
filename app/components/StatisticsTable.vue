@@ -37,7 +37,7 @@ function getSortIcon(key: SortKey): string {
   <div class="p-4">
     <!-- Header -->
     <div
-      class="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-3 mb-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300"
+      class="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-3 mb-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700"
     >
       <!-- Rank -->
       <span class="text-center">#</span>
@@ -47,7 +47,7 @@ function getSortIcon(key: SortKey): string {
 
       <!-- Day Count -->
       <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
         @click="toggleSort('dayCount')"
       >
         <UIcon name="i-heroicons-sun" class="w-4 h-4 text-yellow-500" />
@@ -57,7 +57,7 @@ function getSortIcon(key: SortKey): string {
 
       <!-- Night Count -->
       <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
         @click="toggleSort('nightCount')"
       >
         <UIcon name="i-heroicons-moon" class="w-4 h-4 text-indigo-500" />
@@ -67,7 +67,7 @@ function getSortIcon(key: SortKey): string {
 
       <!-- Total -->
       <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
         @click="toggleSort('total')"
       >
         <span class="hidden sm:inline">總計</span>
@@ -85,12 +85,12 @@ function getSortIcon(key: SortKey): string {
         :class="[
           'grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors',
           stat.isFullTime
-            ? 'border-pink-200 dark:border-pink-800 bg-pink-50 dark:bg-pink-900/10 hover:bg-pink-100 dark:hover:bg-pink-900/20'
-            : 'border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50',
+            ? 'border-pink-200 bg-pink-50 hover:bg-pink-100'
+            : 'border-gray-200 hover:bg-gray-50',
         ]"
       >
         <!-- Rank -->
-        <span class="text-sm text-gray-500 dark:text-gray-400 text-center">
+        <span class="text-sm text-gray-500 text-center">
           {{ index + 1 }}
         </span>
 
@@ -99,32 +99,32 @@ function getSortIcon(key: SortKey): string {
           <NuxtImg
             :src="stat.picture"
             :alt="stat.name"
-            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-pink-200 dark:ring-pink-700 shrink-0"
+            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-pink-200 shrink-0"
             densities="x1"
             loading="lazy"
           />
-          <span class="font-medium text-gray-900 dark:text-gray-100 truncate text-sm sm:text-base">
+          <span class="font-medium text-gray-900 truncate text-sm sm:text-base">
             {{ stat.name }}
           </span>
         </div>
 
         <!-- Day Count -->
         <span
-          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full text-xs sm:text-sm font-medium"
+          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs sm:text-sm font-medium"
         >
           {{ stat.dayCount }}
         </span>
 
         <!-- Night Count -->
         <span
-          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 rounded-full text-xs sm:text-sm font-medium"
+          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs sm:text-sm font-medium"
         >
           {{ stat.nightCount }}
         </span>
 
         <!-- Total -->
         <span
-          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-2 sm:px-3 py-0.5 sm:py-1 bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 rounded-full text-xs sm:text-sm font-bold"
+          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-2 sm:px-3 py-0.5 sm:py-1 bg-pink-100 text-pink-700 rounded-full text-xs sm:text-sm font-bold"
         >
           {{ stat.total }}
         </span>
@@ -134,7 +134,7 @@ function getSortIcon(key: SortKey): string {
     <!-- Empty State -->
     <div
       v-if="sortedStatistics.length === 0"
-      class="text-center py-12 text-gray-500 dark:text-gray-400"
+      class="text-center py-12 text-gray-500"
     >
       <UIcon name="i-heroicons-chart-bar" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>沒有統計資料</p>

@@ -53,7 +53,7 @@ const agents: AgentSelectOption[] = [...AGENTS]
     <div class="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
       <div class="flex items-center gap-2 shrink-0">
         <UIcon name="i-heroicons-funnel" class="w-5 h-5 text-gray-500" />
-        <span class="font-medium text-gray-700 dark:text-gray-300">探員篩選：</span>
+        <span class="font-medium text-gray-700">探員篩選：</span>
       </div>
       <div class="flex-1 w-full sm:w-auto">
         <USelectMenu
@@ -81,10 +81,10 @@ const agents: AgentSelectOption[] = [...AGENTS]
     <!-- Active Filter Display -->
     <div
       v-if="selectedAgent && selectedAgent.length > 0"
-      class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700"
+      class="mt-4 pt-4 border-t border-gray-200"
     >
       <div class="flex flex-wrap items-center gap-2">
-        <span class="text-sm text-gray-600 dark:text-gray-400">目前顯示：</span>
+        <span class="text-sm text-gray-600">目前顯示：</span>
         <UBadge
           v-for="agent in selectedAgent"
           :key="agent.name"
@@ -106,7 +106,7 @@ const agents: AgentSelectOption[] = [...AGENTS]
             @click.stop="removeAgent(agent.name)"
           />
         </UBadge>
-        <span class="text-sm text-gray-600 dark:text-gray-400">的班表</span>
+        <span class="text-sm text-gray-600">的班表</span>
       </div>
     </div>
   </div>
