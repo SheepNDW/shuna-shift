@@ -1,6 +1,5 @@
 // ============================================================
 // 朱雫 — app.config.ts
-// 貼到：app/app.config.ts
 // @nuxt/ui 的 color="primary" 會自動讀 --color-primary-* CSS var
 // 我們已在 main.css 把 primary alias 到 shu palette，所以這裡只需
 // 把 colors.primary 改成 ui 認可的 key name（保留作為 fallback 鍵名）。

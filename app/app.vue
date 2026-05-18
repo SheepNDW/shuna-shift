@@ -1,9 +1,3 @@
-<!--
-  朱雫 — app.vue
-  貼到：app/app.vue
-
-  變更：補上 Google Fonts 載入（Noto Serif TC / Noto Sans TC / JetBrains Mono）
--->
 <script setup lang="ts">
 const scheduleStore = useScheduleStore();
 

@@ -3,8 +3,6 @@
    保留必須以原生 CSS 撰寫的元件（複雜偽元素、動態探員色）。
    單純 utility 能解決的（color / spacing / radius）寫在 Vue
    template class 即可，不放這裡。
-   ============================================================
-   貼到：app/assets/css/components.css
    ============================================================ */
 
 @layer components {
