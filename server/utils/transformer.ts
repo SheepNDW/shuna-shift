@@ -77,11 +77,16 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
       // 無日期但有班表資料：接續前一天。班別以 B 欄為準，缺漏時預設晚班
       const last = acc[acc.length - 1];
       if (last) {
-        if (curr.shiftType === 'day') {
-          last.day = agents;
-        } else {
-          last.night = agents;
+        const shift = curr.shiftType === 'day' ? 'day' : 'night';
+        // 同一天同班別出現多列代表表單填寫異常，覆寫前先示警，避免靜默遺失資料
+        if (last[shift].length > 0) {
+          console.warn(
+            `[transformer] ${last.date.datetime} 的${
+              shift === 'day' ? '早' : '晚'
+            }班被多列資料覆寫，請檢查表單`,
+          );
         }
+        last[shift] = agents;
         // 早班若無 description，沿用此列的 description
         if (!last.date.description && curr.date.description) {
           last.date.description = curr.date.description;

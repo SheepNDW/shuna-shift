@@ -25,6 +25,10 @@ export type ShiftType = 'day' | 'night' | '';
 
 /**
  * 解析班表 B 欄的班別文字。
+ *
+ * 刻意採窄比對：僅接受單字「早」/「晚」（前後空白會去除）。其他寫法
+ * （如「早班」、`AM`/`PM`）一律回傳 `''`，由呼叫端 `mergeDayAndNightShifts`
+ * 退回位置推斷。若表單日後改用其他用字，須一併調整此處。
  * @param value B 欄儲存格的字串值
  * @returns `'day'`（早）／`'night'`（晚）／`''`（空白或無法判定）
  */
