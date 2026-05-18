@@ -44,26 +44,26 @@ const specialLegend = [
 <template>
   <div class="mb-10">
     <div
-      class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200 "
+      class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200"
     >
       <!-- 日期顏色說明 -->
       <div class="flex items-center justify-center gap-2 mb-4">
         <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-purple-500" />
-        <h3 class="text-lg font-bold text-gray-800 ">日期顏色說明</h3>
+        <h3 class="text-lg font-bold text-gray-800">日期顏色說明</h3>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div
           v-for="item in colorLegend"
           :key="item.label"
-          class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 "
+          class="flex items-center gap-3 p-3 rounded-lg bg-gray-50"
         >
           <div
             class="w-8 h-8 rounded-full flex items-center justify-center shadow-md"
             :style="{ backgroundColor: item.color }"
           >
-            <UIcon :name="item.icon" class="w-4 h-4 text-gray-700 " />
+            <UIcon :name="item.icon" class="w-4 h-4 text-gray-700" />
           </div>
-          <span class="text-sm font-medium text-gray-700 ">
+          <span class="text-sm font-medium text-gray-700">
             {{ item.label }}
           </span>
         </div>
@@ -75,13 +75,13 @@ const specialLegend = [
       <!-- 班別顏色說明 -->
       <div class="flex items-center justify-center gap-2 mb-4">
         <UIcon name="i-heroicons-clock" class="w-5 h-5 text-blue-500" />
-        <h3 class="text-lg font-bold text-gray-800 ">班別顏色說明</h3>
+        <h3 class="text-lg font-bold text-gray-800">班別顏色說明</h3>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div
           v-for="item in shiftLegend"
           :key="item.label"
-          class="flex flex-col gap-2 p-4 rounded-lg bg-gray-50 "
+          class="flex flex-col gap-2 p-4 rounded-lg bg-gray-50"
         >
           <div class="flex items-center gap-3">
             <UIcon :name="item.icon" class="w-5 h-5" :style="{ color: item.color }" />
@@ -100,14 +100,14 @@ const specialLegend = [
         <div
           v-for="item in specialLegend"
           :key="item.label"
-          class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 "
+          class="flex items-center gap-3 p-3 rounded-lg bg-gray-50"
         >
           <UIcon :name="item.icon" class="w-5 h-5" :style="{ color: item.color }" />
           <div class="flex flex-col">
             <span class="text-sm font-medium" :style="{ color: item.color }">
               {{ item.label }}
             </span>
-            <span class="text-xs text-gray-600 ">
+            <span class="text-xs text-gray-600">
               {{ item.description }}
             </span>
           </div>

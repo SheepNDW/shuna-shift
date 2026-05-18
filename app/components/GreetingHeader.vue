@@ -13,8 +13,8 @@ const greeting = computed(() => {
       <div
         class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 rounded-full mb-4"
       >
-        <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-pink-600 " />
-        <span class="text-sm font-medium text-pink-700 "
+        <UIcon name="i-heroicons-sparkles" class="w-5 h-5 text-pink-600" />
+        <span class="text-sm font-medium text-pink-700"
           >{{ greeting }}前輩，歡迎回來！</span
         >
       </div>

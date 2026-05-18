@@ -82,7 +82,7 @@ const sortedAgents = computed(() => {
         :name="shiftType === 'day' ? 'i-heroicons-sun' : 'i-heroicons-moon'"
         class="w-12 h-12 text-gray-300 mb-3"
       />
-      <p class="text-center text-gray-500 ">
+      <p class="text-center text-gray-500">
         {{ shiftType === 'day' ? '早班' : '晚班' }}無排班
       </p>
     </div>

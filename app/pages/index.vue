@@ -126,14 +126,14 @@ useHead({
               <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 ml-2" />
             </UButton>
           </div>
-          <p class="mt-4 text-sm text-gray-500 ">查看未來幾天的排班資訊</p>
+          <p class="mt-4 text-sm text-gray-500">查看未來幾天的排班資訊</p>
         </div>
       </div>
 
       <!-- Empty State (no schedule today) -->
       <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
         <div
-          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 "
+          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300"
         >
           <UIcon
             name="i-heroicons-calendar-days"

@@ -49,7 +49,7 @@ useHead({
     <div class="max-w-3xl mx-auto">
       <div class="flex items-center gap-2 mb-6">
         <UIcon name="i-heroicons-calendar-days" class="w-6 h-6 text-pink-500" />
-        <h2 class="text-2xl font-bold text-gray-800 ">近期排班記錄</h2>
+        <h2 class="text-2xl font-bold text-gray-800">近期排班記錄</h2>
       </div>
 
       <div v-if="agentSchedules.length === 0" class="text-center py-12">

@@ -42,7 +42,7 @@ const iconConfig = computed(() => {
   return {
     name: 'i-heroicons-moon',
     color: nightIconColor || undefined,
-    class: nightIconColor ? '' : 'text-gray-900 ',
+    class: nightIconColor ? '' : 'text-gray-900',
   };
 });
 
@@ -66,11 +66,11 @@ const titleStyle = computed(() => {
 
 const titleClass = computed(() => {
   if (props.type === 'day') {
-    return 'text-gray-900 ';
+    return 'text-gray-900';
   }
 
   const nightIconColor = getNightShiftIconColor(props.shift.textColor);
-  return nightIconColor ? '' : 'text-gray-900 ';
+  return nightIconColor ? '' : 'text-gray-900';
 });
 
 // 代班/換班圖示
@@ -104,7 +104,7 @@ const substituteText = computed(() => {
           <UIcon :name="substituteIcon" class="w-4 h-4" :style="{ color: shift.textColor }" />
           <span class="text-sm" :style="{ color: shift.textColor }">
             {{ substituteText }}
-            <span class="text-gray-600 ">
+            <span class="text-gray-600">
               (原: {{ shiftInfo.originalAgent }})
             </span>
           </span>

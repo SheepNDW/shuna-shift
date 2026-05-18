@@ -37,7 +37,7 @@ function getSortIcon(key: SortKey): string {
   <div class="p-4">
     <!-- Header -->
     <div
-      class="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-3 mb-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700 "
+      class="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-3 mb-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700"
     >
       <!-- Rank -->
       <span class="text-center">#</span>
@@ -47,7 +47,7 @@ function getSortIcon(key: SortKey): string {
 
       <!-- Day Count -->
       <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 :text-gray-100 transition-colors"
+        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
         @click="toggleSort('dayCount')"
       >
         <UIcon name="i-heroicons-sun" class="w-4 h-4 text-yellow-500" />
@@ -57,7 +57,7 @@ function getSortIcon(key: SortKey): string {
 
       <!-- Night Count -->
       <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 :text-gray-100 transition-colors"
+        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
         @click="toggleSort('nightCount')"
       >
         <UIcon name="i-heroicons-moon" class="w-4 h-4 text-indigo-500" />
@@ -67,7 +67,7 @@ function getSortIcon(key: SortKey): string {
 
       <!-- Total -->
       <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 :text-gray-100 transition-colors"
+        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
         @click="toggleSort('total')"
       >
         <span class="hidden sm:inline">總計</span>
@@ -85,8 +85,8 @@ function getSortIcon(key: SortKey): string {
         :class="[
           'grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors',
           stat.isFullTime
-            ? 'border-pink-200 bg-pink-50 hover:bg-pink-100 :bg-pink-900/20'
-            : 'border-gray-200 hover:bg-gray-50 :bg-gray-800/50',
+            ? 'border-pink-200 bg-pink-50 hover:bg-pink-100'
+            : 'border-gray-200 hover:bg-gray-50',
         ]"
       >
         <!-- Rank -->
@@ -134,7 +134,7 @@ function getSortIcon(key: SortKey): string {
     <!-- Empty State -->
     <div
       v-if="sortedStatistics.length === 0"
-      class="text-center py-12 text-gray-500 "
+      class="text-center py-12 text-gray-500"
     >
       <UIcon name="i-heroicons-chart-bar" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>沒有統計資料</p>

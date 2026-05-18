@@ -16,11 +16,11 @@ const getDateEventInfo = (backgroundColor: string) => {
 </script>
 
 <template>
-  <div class="mb-4 pb-3 border-b border-gray-200 ">
+  <div class="mb-4 pb-3 border-b border-gray-200">
     <div class="flex items-center gap-2 flex-wrap">
       <h3
         class="text-lg font-bold"
-        :class="getDateEventInfo(date.backgroundColor) ? '' : 'text-gray-800 '"
+        :class="getDateEventInfo(date.backgroundColor) ? '' : 'text-gray-800'"
         :style="getDateEventInfo(date.backgroundColor) ? { color: date.backgroundColor } : {}"
       >
         {{ date.datetime }}
@@ -40,7 +40,7 @@ const getDateEventInfo = (backgroundColor: string) => {
     <p
       v-if="date.description"
       class="text-sm mt-1 font-bold"
-      :class="getDateEventInfo(date.backgroundColor) ? '' : 'text-gray-600 '"
+      :class="getDateEventInfo(date.backgroundColor) ? '' : 'text-gray-600'"
       :style="getDateEventInfo(date.backgroundColor) ? { color: date.backgroundColor } : {}"
     >
       {{ date.description }}

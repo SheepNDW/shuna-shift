@@ -11,7 +11,7 @@ const hasPhotos = computed(() => (props.agentInfo.photos ?? []).filter(Boolean).
     <div class="flex flex-col items-center">
       <div class="relative mb-6 h-40 w-40 md:h-48 md:w-48">
         <div
-          class="h-full w-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 ring-4 ring-pink-100 transition-all hover:ring-pink-300 :ring-pink-700"
+          class="h-full w-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 ring-4 ring-pink-100 transition-all hover:ring-pink-300"
         >
           <NuxtImg
             :src="agentInfo.picture"
@@ -20,7 +20,7 @@ const hasPhotos = computed(() => (props.agentInfo.photos ?? []).filter(Boolean).
           />
         </div>
         <div
-          class="absolute -bottom-2 -right-2 flex h-12 w-12 items-center justify-center rounded-full bg-pink-500 shadow-lg border-4 border-white "
+          class="absolute -bottom-2 -right-2 flex h-12 w-12 items-center justify-center rounded-full bg-pink-500 shadow-lg border-4 border-white"
         >
           <UIcon name="i-heroicons-star-solid" class="h-6 w-6 text-white" />
         </div>
@@ -48,7 +48,7 @@ const hasPhotos = computed(() => (props.agentInfo.photos ?? []).filter(Boolean).
       <template #header>
         <div class="flex items-center gap-2">
           <UIcon name="i-heroicons-photo" class="h-5 w-5 text-pink-500" />
-          <h2 class="text-lg font-semibold text-gray-800 ">照片</h2>
+          <h2 class="text-lg font-semibold text-gray-800">照片</h2>
         </div>
       </template>
 

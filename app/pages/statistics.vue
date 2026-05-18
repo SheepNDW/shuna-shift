@@ -38,9 +38,9 @@ useHead({
       >
         <UIcon
           name="i-heroicons-chart-bar"
-          class="w-5 h-5 text-emerald-600 "
+          class="w-5 h-5 text-emerald-600"
         />
-        <span class="text-sm font-medium text-emerald-700 ">排班紀錄</span>
+        <span class="text-sm font-medium text-emerald-700">排班紀錄</span>
       </div>
       <h1
         class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
@@ -66,12 +66,12 @@ useHead({
             >
               <UIcon
                 name="i-heroicons-calendar-days"
-                class="w-6 h-6 text-emerald-600 "
+                class="w-6 h-6 text-emerald-600"
               />
             </div>
             <div>
-              <p class="text-sm text-gray-500 ">統計期間</p>
-              <p class="font-semibold text-gray-900 ">
+              <p class="text-sm text-gray-500">統計期間</p>
+              <p class="font-semibold text-gray-900">
                 {{ data.metadata.dateRange.from }} ~ {{ data.metadata.dateRange.to }}
               </p>
             </div>
@@ -82,12 +82,12 @@ useHead({
             >
               <UIcon
                 name="i-heroicons-document-text"
-                class="w-6 h-6 text-purple-600 "
+                class="w-6 h-6 text-purple-600"
               />
             </div>
             <div>
-              <p class="text-sm text-gray-500 ">統計天數</p>
-              <p class="font-semibold text-gray-900 ">
+              <p class="text-sm text-gray-500">統計天數</p>
+              <p class="font-semibold text-gray-900">
                 {{ data.metadata.totalSchedules }} 天
               </p>
             </div>
@@ -99,7 +99,7 @@ useHead({
       <div
         class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
       >
-        <div class="p-4 border-b border-gray-200 ">
+        <div class="p-4 border-b border-gray-200">
           <h2
             class="text-lg font-semibold text-gray-900 flex items-center gap-2"
           >
@@ -115,9 +115,9 @@ useHead({
       <div class="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm">
         <div class="flex items-center gap-2">
           <span
-            class="w-4 h-4 rounded bg-pink-50 border border-pink-200 "
+            class="w-4 h-4 rounded bg-pink-50 border border-pink-200"
           />
-          <span class="text-gray-600 ">正職探員</span>
+          <span class="text-gray-600">正職探員</span>
         </div>
         <div class="flex items-center gap-2">
           <span
@@ -125,7 +125,7 @@ useHead({
           >
             N
           </span>
-          <span class="text-gray-600 ">日班次數</span>
+          <span class="text-gray-600">日班次數</span>
         </div>
         <div class="flex items-center gap-2">
           <span
@@ -133,7 +133,7 @@ useHead({
           >
             N
           </span>
-          <span class="text-gray-600 ">晚班次數</span>
+          <span class="text-gray-600">晚班次數</span>
         </div>
       </div>
     </div>
@@ -141,7 +141,7 @@ useHead({
     <!-- Error State -->
     <div
       v-else
-      class="flex flex-col items-center justify-center py-20 text-gray-500 "
+      class="flex flex-col items-center justify-center py-20 text-gray-500"
     >
       <UIcon name="i-heroicons-exclamation-circle" class="w-16 h-16 mb-4 text-red-400" />
       <p class="text-lg">無法載入統計資料</p>

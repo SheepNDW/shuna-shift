@@ -15,7 +15,7 @@ const lastUpdated = computed(() => {
 
 <template>
   <footer
-    class="mt-auto bg-linear-to-r from-pink-50 to-purple-50 border-t border-pink-200 "
+    class="mt-auto bg-linear-to-r from-pink-50 to-purple-50 border-t border-pink-200"
   >
     <UContainer>
       <div class="py-8">
@@ -44,7 +44,7 @@ const lastUpdated = computed(() => {
               href="https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium text-pink-600 hover:text-pink-700 :text-pink-300 border border-pink-200 "
+              class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium text-pink-600 hover:text-pink-700 border border-pink-200"
             >
               <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-4 h-4" />
               朱雫班表 Google 表單
@@ -68,14 +68,14 @@ const lastUpdated = computed(() => {
             <div class="flex flex-col gap-2 items-center md:items-end">
               <NuxtLink
                 to="/"
-                class="text-sm text-gray-600 hover:text-pink-600 :text-pink-400 transition-colors flex items-center gap-1"
+                class="text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-1"
               >
                 <UIcon name="i-heroicons-home" class="w-4 h-4" />
                 今日班表
               </NuxtLink>
               <NuxtLink
                 to="/shifts"
-                class="text-sm text-gray-600 hover:text-pink-600 :text-pink-400 transition-colors flex items-center gap-1"
+                class="text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-1"
               >
                 <UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
                 完整班表
@@ -84,7 +84,7 @@ const lastUpdated = computed(() => {
                 :href="BOOKING_URL"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="text-sm text-gray-600 hover:text-pink-600 :text-pink-400 transition-colors flex items-center gap-1"
+                class="text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-1"
               >
                 <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
                 線上訂位
@@ -97,7 +97,7 @@ const lastUpdated = computed(() => {
         <div class="border-t border-gray-200 mb-6" />
 
         <!-- Bottom Section -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-500 ">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-500">
           <p class="flex items-center justify-center md:justify-start gap-1">
             <UIcon name="i-heroicons-heart-solid" class="w-4 h-4 text-pink-500" />
             Made with love for 喫茶 朱雫 Maid Café

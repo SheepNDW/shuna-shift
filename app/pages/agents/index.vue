@@ -41,8 +41,8 @@ useHead({
       <div
         class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 rounded-full mb-4"
       >
-        <UIcon name="i-heroicons-users" class="w-5 h-5 text-pink-600 " />
-        <span class="text-sm font-medium text-pink-700 ">探員一覽</span>
+        <UIcon name="i-heroicons-users" class="w-5 h-5 text-pink-600" />
+        <span class="text-sm font-medium text-pink-700">探員一覽</span>
       </div>
       <h1
         class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
@@ -65,7 +65,7 @@ useHead({
             color="neutral"
             variant="solid"
             size="lg"
-            class="bg-white! text-pink-600! ! !"
+            class="bg-white! text-pink-600!"
           >
             {{ fullTimeAgents.length }}
           </UBadge>
@@ -94,7 +94,7 @@ useHead({
             color="neutral"
             variant="solid"
             size="lg"
-            class="bg-white! text-blue-600! ! !"
+            class="bg-white! text-blue-600!"
           >
             {{ partTimeAgents.length }}
           </UBadge>
@@ -120,7 +120,7 @@ useHead({
           查看班表
         </UButton>
       </div>
-      <p class="mt-4 text-sm text-gray-500 ">查看近期排班資訊</p>
+      <p class="mt-4 text-sm text-gray-500">查看近期排班資訊</p>
     </div>
   </UContainer>
 </template>

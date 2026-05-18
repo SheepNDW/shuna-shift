@@ -61,9 +61,9 @@ useHead({
       >
         <UIcon
           name="i-heroicons-calendar-days"
-          class="w-5 h-5 text-purple-600 "
+          class="w-5 h-5 text-purple-600"
         />
-        <span class="text-sm font-medium text-purple-700 ">完整排班資訊</span>
+        <span class="text-sm font-medium text-purple-700">完整排班資訊</span>
       </div>
       <h1
         class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
@@ -77,7 +77,7 @@ useHead({
       <!-- Schedule Filter & Date Jump -->
       <div class="max-w-4xl mx-auto mb-8">
         <div
-          class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 "
+          class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200"
         >
           <div class="flex flex-col sm:flex-row gap-4 sm:items-start">
             <!-- Agent Filter -->
@@ -111,7 +111,7 @@ useHead({
         class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto"
       >
         <div
-          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 "
+          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300"
         >
           <UIcon
             name="i-heroicons-magnifying-glass"
@@ -131,14 +131,14 @@ useHead({
       <!-- Empty State (no future schedules) -->
       <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
         <div
-          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 "
+          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300"
         >
           <UIcon
             name="i-heroicons-calendar-days"
             class="w-16 h-16 text-gray-400 mx-auto mb-4"
           />
           <h3 class="text-2xl font-bold text-gray-700 mb-2">沒有未來班表</h3>
-          <p class="text-gray-600 ">目前沒有已排定的未來班表資料</p>
+          <p class="text-gray-600">目前沒有已排定的未來班表資料</p>
         </div>
       </div>
 
