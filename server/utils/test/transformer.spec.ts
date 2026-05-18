@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import type { RowData } from '~~/shared/types';
 import { isUnscheduledSchedule, transformSheetDataToSchedules } from '../transformer';
 import { mockSheetData, mockSheetDataNewMonth } from './fixtures/mockSheetData';
@@ -76,6 +76,74 @@ describe('transformSheetDataToSchedules', () => {
     expect(result[1]?.date.backgroundColor).toBe('#999999');
     expect(result[1]?.day).toEqual([]);
     expect(result[1]?.night).toEqual([]);
+  });
+});
+
+describe('transformSheetDataToSchedules — B 欄班別判定', () => {
+  const dateCell = (serial: number) => ({ userEnteredValue: { numberValue: serial } });
+  const shiftCell = (shift: string) => ({ userEnteredValue: { stringValue: shift } });
+  const agentsCell = (names: string) => ({ userEnteredValue: { stringValue: names } });
+
+  it('某日僅有晚班（單列、有日期、B 欄為「晚」）時，agents 應進 night 而非 day', () => {
+    const rows: RowData[] = [
+      { values: [dateCell(45800), shiftCell('晚'), agentsCell('🐷、亞米')] },
+    ];
+
+    const [schedule] = transformSheetDataToSchedules(rows);
+
+    // 舊的「有日期即早班」推斷會誤放進 day，B 欄為準才正確
+    expect(schedule?.day).toEqual([]);
+    expect(schedule?.night).toHaveLength(2);
+  });
+
+  it('某日僅有早班（單列、有日期、B 欄為「早」）時，agents 應進 day', () => {
+    const rows: RowData[] = [
+      { values: [dateCell(45800), shiftCell('早'), agentsCell('🐷、亞米')] },
+    ];
+
+    const [schedule] = transformSheetDataToSchedules(rows);
+
+    expect(schedule?.day).toHaveLength(2);
+    expect(schedule?.night).toEqual([]);
+  });
+
+  it('B 欄缺漏時應退回位置推斷：有日期視為早班、無日期視為晚班', () => {
+    const rows: RowData[] = [
+      { values: [dateCell(45800), {}, agentsCell('🐷')] },
+      { values: [{}, {}, agentsCell('亞米')] },
+    ];
+
+    const [schedule] = transformSheetDataToSchedules(rows);
+
+    expect(schedule?.day).toHaveLength(1);
+    expect(schedule?.night).toHaveLength(1);
+  });
+
+  it('晚班列在前、早班列在後（次序顛倒）時，仍以 B 欄為準分配', () => {
+    const rows: RowData[] = [
+      { values: [dateCell(45800), shiftCell('晚'), agentsCell('🐷、亞米')] },
+      { values: [{}, shiftCell('早'), agentsCell('芽')] },
+    ];
+
+    const [schedule] = transformSheetDataToSchedules(rows);
+
+    expect(schedule?.day).toHaveLength(1);
+    expect(schedule?.night).toHaveLength(2);
+  });
+
+  it('同一天同班別出現多列時，應警告並以後者覆寫', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const rows: RowData[] = [
+      { values: [dateCell(45800), shiftCell('早'), agentsCell('🐷')] },
+      { values: [{}, shiftCell('晚'), agentsCell('亞米')] },
+      { values: [{}, shiftCell('晚'), agentsCell('芽')] }, // 第二個晚班列
+    ];
+
+    const [schedule] = transformSheetDataToSchedules(rows);
+
+    expect(schedule?.night).toHaveLength(1);
+    expect(warnSpy).toHaveBeenCalledOnce();
+    warnSpy.mockRestore();
   });
 });
 

@@ -17,8 +17,8 @@
 |----|---------|------|------|------|
 | —  | #0a / #0b | 防禦性解析、蜜柑 🍊 統計修正 | — | ✅ 已完成（`d5f5268`、`cd19644`）|
 | PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | ✅ 已完成（[#13](https://github.com/SheepNDW/shuna-shift/pull/13)，squash `586651c`）|
-| PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | 🔍 待審查（[#14](https://github.com/SheepNDW/shuna-shift/pull/14)）|
-| PR 3 | #4 | 班別解析改用 B 欄 | 無 | ⬜ 待處理 |
+| PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | ✅ 已完成（[#14](https://github.com/SheepNDW/shuna-shift/pull/14)，squash `f0ea16f`）|
+| PR 3 | #4 | 班別解析改用 B 欄 | 無 | 🔍 待審查（[#15](https://github.com/SheepNDW/shuna-shift/pull/15)）|
 | PR 4 | #5 | AGENTS emoji 結構統一 | 無 | ⬜ 待處理 |
 
 開發順序：`PR 1 → PR 2`（PR 2 相依 PR 1）；`PR 3`、`PR 4` 獨立，可任意順序或並行。
@@ -92,11 +92,11 @@
 - [x] 從 `main` 開出開發分支（PR 1 已 merge）
 - [x] 決定採用方案：方案 2（動態解析 title）
 - [x] #2：`sheets.ts` 新增 `fetchSheetTitles` / `parseSheetTitles` / `resolveSheetTitle`，`statistics.get.ts` 改用動態解析，移除日期後綴硬編碼
-- [x] 新增/更新單元測試，`pnpm test` 通過（unit 113、nuxt 53）
+- [x] 新增/更新單元測試，`pnpm test` 通過（unit 114、nuxt 53；含審查後補強）
 - [x] `pnpm lint`、`pnpm typecheck` 通過
 - [x] **驗收**：實機 smoke test —— `/api/statistics` 動態解析到 `過去班表20260101~`，數據與 PR 1 一致（`3月3日~5月31日`、29 探員），dev log 無多 sheet 警告
-- [ ] 發 PR 回 `main` 並 merge
-- [ ] 更新本檔「進度總覽」PR 2 狀態為 ✅ 並附 PR 連結
+- [x] 發 PR 回 `main` 並 merge（PR [#14](https://github.com/SheepNDW/shuna-shift/pull/14)，squash merge 為 `f0ea16f`；審查 `resolveSheetTitle` 改為 fail closed）
+- [x] 更新本檔「進度總覽」PR 2 狀態為 ✅ 並附 PR 連結
 
 ---
 
@@ -107,16 +107,16 @@
 ### #4 以 B 欄判斷早/晚班（中優先）
 
 - **問題**：目前靠「A 欄空白即晚班」推斷（`mergeDayAndNightShifts`）。表單 B 欄已明寫「早/晚」，版面微調或某日僅有單班時推斷會出錯。
-- **作法**：解析 B 欄（範圍 `A:C` 已含 B 欄，僅 `transformer` 未使用），以明確值判定班別。
+- **作法**：`parser.ts` 新增 `parseShiftType`（解析 B 欄「早/晚」）；`transformRowToParsedData` 多讀 B 欄填入 `ParsedRow.shiftType`；`mergeDayAndNightShifts` 以 `shiftType` 判定班別，B 欄缺漏時退回原位置推斷（有日期＝早、無日期＝晚），避免無 B 欄資料時迴歸。
 - **影響檔案**：`server/utils/transformer.ts`、`server/utils/parser.ts`。
 
 ### 檢查清單
 
-- [ ] 從 `main` 開出開發分支
-- [ ] #4：`transformer` 改以 B 欄「早/晚」值判定班別
-- [ ] 新增單元測試，含「僅晚班」「僅早班」邊界案例
-- [ ] `pnpm test`、`pnpm lint`、`pnpm typecheck` 通過
-- [ ] **驗收**：以 B 欄為準的測試案例全數通過
+- [x] 從 `main` 開出開發分支
+- [x] #4：`transformer` 改以 B 欄「早/晚」值判定班別（B 欄缺漏退回位置推斷）
+- [x] 新增單元測試：`parseShiftType` 4 項、「僅晚班」「僅早班」「B 欄缺漏退回推斷」邊界案例
+- [x] `pnpm test`、`pnpm lint`、`pnpm typecheck` 通過（unit 122、nuxt 53）
+- [x] **驗收**：實機 smoke test —— `/api/sheet` 14 筆、`/api/statistics` 與 PR 2 一致（`3月3日~5月31日`、29 探員）；既有 `expectedScheduleData` fixture 原樣通過，佐證正常 2 列日行為保留
 - [ ] 發 PR 回 `main` 並 merge
 - [ ] 更新本檔「進度總覽」PR 3 狀態為 ✅ 並附 PR 連結
 
