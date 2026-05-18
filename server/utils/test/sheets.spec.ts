@@ -94,6 +94,13 @@ describe('resolveSheetTitle', () => {
     expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
   });
 
+  it('應該排除 `~` 結尾但起始日非 8 位數字者（觸發嚴格格式正則的拒絕路徑）', () => {
+    // `過去班表臨時~` 通過 startsWith + endsWith('~')，須由 /^\d{8}$/ 擋下
+    const titles = ['過去班表20260101~', '過去班表臨時~'];
+
+    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
+  });
+
   it('僅有已封存 sheet、找不到使用中者時，應該 fail closed 拋錯', () => {
     const titles = ['過去班表20250101~20251231', '過去班表20240501~20241231'];
 
