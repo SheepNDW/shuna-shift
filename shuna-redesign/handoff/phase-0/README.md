@@ -34,8 +34,8 @@ shuna-redesign/handoff/phase-0/
 git checkout refactor/uiux-redesign
 git pull
 
-# 開 Phase 0 子分支
-git checkout -b refactor/uiux-redesign/phase-0-tokens
+# 開 Phase 0 子分支（分支名用連字號，不可用斜線）
+git checkout -b refactor/uiux-redesign-phase-0-tokens
 ```
 
 ### 1. 拷貝檔案
@@ -160,8 +160,8 @@ pnpm dev
 - [ ] 全站 `rg "dark:"` 結果 = 0
 - [ ] `pnpm dev` 成功啟動，無 build error
 - [ ] 任一頁面加上前述測試卡片，能呈現紙感 + 朱紅按鈕
-- [ ] Commit：`git commit -m "phase-0: design tokens + remove dead dark mode + paper-grain background"`
-- [ ] Push：`git push -u origin refactor/uiux-redesign/phase-0-tokens`
+- [ ] Commit：`git commit -m "feat: design tokens + remove dead dark mode + paper-grain background"`
+- [ ] Push：`git push -u origin refactor/uiux-redesign-phase-0-tokens`
 - [ ] 開 PR：`gh pr create --base refactor/uiux-redesign --title "phase-0: design tokens + remove dead dark mode"` （⚠️ base 是 `refactor/uiux-redesign`，**不是 `main`**）
 
 完成後即可進 Phase 1（重寫 AppHeader / AppFooter）。
