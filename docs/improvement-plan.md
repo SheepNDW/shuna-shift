@@ -19,7 +19,7 @@
 | PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | ✅ 已完成（[#13](https://github.com/SheepNDW/shuna-shift/pull/13)，squash `586651c`）|
 | PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | ✅ 已完成（[#14](https://github.com/SheepNDW/shuna-shift/pull/14)，squash `f0ea16f`）|
 | PR 3 | #4 | 班別解析改用 B 欄 | 無 | ✅ 已完成（[#15](https://github.com/SheepNDW/shuna-shift/pull/15)，squash `b8eaf94`）|
-| PR 4 | #5 | AGENTS emoji 結構統一 | 無 | 🔍 待審查 |
+| PR 4 | #5 | AGENTS emoji 結構統一 | 無 | 🔍 待審查（[#16](https://github.com/SheepNDW/shuna-shift/pull/16)）|
 
 開發順序：`PR 1 → PR 2`（PR 2 相依 PR 1）；`PR 3`、`PR 4` 獨立，可任意順序或並行。
 
