@@ -20,6 +20,25 @@ export function rgbToHex(color: { red?: number; green?: number; blue?: number })
   return `#${[r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('')}`;
 }
 
+/** 班別：早班／晚班；`''` 代表 B 欄空白或無法判定 */
+export type ShiftType = 'day' | 'night' | '';
+
+/**
+ * 解析班表 B 欄的班別文字。
+ * @param value B 欄儲存格的字串值
+ * @returns `'day'`（早）／`'night'`（晚）／`''`（空白或無法判定）
+ */
+export function parseShiftType(value: string | undefined): ShiftType {
+  switch (value?.trim()) {
+    case '早':
+      return 'day';
+    case '晚':
+      return 'night';
+    default:
+      return '';
+  }
+}
+
 export function parseAgents(name: string, runs: TextFormatRun[] = []) {
   const names = name.split('、').filter((n) => n.trim());
 

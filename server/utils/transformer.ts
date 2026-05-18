@@ -1,4 +1,10 @@
-import { excelSerialToDateLabel, parseAgents, rgbToHex } from './parser';
+import {
+  excelSerialToDateLabel,
+  parseAgents,
+  parseShiftType,
+  rgbToHex,
+  type ShiftType,
+} from './parser';
 
 export interface ParsedRow {
   date: {
@@ -6,6 +12,8 @@ export interface ParsedRow {
     backgroundColor: string;
     description: string;
   };
+  /** 由 B 欄判定的班別 */
+  shiftType: ShiftType;
   agents: {
     name: string;
     textFormatRuns: TextFormatRun[];
@@ -13,7 +21,8 @@ export interface ParsedRow {
 }
 
 /**
- * 將 Google Sheets 的原始行資料轉換為結構化的日期和資訊
+ * 將 Google Sheets 的原始行資料轉換為結構化的日期、班別與班表資訊。
+ * 對應欄位：A 欄日期、B 欄班別（早／晚）、C 欄當班探員。
  */
 export function transformRowToParsedData(row: RowData): ParsedRow {
   const cells = row.values ?? [];
@@ -28,6 +37,7 @@ export function transformRowToParsedData(row: RowData): ParsedRow {
         : '',
       description: cells[0]?.userEnteredValue?.stringValue ?? '',
     },
+    shiftType: parseShiftType(cells[1]?.userEnteredValue?.stringValue),
     agents: {
       name: cells[2]?.userEnteredValue?.stringValue?.trim() ?? '',
       textFormatRuns: cells[2]?.textFormatRuns ?? [],
@@ -36,34 +46,49 @@ export function transformRowToParsedData(row: RowData): ParsedRow {
 }
 
 /**
- * 合併早班與晚班資料
- * 晚班的 row 沒有 datetime，遇到沒有 datetime 的就插入到前一筆資料的 night 欄位
+ * 將解析後的列資料合併為各日班表。
+ *
+ * 有日期的列開啟新的一天，後續無日期的列接續同一天。
+ * 班別（早／晚）以 B 欄為準（{@link ParsedRow.shiftType}）；B 欄缺漏時
+ * 退回位置推斷 —— 有日期者視為早班、無日期者視為晚班。
  */
 export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[] {
   return parsedRows.reduce<ShiftSchedule[]>((acc, curr) => {
+    const agents = parseAgents(curr.agents.name, curr.agents.textFormatRuns);
+
     if (curr.date.datetime) {
-      // 有日期表示這是早班資料
-      acc.push({
+      // 有日期：開啟新的一天。班別以 B 欄為準，缺漏時預設早班
+      const schedule: ShiftSchedule = {
         date: {
           datetime: curr.date.datetime,
           backgroundColor: curr.date.backgroundColor,
           description: curr.date.description,
         },
-        day: parseAgents(curr.agents.name, curr.agents.textFormatRuns),
+        day: [],
         night: [],
-      });
+      };
+      if (curr.shiftType === 'night') {
+        schedule.night = agents;
+      } else {
+        schedule.day = agents;
+      }
+      acc.push(schedule);
     } else if (curr.agents.name) {
-      // 沒有日期但有班表資料，表示這是晚班資料，合併到前一筆
+      // 無日期但有班表資料：接續前一天。班別以 B 欄為準，缺漏時預設晚班
       const last = acc[acc.length - 1];
       if (last) {
-        last.night = parseAgents(curr.agents.name, curr.agents.textFormatRuns);
-        // 只有當早班沒有 description 時，才使用晚班的 description
+        if (curr.shiftType === 'day') {
+          last.day = agents;
+        } else {
+          last.night = agents;
+        }
+        // 早班若無 description，沿用此列的 description
         if (!last.date.description && curr.date.description) {
           last.date.description = curr.date.description;
         }
       }
     }
-    // 如果既沒有日期也沒有班表資料（例如換月標記），則跳過
+    // 既無日期也無班表資料（例如換月標記）則跳過
     return acc;
   }, []);
 }

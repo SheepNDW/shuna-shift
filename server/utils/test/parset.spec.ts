@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { TextFormatRun } from '~~/shared/types';
 import { normalizeAgentName } from '~~/shared/constant';
-import { excelSerialToDateLabel, parseAgents, rgbToHex } from '../parser';
+import { excelSerialToDateLabel, parseAgents, parseShiftType, rgbToHex } from '../parser';
 
 describe('excelSerialToDateLabel', () => {
   it('應該將 Excel 序列號轉換為日期標籤', () => {
@@ -164,6 +164,27 @@ describe('parseAgents', () => {
       { name: '蜜柑', textColor: '' },
       { name: '蜜柑', textColor: '' },
     ]);
+  });
+});
+
+describe('parseShiftType', () => {
+  it('應該將「早」解析為 day', () => {
+    expect(parseShiftType('早')).toBe('day');
+  });
+
+  it('應該將「晚」解析為 night', () => {
+    expect(parseShiftType('晚')).toBe('night');
+  });
+
+  it('應該容忍前後空白', () => {
+    expect(parseShiftType(' 早 ')).toBe('day');
+    expect(parseShiftType('晚\n')).toBe('night');
+  });
+
+  it('空白、undefined 或無法判定的值應回傳空字串', () => {
+    expect(parseShiftType('')).toBe('');
+    expect(parseShiftType(undefined)).toBe('');
+    expect(parseShiftType('中')).toBe('');
   });
 });
 
