@@ -49,12 +49,12 @@ useHead({
     <div class="max-w-3xl mx-auto">
       <div class="flex items-center gap-2 mb-6">
         <UIcon name="i-heroicons-calendar-days" class="w-6 h-6 text-pink-500" />
-        <h2 class="text-2xl font-bold text-gray-800 dark:text-gray-200">近期排班記錄</h2>
+        <h2 class="text-2xl font-bold text-gray-800 ">近期排班記錄</h2>
       </div>
 
       <div v-if="agentSchedules.length === 0" class="text-center py-12">
         <UIcon name="i-heroicons-calendar-days" class="w-16 h-16 mx-auto mb-4 text-gray-400" />
-        <p class="text-gray-600 dark:text-gray-400 mb-4">目前沒有排班記錄</p>
+        <p class="text-gray-600 mb-4">目前沒有排班記錄</p>
         <UButton to="/shifts" variant="soft" color="primary"> 查看完整班表 </UButton>
       </div>
 

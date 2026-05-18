@@ -11,7 +11,7 @@ const isFullTime = computed(() => props.agent.isFullTime === true);
 const cardClasses = computed(() =>
   isFullTime.value
     ? 'group relative flex flex-col items-center p-6 rounded-3xl shadow-xl transition-all duration-300 transform hover:-translate-y-2 bg-linear-to-br from-white to-pink-50 border-2 border-transparent bg-clip-padding'
-    : 'group relative flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700'
+    : 'group relative flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 '
 );
 
 const outerBorderClasses = computed(() =>
@@ -28,20 +28,20 @@ const avatarWrapperClasses = computed(() =>
 
 const avatarRingClasses = computed(() =>
   isFullTime.value
-    ? 'w-full h-full overflow-hidden rounded-full bg-linear-to-br from-yellow-200 via-pink-100 to-orange-100 dark:from-yellow-900 dark:via-pink-900 dark:to-orange-900 ring-4 ring-yellow-200 dark:ring-yellow-700 shadow-lg'
-    : 'w-full h-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 dark:from-pink-900 dark:to-purple-900 ring-4 ring-pink-100 dark:ring-pink-900/50 group-hover:ring-pink-300 dark:group-hover:ring-pink-700 transition-all'
+    ? 'w-full h-full overflow-hidden rounded-full bg-linear-to-br from-yellow-200 via-pink-100 to-orange-100 ring-4 ring-yellow-200 shadow-lg'
+    : 'w-full h-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 ring-4 ring-pink-100 group-hover:ring-pink-300 :ring-pink-700 transition-all'
 );
 
 const starClasses = computed(() =>
   isFullTime.value
-    ? 'absolute -bottom-1 -right-1 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-900'
-    : 'absolute -bottom-1 -right-1 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800'
+    ? 'absolute -bottom-1 -right-1 w-10 h-10 bg-yellow-400 rounded-full flex items-center justify-center shadow-lg border-2 border-white '
+    : 'absolute -bottom-1 -right-1 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white '
 );
 
 const nameClasses = computed(() =>
   isFullTime.value
-    ? 'font-extrabold text-2xl text-gray-800 dark:text-gray-100 text-center'
-    : 'font-bold text-xl text-gray-800 dark:text-gray-100 text-center'
+    ? 'font-extrabold text-2xl text-gray-800 text-center'
+    : 'font-bold text-xl text-gray-800 text-center'
 );
 
 const instagramButtonClasses = computed(() =>

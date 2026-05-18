@@ -20,7 +20,7 @@ defineProps<{
   >
     <div class="px-1">
       <div
-        class="aspect-square w-full overflow-hidden rounded-2xl bg-linear-to-br from-pink-200 to-purple-200 dark:from-pink-900 dark:to-purple-900"
+        class="aspect-square w-full overflow-hidden rounded-2xl bg-linear-to-br from-pink-200 to-purple-200 "
       >
         <NuxtImg
           :src="item"

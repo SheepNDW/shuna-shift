@@ -31,7 +31,7 @@ function handleSelect(item: DateOption) {
   >
     <div class="flex items-center gap-2 shrink-0">
       <UIcon name="i-heroicons-calendar" class="w-5 h-5 text-gray-500" />
-      <span class="font-medium text-gray-700 dark:text-gray-300">跳轉到：</span>
+      <span class="font-medium text-gray-700 ">跳轉到：</span>
     </div>
     <USelectMenu
       v-model="selectedDate"

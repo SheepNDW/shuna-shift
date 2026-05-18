@@ -57,27 +57,27 @@ useHead({
     <!-- Header -->
     <div class="text-center mb-12">
       <div
-        class="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4"
       >
         <UIcon
           name="i-heroicons-calendar-days"
-          class="w-5 h-5 text-purple-600 dark:text-purple-400"
+          class="w-5 h-5 text-purple-600 "
         />
-        <span class="text-sm font-medium text-purple-700 dark:text-purple-300">完整排班資訊</span>
+        <span class="text-sm font-medium text-purple-700 ">完整排班資訊</span>
       </div>
       <h1
         class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
       >
         完整班表
       </h1>
-      <p class="text-gray-600 dark:text-gray-400 text-lg">查看表單最近已排班日期的值班安排</p>
+      <p class="text-gray-600 text-lg">查看表單最近已排班日期的值班安排</p>
     </div>
 
     <ClientOnly>
       <!-- Schedule Filter & Date Jump -->
       <div class="max-w-4xl mx-auto mb-8">
         <div
-          class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
+          class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 "
         >
           <div class="flex flex-col sm:flex-row gap-4 sm:items-start">
             <!-- Agent Filter -->
@@ -111,14 +111,14 @@ useHead({
         class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto"
       >
         <div
-          class="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 dark:border-gray-600"
+          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 "
         >
           <UIcon
             name="i-heroicons-magnifying-glass"
-            class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4"
+            class="w-16 h-16 text-gray-400 mx-auto mb-4"
           />
-          <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">找不到班表</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">
+          <h3 class="text-2xl font-bold text-gray-700 mb-2">找不到班表</h3>
+          <p class="text-gray-600 mb-6">
             探員 <strong>{{ selectedAgentNames }}</strong> 在近期沒有排班記錄
           </p>
           <UButton color="primary" size="lg" @click="selectedAgent = []">
@@ -131,14 +131,14 @@ useHead({
       <!-- Empty State (no future schedules) -->
       <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
         <div
-          class="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 dark:border-gray-600"
+          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 "
         >
           <UIcon
             name="i-heroicons-calendar-days"
-            class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4"
+            class="w-16 h-16 text-gray-400 mx-auto mb-4"
           />
-          <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">沒有未來班表</h3>
-          <p class="text-gray-600 dark:text-gray-400">目前沒有已排定的未來班表資料</p>
+          <h3 class="text-2xl font-bold text-gray-700 mb-2">沒有未來班表</h3>
+          <p class="text-gray-600 ">目前沒有已排定的未來班表資料</p>
         </div>
       </div>
 

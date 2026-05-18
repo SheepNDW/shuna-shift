@@ -17,7 +17,7 @@ useHead({
         <!-- Date Card -->
         <div class="text-center mb-10">
           <div
-            class="inline-block px-8 py-4 rounded-2xl text-3xl font-bold shadow-lg border-4 border-white dark:border-gray-700 transform hover:scale-105 transition-transform"
+            class="inline-block px-8 py-4 rounded-2xl text-3xl font-bold shadow-lg border-4 border-white transform hover:scale-105 transition-transform"
             :style="{
               backgroundColor: todaySchedule.date.backgroundColor || '#f3f4f6',
             }"
@@ -29,7 +29,7 @@ useHead({
           </div>
           <p
             v-if="todaySchedule.date.description"
-            class="mt-4 text-lg text-gray-700 dark:text-gray-300 font-medium"
+            class="mt-4 text-lg text-gray-700 font-medium"
             :style="{
               color: todaySchedule.date.backgroundColor,
             }"
@@ -67,10 +67,10 @@ useHead({
           </div>
           <div
             v-else
-            class="flex flex-col items-center justify-center py-12 px-4 bg-white dark:bg-gray-800 rounded-2xl shadow-md"
+            class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-2xl shadow-md"
           >
-            <UIcon name="i-heroicons-sun" class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" />
-            <p class="text-center text-gray-500 dark:text-gray-400 text-lg">今日早班無排班</p>
+            <UIcon name="i-heroicons-sun" class="w-16 h-16 text-gray-300 mb-4" />
+            <p class="text-center text-gray-500 text-lg">今日早班無排班</p>
           </div>
         </div>
 
@@ -103,13 +103,13 @@ useHead({
           </div>
           <div
             v-else
-            class="flex flex-col items-center justify-center py-12 px-4 bg-white dark:bg-gray-800 rounded-2xl shadow-md"
+            class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-2xl shadow-md"
           >
             <UIcon
               name="i-heroicons-moon"
-              class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4"
+              class="w-16 h-16 text-gray-300 mb-4"
             />
-            <p class="text-center text-gray-500 dark:text-gray-400 text-lg">今日晚班無排班</p>
+            <p class="text-center text-gray-500 text-lg">今日晚班無排班</p>
           </div>
         </div>
 
@@ -126,21 +126,21 @@ useHead({
               <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 ml-2" />
             </UButton>
           </div>
-          <p class="mt-4 text-sm text-gray-500 dark:text-gray-400">查看未來幾天的排班資訊</p>
+          <p class="mt-4 text-sm text-gray-500 ">查看未來幾天的排班資訊</p>
         </div>
       </div>
 
       <!-- Empty State (no schedule today) -->
       <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
         <div
-          class="bg-white dark:bg-gray-800 rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 dark:border-gray-600"
+          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300 "
         >
           <UIcon
             name="i-heroicons-calendar-days"
-            class="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4"
+            class="w-16 h-16 text-gray-400 mx-auto mb-4"
           />
-          <h3 class="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">今日無排班</h3>
-          <p class="text-gray-600 dark:text-gray-400 mb-6">今天沒有值班安排，好好休息吧！</p>
+          <h3 class="text-2xl font-bold text-gray-700 mb-2">今日無排班</h3>
+          <p class="text-gray-600 mb-6">今天沒有值班安排，好好休息吧！</p>
           <UButton to="/shifts" color="primary" size="lg">
             <UIcon name="i-heroicons-calendar-days" class="w-5 h-5 mr-2" />
             查看完整班表

@@ -37,14 +37,14 @@ const agentInfo = computed(() => {
 <template>
   <div
     :class="[
-      'group flex flex-col items-center p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 dark:border-gray-700',
+      'group flex flex-col items-center p-6 bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100 ',
       isHighlighted && 'ring-4 ring-primary/80',
     ]"
   >
     <NuxtLink :to="`/agents/${agentInfo.id}`">
       <div class="relative w-28 h-28 mb-4">
         <div
-          class="w-full h-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 dark:from-pink-900 dark:to-purple-900 ring-4 ring-pink-100 dark:ring-pink-900/50 group-hover:ring-pink-300 dark:group-hover:ring-pink-700 transition-all"
+          class="w-full h-full overflow-hidden rounded-full bg-linear-to-br from-pink-200 to-purple-200 ring-4 ring-pink-100 group-hover:ring-pink-300 :ring-pink-700 transition-all"
         >
           <NuxtImg
             :src="agentInfo.picture"
@@ -53,7 +53,7 @@ const agentInfo = computed(() => {
           />
         </div>
         <div
-          class="absolute -bottom-1 -right-1 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white dark:border-gray-800"
+          class="absolute -bottom-1 -right-1 w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-2 border-white "
         >
           <UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-white" />
         </div>
