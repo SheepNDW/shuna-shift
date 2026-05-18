@@ -16,8 +16,8 @@
 | PR | 包含項目 | 主題 | 相依 | 狀態 |
 |----|---------|------|------|------|
 | —  | #0a / #0b | 防禦性解析、蜜柑 🍊 統計修正 | — | ✅ 已完成（`d5f5268`、`cd19644`）|
-| PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | 🔍 待審查（[#13](https://github.com/SheepNDW/shuna-shift/pull/13)）|
-| PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | ⬜ 待處理 |
+| PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | ✅ 已完成（[#13](https://github.com/SheepNDW/shuna-shift/pull/13)，squash `586651c`）|
+| PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | 🔍 待審查（[#14](https://github.com/SheepNDW/shuna-shift/pull/14)）|
 | PR 3 | #4 | 班別解析改用 B 欄 | 無 | ⬜ 待處理 |
 | PR 4 | #5 | AGENTS emoji 結構統一 | 無 | ⬜ 待處理 |
 
@@ -67,11 +67,11 @@
 - [x] #3：抓 `sheets.properties.title`，以 title 對應資料取代 `sheets[0]`/`sheets[1]`
 - [x] #7：dev 環境縮短 `maxAge` 或支援 `?nocache` 繞過參數（`server/utils/cache.ts` 的 `shouldBypassCache`）
 - [x] `sheet.get.ts`、`statistics.get.ts` 改用共用 client
-- [x] 新增/更新單元測試，`pnpm test` 通過（unit 98、nuxt 53）
+- [x] 新增/更新單元測試，`pnpm test` 通過（unit 104、nuxt 53）
 - [x] `pnpm lint`、`pnpm typecheck` 通過
 - [x] **驗收**：實機 smoke test —— `/api/sheet` 回 14 筆（過濾 62 筆未排班空列）、`/api/statistics` 日期範圍正確（`3月3日~5月31日`）；`ranges` 順序無關性由單元測試 `sheets.spec.ts` 涵蓋
-- [ ] 發 PR 回 `main` 並 merge（PR [#13](https://github.com/SheepNDW/shuna-shift/pull/13) 已開，待審查 merge）
-- [ ] 更新本檔「進度總覽」PR 1 狀態為 ✅ 並附 PR 連結
+- [x] 發 PR 回 `main` 並 merge（PR [#13](https://github.com/SheepNDW/shuna-shift/pull/13)，squash merge 為 `586651c`）
+- [x] 更新本檔「進度總覽」PR 1 狀態為 ✅ 並附 PR 連結
 
 ---
 
@@ -82,22 +82,19 @@
 ### #2 移除歷史 sheet 名稱的日期後綴（高優先）
 
 - **問題**：歷史 sheet 名稱 `過去班表20260101~` 嵌入日期，換期改名後 API 直接 404。
-- **作法**（擇一，由優到次）：
-  1. 在 Google Sheet 定義具名範圍（Named Range）`歷史班表`、`當期班表`，程式以 `ranges=歷史班表` 引用，插入列自動延伸。
-  2. 先以輕量 request 取 `fields=sheets.properties.title`，用前綴 `過去班表` 比對出實際 sheet 名再組資料 request。
-  3. 請表單擁有者將歷史 sheet 改成固定名稱。
+- **採用方案：方案 2（動態解析 title）**。方案 1（具名範圍）、方案 3（改固定名稱）皆需第三方試算表擁有者配合，無法由程式端獨立完成，故排除。
+- **作法**：`statistics.get.ts` 先呼叫 `fetchSheetTitles()`（輕量 `fields=sheets.properties.title` request）取得所有 sheet 名稱，再以 `resolveSheetTitle()` 用前綴 `過去班表` 解析出實際名稱，組出資料 range。
+- **多 sheet 處理**：實測試算表有 3 個 `過去班表*` sheet（使用中 1 個 + 已封存 2 個），「多個相符」為常態。使用中的 sheet 以 `~` 結尾（持續累積），封存後補上結束日 —— `resolveSheetTitle` 據此鎖定唯一以 `~` 結尾者，無法唯一判定才退回字典序最大並警告。
 - **影響檔案**：`server/utils/sheets.ts`、`server/api/statistics.get.ts`。
-- **外部相依**：方案 1、3 需配合 Google Sheet 設定，開發前須先決定方案。
 
 ### 檢查清單
 
-- [ ] 從 `main` 開出開發分支（PR 1 已 merge）
-- [ ] 決定採用方案（具名範圍 / 動態解析 title / 改固定名稱）
-- [ ] 若需動 Google Sheet：完成具名範圍設定或 sheet 改名
-- [ ] #2：實作對應的 sheet 解析邏輯，移除日期後綴硬編碼
-- [ ] 新增/更新單元測試，`pnpm test` 通過
-- [ ] `pnpm lint`、`pnpm typecheck` 通過
-- [ ] **驗收**：歷史 sheet 換期/改名後程式無須調整
+- [x] 從 `main` 開出開發分支（PR 1 已 merge）
+- [x] 決定採用方案：方案 2（動態解析 title）
+- [x] #2：`sheets.ts` 新增 `fetchSheetTitles` / `parseSheetTitles` / `resolveSheetTitle`，`statistics.get.ts` 改用動態解析，移除日期後綴硬編碼
+- [x] 新增/更新單元測試，`pnpm test` 通過（unit 113、nuxt 53）
+- [x] `pnpm lint`、`pnpm typecheck` 通過
+- [x] **驗收**：實機 smoke test —— `/api/statistics` 動態解析到 `過去班表20260101~`，數據與 PR 1 一致（`3月3日~5月31日`、29 探員），dev log 無多 sheet 警告
 - [ ] 發 PR 回 `main` 並 merge
 - [ ] 更新本檔「進度總覽」PR 2 狀態為 ✅ 並附 PR 連結
 
