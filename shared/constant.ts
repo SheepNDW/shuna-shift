@@ -44,6 +44,10 @@ export function normalizeAgentName(name: string): string {
 export const BOOKING_URL =
   'https://inline.app/booking/-NdeCHclNdQ-Yuxen_np:inline-live-3/-NdeCHpH1ow_BuIvlFhM';
 
+/** 班表資料來源（公開的 Google 試算表）。其 ID 與後端 `NUXT_SPREADSHEET_ID` 為同一份。 */
+export const SCHEDULE_SHEET_URL =
+  'https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/';
+
 export const AGENTS = new Map<string, Agent>([
   [
     '泠泠',
