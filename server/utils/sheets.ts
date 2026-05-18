@@ -92,21 +92,33 @@ function validateSheetsResponse(raw: unknown): z.infer<typeof sheetsResponseSche
 }
 
 /**
+ * 取出 sheet 的標題；缺少 `properties.title` 時 `console.warn` 後回傳 undefined。
+ * @param index sheet 在回應陣列中的索引，用於 log 定位
+ */
+function getSheetTitle(
+  sheet: { properties?: { title?: string } },
+  index: number,
+): string | undefined {
+  const title = sheet.properties?.title;
+  if (!title) {
+    console.warn(`[sheets] 第 ${index} 個 sheet 缺少 properties.title，已略過`);
+    return undefined;
+  }
+  return title;
+}
+
+/**
  * 驗證 Sheets API 回應結構，並轉為以 sheet 標題為 key 的 Map。
  * @param raw $fetch 取回的原始回應
  */
 export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
-  const data = validateSheetsResponse(raw);
   const map = new Map<string, RowData[]>();
 
-  data.sheets.forEach((sheet, index) => {
-    const title = sheet.properties?.title;
-    if (!title) {
-      console.warn(`[sheets] 第 ${index} 個 sheet 缺少 properties.title，已略過`);
-      return;
-    }
+  validateSheetsResponse(raw).sheets.forEach((sheet, index) => {
+    const title = getSheetTitle(sheet, index);
+    if (!title) return;
 
-    const rows = (sheet.data ?? []).flatMap((data) => data.rowData ?? []);
+    const rows = (sheet.data ?? []).flatMap((block) => block.rowData ?? []);
     // Zod 已驗證列的骨架；儲存格內容刻意保持寬鬆（z.unknown），
     // 在此邊界斷言為 Cell —— transformer／parser 後續以可選鏈防禦性讀取。
     map.set(title, rows as RowData[]);
@@ -117,45 +129,61 @@ export function parseSheetsResponse(raw: unknown): Map<string, RowData[]> {
 
 /**
  * 驗證 Sheets API 回應結構，並取出所有 sheet 的標題。
+ * 缺少 title 的 sheet 會 `console.warn` 後略過（與 {@link parseSheetsResponse} 一致）。
  * @param raw $fetch 取回的原始回應
  */
 export function parseSheetTitles(raw: unknown): string[] {
-  return validateSheetsResponse(raw)
-    .sheets.map((sheet) => sheet.properties?.title)
-    .filter((title): title is string => Boolean(title));
+  const titles: string[] = [];
+
+  validateSheetsResponse(raw).sheets.forEach((sheet, index) => {
+    const title = getSheetTitle(sheet, index);
+    if (title) titles.push(title);
+  });
+
+  return titles;
 }
+
+/** 使用中歷史班表的起始日格式：8 位數字 */
+const START_DATE_PATTERN = /^\d{8}$/;
 
 /**
  * 從 sheet 標題清單中找出「使用中」的歷史班表 sheet。
  *
- * 歷史班表名稱帶日期後綴（如 `過去班表20260101~`），換期改名後無法寫死，
- * 改以固定前綴動態解析。由於舊期會逐一封存累積（`過去班表20250101~20251231`
- * 等），通常會有多個 sheet 相符 —— 使用中者以 {@link OPEN_ENDED_MARKER}
- * 結尾，據此鎖定。若無法唯一判定，退而取字典序最大者（起始日最新）並警告。
- * @throws 找不到符合前綴的 sheet 時拋錯
+ * 歷史班表命名慣例：`<前綴><8 位起始日>~[<8 位結束日>]`。
+ *   - 使用中：結尾為 `~`、無結束日（如 `過去班表20260101~`）
+ *   - 已封存：`~` 後接結束日（如 `過去班表20250101~20251231`）
+ * 換期時舊 sheet 補上結束日封存、並開新的使用中 sheet。
+ *
+ * 採嚴格格式比對，排除前綴相符但非此格式的備份／暫存頁籤
+ * （如 `過去班表20260101~備份`、`過去班表_old`）。
+ *
+ * 為避免靜默選錯資料源，**只在恰好找到一個使用中 sheet 時回傳**；
+ * 找不到（命名慣例已破壞）或找到多個（換期中途並存）都拋錯，
+ * 讓呼叫端 fail closed —— 明確失敗優於回傳缺漏或倒退的統計資料。
+ * @param titles 試算表所有 sheet 的標題
+ * @param prefix 歷史班表名稱前綴（如 `過去班表`）
+ * @throws 找不到唯一使用中 sheet 時拋錯
  */
 export function resolveSheetTitle(titles: string[], prefix: string): string {
-  const matched = titles.filter((title) => title.startsWith(prefix));
+  const active = titles.filter((title) => {
+    if (!title.startsWith(prefix) || !title.endsWith(OPEN_ENDED_MARKER)) return false;
+    // 前綴與結尾 `~` 之間須恰為 8 位數字起始日，藉此排除備份／暫存頁籤
+    const startDate = title.slice(prefix.length, -OPEN_ENDED_MARKER.length);
+    return START_DATE_PATTERN.test(startDate);
+  });
 
-  if (matched.length === 0) {
-    throw new Error(`找不到符合前綴「${prefix}」的 sheet`);
-  }
-  if (matched.length === 1) {
-    return matched[0]!;
-  }
-
-  // 多個相符屬常態（舊期封存累積）：鎖定唯一以 `~` 結尾的「使用中」sheet
-  const ongoing = matched.filter((title) => title.endsWith(OPEN_ENDED_MARKER));
-  if (ongoing.length === 1) {
-    return ongoing[0]!;
+  if (active.length === 1) {
+    return active[0]!;
   }
 
-  // 無法唯一判定使用中者才視為異常：退而取字典序最大者並警告
-  const latest = [...matched].sort().at(-1)!;
-  console.warn(
-    `[sheets] 前綴「${prefix}」無法唯一判定使用中的 sheet（${matched.join('、')}），採用 ${latest}`,
-  );
-  return latest;
+  const prefixMatched = titles.filter((title) => title.startsWith(prefix));
+  if (active.length === 0) {
+    throw new Error(
+      `找不到使用中的「${prefix}」sheet（須為 ${prefix}YYYYMMDD~ 格式）；` +
+        `前綴相符者：${prefixMatched.join('、') || '無'}`,
+    );
+  }
+  throw new Error(`找到多個使用中的「${prefix}」sheet，無法判定：${active.join('、')}`);
 }
 
 /** 取得並驗證 Sheets API 所需的設定 */
@@ -173,6 +201,18 @@ function getSheetsConfig(): { gsheetsKey: string; spreadsheetId: string } {
 }
 
 /**
+ * 向 Google Sheets API 發出請求並回傳原始（未驗證）回應。
+ * @param ranges A1 notation 範圍陣列；傳空陣列代表只取 metadata
+ * @param fields 要取的欄位遮罩
+ */
+async function fetchSheetsRaw(ranges: string[], fields: string): Promise<unknown> {
+  const { gsheetsKey, spreadsheetId } = getSheetsConfig();
+  const url = buildSheetsUrl(spreadsheetId, ranges, gsheetsKey, fields);
+
+  return $fetch<unknown>(url);
+}
+
+/**
  * 向 Google Sheets API 取得指定範圍的資料。
  *
  * 回傳以 sheet 標題為 key 的 Map，呼叫端用 sheet 名稱取值，
@@ -184,12 +224,7 @@ function getSheetsConfig(): { gsheetsKey: string; spreadsheetId: string } {
  * @param ranges A1 notation 範圍陣列，例如 `['每日班表!A5:C']`
  */
 export async function fetchSheetRanges(ranges: string[]): Promise<Map<string, RowData[]>> {
-  const { gsheetsKey, spreadsheetId } = getSheetsConfig();
-
-  const url = buildSheetsUrl(spreadsheetId, ranges, gsheetsKey);
-  const raw = await $fetch<unknown>(url);
-
-  return parseSheetsResponse(raw);
+  return parseSheetsResponse(await fetchSheetsRaw(ranges, SHEETS_FIELDS));
 }
 
 /**
@@ -199,10 +234,5 @@ export async function fetchSheetRanges(ranges: string[]): Promise<Map<string, Ro
  * 搭配 {@link resolveSheetTitle} 使用。
  */
 export async function fetchSheetTitles(): Promise<string[]> {
-  const { gsheetsKey, spreadsheetId } = getSheetsConfig();
-
-  const url = buildSheetsUrl(spreadsheetId, [], gsheetsKey, TITLES_FIELDS);
-  const raw = await $fetch<unknown>(url);
-
-  return parseSheetTitles(raw);
+  return parseSheetTitles(await fetchSheetsRaw([], TITLES_FIELDS));
 }

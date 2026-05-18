@@ -52,10 +52,13 @@ describe('parseSheetTitles', () => {
     expect(parseSheetTitles(raw)).toEqual(['每日班表', '過去班表20260101~']);
   });
 
-  it('應該略過缺少 properties.title 的 sheet', () => {
+  it('應該略過並警告缺少 properties.title 的 sheet', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const raw = { sheets: [{ properties: { title: '每日班表' } }, { data: [] }] };
 
     expect(parseSheetTitles(raw)).toEqual(['每日班表']);
+    expect(warnSpy).toHaveBeenCalledOnce();
+    warnSpy.mockRestore();
   });
 
   it('當回應結構異常時，應該拋錯', () => {
@@ -67,14 +70,13 @@ describe('parseSheetTitles', () => {
 });
 
 describe('resolveSheetTitle', () => {
-  it('唯一符合前綴時，應該直接回傳該標題', () => {
+  it('恰好一個使用中 sheet 時，應該回傳它', () => {
     const titles = ['每日班表', '過去班表20260101~'];
 
     expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
   });
 
-  it('多個相符時，應該鎖定唯一以 `~` 結尾的使用中 sheet，且不警告', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('混有已封存 sheet 時，應該只鎖定使用中（`~` 結尾、無結束日）者', () => {
     // 比照實際試算表：使用中 + 兩個已封存的歷史 sheet
     const titles = [
       '每日班表',
@@ -84,31 +86,31 @@ describe('resolveSheetTitle', () => {
     ];
 
     expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
-    expect(warnSpy).not.toHaveBeenCalled();
-    warnSpy.mockRestore();
   });
 
-  it('多個相符但無一以 `~` 結尾時，應該退回字典序最大者並警告', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('應該排除前綴相符但非嚴格格式的備份／暫存頁籤', () => {
+    const titles = ['過去班表20260101~', '過去班表20260101~備份', '過去班表_old'];
+
+    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20260101~');
+  });
+
+  it('僅有已封存 sheet、找不到使用中者時，應該 fail closed 拋錯', () => {
     const titles = ['過去班表20250101~20251231', '過去班表20240501~20241231'];
 
-    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20250101~20251231');
-    expect(warnSpy).toHaveBeenCalledOnce();
-    warnSpy.mockRestore();
+    expect(() => resolveSheetTitle(titles, '過去班表')).toThrow(/找不到使用中的「過去班表」/);
   });
 
-  it('多個相符且多個以 `~` 結尾時，應該退回字典序最大者並警告', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+  it('完全沒有前綴相符的 sheet 時，應該拋錯', () => {
+    expect(() => resolveSheetTitle(['每日班表'], '過去班表')).toThrow(
+      /找不到使用中的「過去班表」/,
+    );
+  });
+
+  it('換期中途多個使用中 sheet 並存時，應該拋錯而非猜測', () => {
     const titles = ['過去班表20260101~', '過去班表20270101~'];
 
-    expect(resolveSheetTitle(titles, '過去班表')).toBe('過去班表20270101~');
-    expect(warnSpy).toHaveBeenCalledOnce();
-    warnSpy.mockRestore();
-  });
-
-  it('找不到符合前綴的 sheet 時，應該拋出帶前綴的錯誤', () => {
-    expect(() => resolveSheetTitle(['每日班表'], '過去班表')).toThrow(
-      /找不到符合前綴「過去班表」的 sheet/,
+    expect(() => resolveSheetTitle(titles, '過去班表')).toThrow(
+      /找到多個使用中的「過去班表」/,
     );
   });
 });
