@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { BOOKING_URL } from '~~/shared/constant';
-
-// 班表資料來源（公開的 Google 試算表，現有頁尾即已對外連結）
-const SHEET_URL =
-  'https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/';
+import { BOOKING_URL, SCHEDULE_SHEET_URL } from '~~/shared/constant';
 
 const currentYear = getCurrentYear();
 const scheduleStore = useScheduleStore();
@@ -46,7 +42,7 @@ const lastUpdated = computed(() =>
             <div class="stamp-label">資料</div>
             <a
               class="app-footer__link"
-              :href="SHEET_URL"
+              :href="SCHEDULE_SHEET_URL"
               target="_blank"
               rel="noopener noreferrer"
             >朱雫班表 Google 表單</a>

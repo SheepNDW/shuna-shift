@@ -3,19 +3,17 @@ import { BOOKING_URL } from '~~/shared/constant';
 
 const route = useRoute();
 
+// aria：窄螢幕會隱藏 romaji 標籤，連結可及名稱不應塌縮成單一漢字，
+// 故各連結明確指定完整名稱
 const navItems = [
-  { to: '/', label: '今日', kanji: '今' },
-  { to: '/shifts', label: '班表', kanji: '表' },
-  { to: '/agents', label: '探員', kanji: '員' },
-  { to: '/statistics', label: '統計', kanji: '計' },
+  { to: '/', label: '今日', kanji: '今', aria: '今日班表' },
+  { to: '/shifts', label: '班表', kanji: '表', aria: '完整班表' },
+  { to: '/agents', label: '探員', kanji: '員', aria: '探員圖鑑' },
+  { to: '/statistics', label: '統計', kanji: '計', aria: '出勤統計' },
 ] as const;
 
 function isActive(to: string): boolean {
-  if (to === '/') {
-    return route.path === '/';
-  }
-
-  return route.path === to || route.path.startsWith(`${to}/`);
+  return isNavLinkActive(route.path, to);
 }
 </script>
 
@@ -37,6 +35,7 @@ function isActive(to: string): boolean {
         class="nav-link"
         :class="{ 'is-active': isActive(item.to) }"
         :aria-current="isActive(item.to) ? 'page' : undefined"
+        :aria-label="item.aria"
       >
         <span class="serif nav-link__kanji">{{ item.kanji }}</span>
         <span class="nav-link__label">{{ item.label }}</span>
