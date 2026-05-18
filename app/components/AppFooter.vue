@@ -36,8 +36,9 @@ const lastUpdated = computed(() =>
 
           <div class="app-footer__col">
             <div class="stamp-label">營業</div>
-            <p class="app-footer__hours">早班 11:00 – 18:00</p>
-            <p class="app-footer__hours">晚班 18:00 – 24:00</p>
+            <!-- 班別時間以 ColorLegend 的實際資料為準；晚班為三種班別的整體時段 -->
+            <p class="app-footer__hours">早班 13:30 – 17:30</p>
+            <p class="app-footer__hours">晚班 15:00 – 21:30</p>
             <p class="app-footer__hours mono">店休 · 不定休</p>
           </div>
 
