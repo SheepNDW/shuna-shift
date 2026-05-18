@@ -7,11 +7,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🐷',
+        name: '泠泠',
         textColor: '',
       },
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
@@ -33,11 +33,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🐷',
+        name: '泠泠',
         textColor: '',
       },
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
@@ -66,11 +66,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -92,11 +92,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -125,11 +125,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -151,11 +151,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -188,11 +188,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -214,11 +214,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -260,11 +260,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -278,11 +278,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -307,7 +307,7 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -321,7 +321,7 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -346,7 +346,7 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
@@ -364,7 +364,7 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
@@ -389,7 +389,7 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -407,7 +407,7 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -436,11 +436,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -462,11 +462,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -491,11 +491,11 @@ export const mockSchedules: ShiftSchedule[] = [
     },
     day: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {
@@ -517,11 +517,11 @@ export const mockSchedules: ShiftSchedule[] = [
     ],
     night: [
       {
-        name: '🌙',
+        name: 'Luna',
         textColor: '',
       },
       {
-        name: '🥨',
+        name: '米捲',
         textColor: '',
       },
       {

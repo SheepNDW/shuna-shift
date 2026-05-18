@@ -37,7 +37,7 @@ describe('findAgentByName', () => {
     expect(agent?.isFullTime).toBe(true);
   });
 
-  it('應該根據 emoji key 找到對應的正職探員', () => {
+  it('應該以 emoji 找到對應的正職探員', () => {
     const agent = findAgentByName('🐷');
     expect(agent).not.toBeNull();
     expect(agent?.id).toBe('rin');
@@ -45,14 +45,14 @@ describe('findAgentByName', () => {
     expect(agent?.isFullTime).toBe(true);
   });
 
-  it('應該根據 emoji key 找到米捲', () => {
+  it('應該以 emoji 找到米捲', () => {
     const agent = findAgentByName('🥨');
     expect(agent).not.toBeNull();
     expect(agent?.id).toBe('juano');
     expect(agent?.name).toBe('米捲');
   });
 
-  it('應該根據 emoji key 找到 Luna', () => {
+  it('應該以 emoji 找到 Luna', () => {
     const agent = findAgentByName('🌙');
     expect(agent).not.toBeNull();
     expect(agent?.id).toBe('luna');
