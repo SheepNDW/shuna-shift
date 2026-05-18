@@ -35,25 +35,34 @@
 
 - `main` 永遠保持當前線上穩定版，不直接受 redesign 影響
 - `refactor/uiux-redesign` 是 redesign 的長期分支，**所有 Phase 都從這裡開分支、PR 回這裡**
-- 每個 Phase 開一條 `refactor/uiux-redesign/phase-N-xxx` 子分支
+- 每個 Phase 開一條 `refactor/uiux-redesign-phase-N-xxx` 子分支（**分支名用連字號，不可用斜線** — 見下方 ⚠️）
 - Phase 子分支完成 → PR 合回 `refactor/uiux-redesign`（**不**合進 `main`）
 - 整個 redesign（Phase 0–7）全數完成、QA 通過後，再用一個總合 PR 把 `refactor/uiux-redesign` 合進 `main`
 
 ```
 main
  └── refactor/uiux-redesign            ← redesign 整合主分支（長期存在）
-      ├── refactor/uiux-redesign/phase-0-tokens       → PR → refactor/uiux-redesign
-      ├── refactor/uiux-redesign/phase-1-shell        → PR → refactor/uiux-redesign
-      ├── refactor/uiux-redesign/phase-2-page-header  → PR → refactor/uiux-redesign
-      ├── refactor/uiux-redesign/phase-3-home         → PR → refactor/uiux-redesign
-      ├── refactor/uiux-redesign/phase-4-shifts       → PR → refactor/uiux-redesign
-      ├── refactor/uiux-redesign/phase-5-agents       → PR → refactor/uiux-redesign
-      ├── refactor/uiux-redesign/phase-6-statistics   → PR → refactor/uiux-redesign
-      └── refactor/uiux-redesign/phase-7-polish       → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-0-tokens       → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-1-shell        → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-2-page-header  → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-3-home         → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-4-shifts       → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-5-agents       → PR → refactor/uiux-redesign
+      ├── refactor/uiux-redesign-phase-6-statistics   → PR → refactor/uiux-redesign
+      └── refactor/uiux-redesign-phase-7-polish       → PR → refactor/uiux-redesign
 
       ↓ 全部 Phase 完成、QA 通過後 ↓
       refactor/uiux-redesign  → PR → main   (一次性合併)
 ```
+
+> ⚠️ **子分支名一律用連字號 `refactor/uiux-redesign-phase-N-xxx`，不可用斜線。**
+> `refactor/uiux-redesign` 本身已是分支，而 Git 的 ref 以檔案系統階層儲存 ——
+> 同一名稱不能同時是分支（檔案）又是目錄，`refactor/uiux-redesign/phase-N-xxx`
+> 會以 `cannot lock ref` 建立失敗。
+
+> ⚠️ **commit message 用合規 type**（`feat` / `fix` / `refactor` / `docs` / `test` /
+> `chore` / `perf` / `ci`），**不要用 `phase-N:` 當前綴** —— `phase-N` 不是合法 type。
+> squash 合併時的 commit subject 同樣要用合規 type（PR 標題可保留 `phase-N:` 作為人類辨識用）。
 
 **每個 Phase 的標準操作流程**
 
@@ -62,15 +71,15 @@ main
 git checkout refactor/uiux-redesign
 git pull
 
-# 2. 開 Phase 子分支
-git checkout -b refactor/uiux-redesign/phase-N-xxx
+# 2. 開 Phase 子分支（分支名用連字號，不可用斜線）
+git checkout -b refactor/uiux-redesign-phase-N-xxx
 
 # 3. 執行 Phase 任務 (人 or Claude Code)
 
 # 4. Commit + push + 開 PR
 git add .
-git commit -m "phase-N: <一句話描述>"
-git push -u origin refactor/uiux-redesign/phase-N-xxx
+git commit -m "<type>: <一句話描述>"   # type 用 feat/fix/refactor… 不可用 phase-N:
+git push -u origin refactor/uiux-redesign-phase-N-xxx
 gh pr create --base refactor/uiux-redesign --title "phase-N: <主題>"
 
 # 5. Review merge → 進下一 Phase
@@ -309,18 +318,18 @@ app/components/
 
 > 任務：執行 Phase 0 — 設計系統建立
 >
-> 0. **確認目前在 `refactor/uiux-redesign/phase-0-tokens` 分支**（從 `refactor/uiux-redesign` 開出）。若不在請：
+> 0. **確認目前在 `refactor/uiux-redesign-phase-0-tokens` 分支**（從 `refactor/uiux-redesign` 開出）。若不在請：
 >    ```bash
 >    git checkout refactor/uiux-redesign && git pull
->    git checkout -b refactor/uiux-redesign/phase-0-tokens
+>    git checkout -b refactor/uiux-redesign-phase-0-tokens
 >    ```
 > 1. 讀 `shuna-redesign/handoff/phase-0/README.md`
 > 2. 把 `shuna-redesign/handoff/phase-0/app/**` 全部拷貝到 `app/**`，保持路徑結構
 > 3. 全站 sed / grep 刪除所有 `dark:` class（保留 `nuxt.config.ts` 的 `colorMode: false`）
 > 4. 跑 `pnpm dev`，確認啟動成功（各頁視覺會亂掉是預期的，下個 Phase 修）
 > 5. 任一頁加 README 中的測試卡片，確認紙感 + 朱紅按鈕都正常
-> 6. `git commit -m "phase-0: design tokens + remove dead dark mode"`
-> 7. `git push -u origin refactor/uiux-redesign/phase-0-tokens`
+> 6. `git commit -m "feat: design tokens + remove dead dark mode"`
+> 7. `git push -u origin refactor/uiux-redesign-phase-0-tokens`
 > 8. `gh pr create --base refactor/uiux-redesign --title "phase-0: design tokens + remove dead dark mode"`
 > 9. 不要進 Phase 1，等 review
 
