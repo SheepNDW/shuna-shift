@@ -18,8 +18,8 @@
 | —  | #0a / #0b | 防禦性解析、蜜柑 🍊 統計修正 | — | ✅ 已完成（`d5f5268`、`cd19644`）|
 | PR 1 | #6 + #1 + #3 + #7 | 取數層重構（地基）| 無 | ✅ 已完成（[#13](https://github.com/SheepNDW/shuna-shift/pull/13)，squash `586651c`）|
 | PR 2 | #2 | 歷史 sheet 名稱解耦 | PR 1 | ✅ 已完成（[#14](https://github.com/SheepNDW/shuna-shift/pull/14)，squash `f0ea16f`）|
-| PR 3 | #4 | 班別解析改用 B 欄 | 無 | 🔍 待審查（[#15](https://github.com/SheepNDW/shuna-shift/pull/15)）|
-| PR 4 | #5 | AGENTS emoji 結構統一 | 無 | ⬜ 待處理 |
+| PR 3 | #4 | 班別解析改用 B 欄 | 無 | ✅ 已完成（[#15](https://github.com/SheepNDW/shuna-shift/pull/15)，squash `b8eaf94`）|
+| PR 4 | #5 | AGENTS emoji 結構統一 | 無 | 🔍 待審查 |
 
 開發順序：`PR 1 → PR 2`（PR 2 相依 PR 1）；`PR 3`、`PR 4` 獨立，可任意順序或並行。
 
@@ -117,8 +117,8 @@
 - [x] 新增單元測試：`parseShiftType` 4 項、「僅晚班」「僅早班」「B 欄缺漏退回推斷」邊界案例
 - [x] `pnpm test`、`pnpm lint`、`pnpm typecheck` 通過（unit 122、nuxt 53）
 - [x] **驗收**：實機 smoke test —— `/api/sheet` 14 筆、`/api/statistics` 與 PR 2 一致（`3月3日~5月31日`、29 探員）；既有 `expectedScheduleData` fixture 原樣通過，佐證正常 2 列日行為保留
-- [ ] 發 PR 回 `main` 並 merge
-- [ ] 更新本檔「進度總覽」PR 3 狀態為 ✅ 並附 PR 連結
+- [x] 發 PR 回 `main` 並 merge（PR [#15](https://github.com/SheepNDW/shuna-shift/pull/15)，squash merge 為 `b8eaf94`；審查後補 A1 覆寫警告、A2 JSDoc、A3 次序顛倒測試）
+- [x] 更新本檔「進度總覽」PR 3 狀態為 ✅ 並附 PR 連結
 
 ---
 
@@ -129,19 +129,20 @@
 ### #5 統一 AGENTS 的 emoji 處理（中優先）
 
 - **問題**：正職以 emoji 當 `AGENTS` 的 key，其他人以文字當 key，混用。新探員轉正職改用 emoji 時易漏接（🍊 蜜柑即一例，目前以 `NAME_ALIASES` 補救，根本結構未解）。
-- **作法**：`AGENTS` 改為一律以正式名稱為 key，新增選填 `emoji` 欄位；由 `emoji` 欄位自動建立 emoji → 名稱查表，取代手動維護的別名。
-- **影響檔案**：`shared/constant.ts`、`shared/types/index.ts`、`server/utils/parser.ts`、`server/utils/statistics.ts`、`app/components/AgentCard.vue`。
+- **作法**：`AGENTS` 改為一律以正式名稱為 key，新增選填 `emoji` 欄位；由 `emoji` 欄位自動建立 `EMOJI_TO_NAME` 查表，取代手動維護的 emoji 別名。`normalizeAgentName` 改用此查表；`findAgentByName` 改為先 `normalizeAgentName` 再查表。
+- **影響檔案**：`shared/constant.ts`、`shared/types/index.ts`、`server/utils/statistics.ts`。
+- **附帶**：`parseAgents`（parser.ts）僅呼叫 `normalizeAgentName`，無須改動；`AgentCard.vue`、`ScheduleFilter.vue`、`useAgent.ts` 因 key 改名稱後與正規化後的班表資料一致，亦無須改動。正規化後的班表資料由 emoji 變為正式名稱，連帶更新相關 fixtures 與測試。
 
 ### 檢查清單
 
-- [ ] 從 `main` 開出開發分支
-- [ ] #5：`Agent` 型別新增選填 `emoji` 欄位
-- [ ] #5：`AGENTS` 改為一律以正式名稱為 key，正職填入 `emoji`
-- [ ] #5：由 `emoji` 欄位自動建立 emoji → 名稱查表，取代手動 `NAME_ALIASES` 中的 emoji 別名
-- [ ] #5：更新 `parser`、`statistics`、`AgentCard` 的查找邏輯
-- [ ] 更新/新增單元測試，`pnpm test` 通過
-- [ ] `pnpm lint`、`pnpm typecheck` 通過
-- [ ] **驗收**：emoji 與文字名稱皆能對應到同一探員
+- [x] 從 `main` 開出開發分支
+- [x] #5：`Agent` 型別新增選填 `emoji` 欄位
+- [x] #5：`AGENTS` 改為一律以正式名稱為 key，正職（泠泠／米捲／Luna／蜜柑）填入 `emoji`
+- [x] #5：新增 `EMOJI_TO_NAME` 由 `emoji` 欄位自動建表，取代 `NAME_ALIASES` 中的 `🍊` 別名
+- [x] #5：`normalizeAgentName` 改用 emoji 查表；`findAgentByName` 改為正規化後查表
+- [x] 更新/新增單元測試，`pnpm test` 通過（unit 125、nuxt 53；含新增 emoji → 名稱測試、fixtures 同步）
+- [x] `pnpm lint`、`pnpm typecheck` 通過
+- [x] **驗收**：emoji 與文字名稱皆能對應到同一探員（`findAgentByName('🐷')` 與 `('泠泠')` 同得 `rin`；實機 `/api/sheet` 探員名稱解析為正式名稱、`/api/statistics` 29 探員不變）
 - [ ] 發 PR 回 `main` 並 merge
 - [ ] 更新本檔「進度總覽」PR 4 狀態為 ✅ 並附 PR 連結
 
