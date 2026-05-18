@@ -1,114 +1,155 @@
 <script setup lang="ts">
 import { BOOKING_URL } from '~~/shared/constant';
 
+// 班表資料來源（公開的 Google 試算表，現有頁尾即已對外連結）
+const SHEET_URL =
+  'https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/';
+
 const currentYear = getCurrentYear();
 const scheduleStore = useScheduleStore();
 
-const lastUpdated = computed(() => {
-  if (!scheduleStore.lastUpdated) {
-    return '資料載入中...';
-  }
-
-  return formatDateTime(scheduleStore.lastUpdated);
-});
+const lastUpdated = computed(() =>
+  scheduleStore.lastUpdated ? formatDateTime(scheduleStore.lastUpdated) : '同步中…',
+);
 </script>
 
 <template>
-  <footer
-    class="mt-auto bg-linear-to-r from-pink-50 to-purple-50 border-t border-pink-200"
-  >
+  <footer class="app-footer">
     <UContainer>
-      <div class="py-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-6">
-          <div class="text-center md:text-left">
-            <h3
-              class="text-lg font-bold text-gray-800 mb-3 flex items-center justify-center md:justify-start gap-2"
-            >
-              <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-pink-500" />
-              關於本站
-            </h3>
-            <p class="text-sm text-gray-600 leading-relaxed">
-              喫茶朱雫探員排班查詢工具，方便前輩快速查看班表資訊。
-            </p>
+      <div class="app-footer__inner">
+        <div class="app-footer__brand">
+          <BrandMark :size="32" />
+          <div>
+            <div class="serif app-footer__name">喫茶 朱雫</div>
+            <div class="stamp-label">SHUNA · MAID CAFÉ</div>
+          </div>
+        </div>
+
+        <div class="app-footer__cols">
+          <div class="app-footer__col">
+            <div class="stamp-label">頁面</div>
+            <NuxtLink class="app-footer__link" to="/">今日班表</NuxtLink>
+            <NuxtLink class="app-footer__link" to="/shifts">完整班表</NuxtLink>
+            <NuxtLink class="app-footer__link" to="/agents">探員圖鑑</NuxtLink>
+            <NuxtLink class="app-footer__link" to="/statistics">出勤統計</NuxtLink>
           </div>
 
-          <!-- Data Source Section -->
-          <div class="text-center">
-            <h3
-              class="text-lg font-bold text-gray-800 mb-3 flex items-center justify-center gap-2"
-            >
-              <UIcon name="i-heroicons-document-text" class="w-5 h-5 text-purple-500" />
-              資料來源
-            </h3>
+          <div class="app-footer__col">
+            <div class="stamp-label">營業</div>
+            <p class="app-footer__hours">早班 11:00 – 18:00</p>
+            <p class="app-footer__hours">晚班 18:00 – 24:00</p>
+            <p class="app-footer__hours mono">店休 · 不定休</p>
+          </div>
+
+          <div class="app-footer__col">
+            <div class="stamp-label">資料</div>
             <a
-              href="https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/"
+              class="app-footer__link"
+              :href="SHEET_URL"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-all text-sm font-medium text-pink-600 hover:text-pink-700 border border-pink-200"
-            >
-              <UIcon name="i-heroicons-arrow-top-right-on-square" class="w-4 h-4" />
-              朱雫班表 Google 表單
-            </a>
-            <p
-              class="text-xs text-gray-500 mt-3 flex items-center justify-center gap-1"
-            >
-              <UIcon name="i-heroicons-clock" class="w-3 h-3" />
-              最後同步：{{ lastUpdated }}
-            </p>
-          </div>
-
-          <!-- Quick Links Section -->
-          <div class="text-center md:text-right">
-            <h3
-              class="text-lg font-bold text-gray-800 mb-3 flex items-center justify-center md:justify-end gap-2"
-            >
-              <UIcon name="i-heroicons-link" class="w-5 h-5 text-indigo-500" />
-              快速連結
-            </h3>
-            <div class="flex flex-col gap-2 items-center md:items-end">
-              <NuxtLink
-                to="/"
-                class="text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-1"
-              >
-                <UIcon name="i-heroicons-home" class="w-4 h-4" />
-                今日班表
-              </NuxtLink>
-              <NuxtLink
-                to="/shifts"
-                class="text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-1"
-              >
-                <UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
-                完整班表
-              </NuxtLink>
-              <a
-                :href="BOOKING_URL"
-                target="_blank"
-                rel="noopener noreferrer"
-                class="text-sm text-gray-600 hover:text-pink-600 transition-colors flex items-center gap-1"
-              >
-                <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-                線上訂位
-              </a>
-            </div>
+            >朱雫班表 Google 表單</a>
+            <a
+              class="app-footer__link"
+              :href="BOOKING_URL"
+              target="_blank"
+              rel="noopener noreferrer"
+            >線上訂位</a>
+            <p class="app-footer__hours mono">UPDATED · {{ lastUpdated }}</p>
           </div>
         </div>
+      </div>
 
-        <!-- Divider -->
-        <div class="border-t border-gray-200 mb-6" />
-
-        <!-- Bottom Section -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-gray-500">
-          <p class="flex items-center justify-center md:justify-start gap-1">
-            <UIcon name="i-heroicons-heart-solid" class="w-4 h-4 text-pink-500" />
-            Made with love for 喫茶 朱雫 Maid Café
-          </p>
-          <p class="text-center">© {{ currentYear }} 僅供個人練習使用，無商業用途</p>
-          <div class="flex items-center justify-center md:justify-end gap-2">
-            <UIcon name="i-heroicons-shield-check" class="w-4 h-4 text-green-500" />
-            <span>資料定時更新</span>
-          </div>
-        </div>
+      <div class="app-footer__base">
+        <span class="stamp-label">© {{ currentYear }} 朱雫查班工具 · 非官方</span>
+        <span class="stamp-label mono">v2.0 — paper edition</span>
       </div>
     </UContainer>
   </footer>
 </template>
+
+<style scoped>
+.app-footer {
+  position: relative;
+  z-index: 10;
+  margin-top: 64px;
+  padding: 48px 0 24px;
+  border-top: 1px solid var(--color-rule);
+  background: var(--color-paper-2);
+}
+
+.app-footer__inner {
+  display: grid;
+  grid-template-columns: 1.2fr 2fr;
+  gap: 48px;
+  margin-bottom: 40px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.app-footer__brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.app-footer__name {
+  font-size: 22px;
+  color: var(--color-ink);
+}
+
+.app-footer__cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.app-footer__col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.app-footer__col > .stamp-label {
+  margin-bottom: 6px;
+  color: var(--color-ink);
+}
+
+.app-footer__link {
+  width: fit-content;
+  color: var(--color-ink-soft);
+  font-size: 14px;
+  transition: color 0.15s;
+}
+.app-footer__link:hover {
+  color: var(--color-shu);
+}
+
+.app-footer__hours {
+  margin: 0;
+  color: var(--color-ink-soft);
+  font-size: 13px;
+}
+
+.app-footer__base {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+@media (max-width: 920px) {
+  .app-footer__inner {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .app-footer__cols {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .app-footer__base {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+</style>
