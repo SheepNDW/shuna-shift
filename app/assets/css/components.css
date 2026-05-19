@@ -38,7 +38,7 @@
     opacity: 0.4;
   }
 
-  /* —— 漢字小圖章（用於 section heading） —— */
+  /* —— 漢字小圖章（用於 PageHeader 與 section heading） —— */
   .kanji-mark {
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px;
@@ -51,12 +51,14 @@
   }
 
   /* —— 共用頁首 PageHeader —— */
+  /* 字級 / 間距寫死 px，與本檔 .kanji-mark / .stamp-label 等
+     bespoke 元件一致（專案 @theme 未提供 --fs-* / --space-* scale）。 */
   .page-header {
-    margin-bottom: var(--space-12);
+    margin-bottom: 48px;
   }
   .page-header__line {
-    display: flex; align-items: center; gap: var(--space-3);
-    margin-bottom: var(--space-4);
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 16px;
   }
   .page-header__rule {
     flex: 1; height: 1px;
@@ -66,17 +68,17 @@
     color: var(--color-ink-soft);
   }
   .page-header__title {
-    font-size: var(--fs-64); line-height: 1;
+    font-size: 64px; line-height: 1;
     letter-spacing: -0.01em;
     color: var(--color-ink);
   }
   .page-header__subtitle {
-    margin-top: var(--space-3);
+    margin-top: 12px;
     color: var(--color-ink-soft);
-    font-size: var(--fs-16);
+    font-size: 16px;
   }
   @media (max-width: 920px) {
-    .page-header__title { font-size: var(--fs-48); }
+    .page-header__title { font-size: 48px; }
   }
 
   /* —— 印章式日期框（首頁 hero） —— */
