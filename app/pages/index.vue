@@ -1,7 +1,26 @@
 <script setup lang="ts">
-const scheduleStore = useScheduleStore();
+import { BOOKING_URL } from '~~/shared/constant';
 
-const { todaySchedule } = storeToRefs(scheduleStore);
+const scheduleStore = useScheduleStore();
+const { todaySchedule, schedules } = storeToRefs(scheduleStore);
+
+const todayCounts = computed(() => ({
+  day: todaySchedule.value?.day.length ?? 0,
+  night: todaySchedule.value?.night.length ?? 0,
+}));
+
+// 近日預覽：今日之後、最多 4 天
+const upcomingSchedules = computed(() => {
+  const todayLabel = getTodayLabel();
+  return schedules.value
+    .filter(
+      (schedule) =>
+        schedule.date.datetime !== todayLabel && isTodayOrFuture(schedule.date.datetime)
+    )
+    .slice(0, 4);
+});
+
+const pad = (value: number) => String(value).padStart(2, '0');
 
 const appConfig = useAppConfig();
 useHead({
@@ -11,141 +30,67 @@ useHead({
 
 <template>
   <UContainer class="py-8 md:py-12">
-    <GreetingHeader />
+    <GreetingHeader :today="todaySchedule" />
+
     <ClientOnly>
-      <div v-if="todaySchedule" class="max-w-6xl mx-auto">
-        <!-- Date Card -->
-        <div class="text-center mb-10">
-          <div
-            class="inline-block px-8 py-4 rounded-2xl text-3xl font-bold shadow-lg border-4 border-white transform hover:scale-105 transition-transform"
-            :style="{
-              backgroundColor: todaySchedule.date.backgroundColor || '#f3f4f6',
-            }"
-          >
-            <div class="flex items-center gap-3">
-              <UIcon name="i-heroicons-calendar-days" class="w-8 h-8" />
-              {{ todaySchedule.date.datetime }}
-            </div>
-          </div>
-          <p
-            v-if="todaySchedule.date.description"
-            class="mt-4 text-lg text-gray-700 font-medium"
-            :style="{
-              color: todaySchedule.date.backgroundColor,
-            }"
-          >
-            {{ todaySchedule.date.description }}
-          </p>
+      <!-- 今日早 / 晚班 -->
+      <section
+        v-if="todaySchedule"
+        class="home-today"
+        aria-labelledby="home-today-heading"
+      >
+        <div class="home-today__line">
+          <span class="kanji-mark serif" aria-hidden="true">今</span>
+          <h2 id="home-today-heading" class="stamp-label home-today__label">
+            TODAY · 本日のシフト
+          </h2>
+          <span class="home-today__rule" />
+          <span class="stamp-label mono tnum home-today__counts">
+            EARLY {{ pad(todayCounts.day) }} ／ LATE {{ pad(todayCounts.night) }}
+          </span>
         </div>
 
-        <!-- Day Shift Section -->
-        <div class="mb-12">
-          <div class="flex items-center justify-center gap-3 mb-6">
-            <div class="h-px flex-1 bg-linear-to-r from-transparent to-yellow-300" />
-            <div
-              class="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-yellow-400 to-orange-400 rounded-full shadow-lg"
-            >
-              <UIcon name="i-heroicons-sun" class="w-6 h-6 text-white" />
-              <h3 class="text-2xl font-bold text-white">早班</h3>
-              <UBadge color="neutral" variant="solid" size="lg">
-                {{ todaySchedule.day.length }}
-              </UBadge>
-            </div>
-            <div class="h-px flex-1 bg-linear-to-l from-transparent to-yellow-300" />
-          </div>
-
-          <div
-            v-if="todaySchedule.day.length > 0"
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            <AgentCard
-              v-for="agent in todaySchedule.day"
-              :key="agent.name"
-              :name="agent.name"
-              :text-color="agent.textColor"
-            />
-          </div>
-          <div
-            v-else
-            class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-2xl shadow-md"
-          >
-            <UIcon name="i-heroicons-sun" class="w-16 h-16 text-gray-300 mb-4" />
-            <p class="text-center text-gray-500 text-lg">今日早班無排班</p>
-          </div>
+        <div class="home-today__grid">
+          <ShiftColumn type="day" :agents="todaySchedule.day" />
+          <ShiftColumn type="night" :agents="todaySchedule.night" />
         </div>
+      </section>
 
-        <!-- Night Shift Section -->
-        <div class="mb-12">
-          <div class="flex items-center justify-center gap-3 mb-6">
-            <div class="h-px flex-1 bg-linear-to-r from-transparent to-indigo-300" />
-            <div
-              class="flex items-center gap-2 px-6 py-3 bg-linear-to-r from-indigo-500 to-purple-500 rounded-full shadow-lg"
-            >
-              <UIcon name="i-heroicons-moon" class="w-6 h-6 text-white" />
-              <h3 class="text-2xl font-bold text-white">晚班</h3>
-              <UBadge color="neutral" variant="solid" size="lg">
-                {{ todaySchedule.night.length }}
-              </UBadge>
-            </div>
-            <div class="h-px flex-1 bg-linear-to-l from-transparent to-indigo-300" />
-          </div>
-
-          <div
-            v-if="todaySchedule.night.length > 0"
-            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            <AgentCard
-              v-for="agent in todaySchedule.night"
-              :key="agent.name"
-              :name="agent.name"
-              :text-color="agent.textColor"
-            />
-          </div>
-          <div
-            v-else
-            class="flex flex-col items-center justify-center py-12 px-4 bg-white rounded-2xl shadow-md"
-          >
-            <UIcon
-              name="i-heroicons-moon"
-              class="w-16 h-16 text-gray-300 mb-4"
-            />
-            <p class="text-center text-gray-500 text-lg">今日晚班無排班</p>
-          </div>
-        </div>
-
-        <ColorLegend />
-
-        <!-- Call to Action -->
-        <div class="text-center mt-12">
-          <div
-            class="inline-block p-1 bg-linear-to-r from-pink-500 to-purple-500 rounded-2xl shadow-2xl"
-          >
-            <UButton to="/shifts" size="xl" color="neutral" variant="solid" class="px-8 py-4">
-              <UIcon name="i-heroicons-calendar-days" class="w-6 h-6 mr-2" />
-              查看完整班表
-              <UIcon name="i-heroicons-arrow-right" class="w-5 h-5 ml-2" />
-            </UButton>
-          </div>
-          <p class="mt-4 text-sm text-gray-500">查看未來幾天的排班資訊</p>
-        </div>
+      <!-- 今日無排班 -->
+      <div v-else class="home-empty">
+        <span class="serif home-empty__kanji" aria-hidden="true">休</span>
+        <h2 class="serif home-empty__title">今日無排班</h2>
+        <p class="home-empty__sub">今天沒有值班安排，好好休息吧。</p>
       </div>
 
-      <!-- Empty State (no schedule today) -->
-      <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
-        <div
-          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300"
-        >
-          <UIcon
-            name="i-heroicons-calendar-days"
-            class="w-16 h-16 text-gray-400 mx-auto mb-4"
-          />
-          <h3 class="text-2xl font-bold text-gray-700 mb-2">今日無排班</h3>
-          <p class="text-gray-600 mb-6">今天沒有值班安排，好好休息吧！</p>
-          <UButton to="/shifts" color="primary" size="lg">
-            <UIcon name="i-heroicons-calendar-days" class="w-5 h-5 mr-2" />
-            查看完整班表
-          </UButton>
+      <!-- 近日のシフト -->
+      <section
+        v-if="upcomingSchedules.length > 0"
+        class="home-upcoming"
+        aria-labelledby="home-upcoming-heading"
+      >
+        <div class="home-upcoming__head">
+          <span class="serif home-upcoming__kanji">近日</span>
+          <h2 id="home-upcoming-heading" class="stamp-label">
+            UPCOMING · 近日のシフト
+          </h2>
+          <span class="home-upcoming__rule" />
         </div>
+        <div class="home-upcoming__grid">
+          <UpcomingCard
+            v-for="schedule in upcomingSchedules"
+            :key="schedule.date.datetime"
+            :schedule="schedule"
+          />
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <div class="home-cta">
+        <NuxtLink class="btn ghost" to="/shifts">查看完整班表 →</NuxtLink>
+        <a class="btn shu" :href="BOOKING_URL" target="_blank" rel="noopener noreferrer">
+          預約座位 →
+        </a>
       </div>
 
       <template #fallback>
@@ -154,3 +99,110 @@ useHead({
     </ClientOnly>
   </UContainer>
 </template>
+
+<style scoped>
+/* —— 今日班表 —— */
+.home-today {
+  margin-bottom: 48px;
+}
+.home-today__line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.home-today__label {
+  flex-shrink: 0;
+}
+.home-today__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--color-rule);
+}
+.home-today__counts {
+  flex-shrink: 0;
+}
+.home-today__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+/* —— 今日無排班 —— */
+.home-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 48px;
+  padding: 64px 24px;
+  text-align: center;
+  border: 1px dashed var(--color-rule);
+  border-radius: var(--radius-lg);
+}
+.home-empty__kanji {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  margin-bottom: 4px;
+  font-size: 56px;
+  color: var(--color-shu);
+  border: 1.5px solid var(--color-shu);
+}
+.home-empty__title {
+  font-size: 28px;
+  color: var(--color-ink);
+}
+.home-empty__sub {
+  color: var(--color-ink-soft);
+}
+
+/* —— 近日預覽 —— */
+.home-upcoming {
+  margin-bottom: 48px;
+}
+.home-upcoming__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.home-upcoming__kanji {
+  flex-shrink: 0;
+  font-size: 18px;
+  color: var(--color-shu);
+}
+.home-upcoming__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--color-rule);
+}
+
+.home-upcoming__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+/* —— CTA —— */
+.home-cta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+@media (max-width: 920px) {
+  .home-today__grid {
+    grid-template-columns: 1fr;
+  }
+  /* 窄螢幕收掉 today 行的 EARLY / LATE 計數，
+     避免溢出；班別人數已由 ShiftColumn 標題呈現 */
+  .home-today__counts {
+    display: none;
+  }
+}
+</style>

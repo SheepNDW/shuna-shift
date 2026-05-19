@@ -50,6 +50,41 @@
     flex-shrink: 0;
   }
 
+  /* —— 共用按鈕（紙感）—— */
+  /* 取代 prototype 的 .btn / .btn.ghost / .btn.shu 三變體，
+     供首頁 CTA、空狀態 action 與後續頁面共用。 */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid var(--color-ink);
+    border-radius: var(--radius-md);
+    background: var(--color-ink);
+    color: var(--color-paper);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform 0.08s ease, background 0.15s ease, border-color 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn.ghost {
+    background: transparent;
+    border-color: var(--color-rule);
+    color: var(--color-ink);
+  }
+  .btn.ghost:hover { border-color: var(--color-ink); }
+  .btn.shu {
+    background: var(--color-shu);
+    border-color: var(--color-shu);
+    color: #fff;
+  }
+  .btn.shu:hover {
+    background: var(--color-shu-deep);
+    border-color: var(--color-shu-deep);
+  }
+
   /* —— 共用頁首 PageHeader —— */
   /* 字級 / 間距寫死 px，與本檔 .kanji-mark / .stamp-label 等
      bespoke 元件一致（專案 @theme 未提供 --fs-* / --space-* scale）。 */
@@ -157,22 +192,6 @@
     border-color: var(--agent-color);
   }
   .filter-chip.is-active .filter-chip__dot { background: white; }
-
-  /* —— 探員頭像（動態色 ring） —— */
-  .agent-portrait-photo {
-    border-radius: 50%;
-    overflow: visible;
-    background: var(--color-paper-2);
-    box-shadow:
-      0 0 0 1px var(--color-rule),
-      0 0 0 4px var(--color-paper),
-      0 0 0 5px var(--agent-color, var(--color-rule));
-    transition: box-shadow 0.2s ease;
-  }
-  .agent-portrait-photo > img {
-    width: 100%; height: 100%; object-fit: cover;
-    border-radius: 50%; display: block;
-  }
 
   /* —— 探員詳情頁照片（方形 + 雙重 ring） —— */
   .agent-profile-photo {

@@ -41,6 +41,37 @@ export function getCurrentHour(): number {
   return new Date().getHours();
 }
 
+/** 星期對照（0 = 星期日） */
+const WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六'] as const;
+
+/**
+ * 解析「X月Y日」格式的日期標籤，取出月與日。
+ * @param dateLabel - 日期標籤（格式：10月28日）
+ * @returns 月與日的字串；格式不符時回傳 null
+ */
+export function parseDateLabel(dateLabel: string): { month: string; day: string } | null {
+  const match = dateLabel.match(/(\d+)月(\d+)日/);
+  if (!match || !match[1] || !match[2]) return null;
+
+  return { month: match[1], day: match[2] };
+}
+
+/**
+ * 取得「X月Y日」對應的星期中文字（以當前年份推算）。
+ * @param dateLabel - 日期標籤（格式：10月28日）
+ * @returns 星期單字（日～六）；格式不符時回傳空字串
+ */
+export function getWeekdayLabel(dateLabel: string): string {
+  const parsed = parseDateLabel(dateLabel);
+  if (!parsed) return '';
+
+  const month = parseInt(parsed.month, 10) - 1;
+  const day = parseInt(parsed.day, 10);
+  const weekday = new Date(getCurrentYear(), month, day).getDay();
+
+  return WEEKDAY_LABELS[weekday] ?? '';
+}
+
 /**
  * 檢查日期是否為今天
  */
