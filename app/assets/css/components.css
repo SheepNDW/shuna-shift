@@ -50,6 +50,35 @@
     flex-shrink: 0;
   }
 
+  /* —— 共用頁首 PageHeader —— */
+  .page-header {
+    margin-bottom: var(--space-12);
+  }
+  .page-header__line {
+    display: flex; align-items: center; gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+  .page-header__rule {
+    flex: 1; height: 1px;
+    background: var(--color-rule);
+  }
+  .page-header__meta {
+    color: var(--color-ink-soft);
+  }
+  .page-header__title {
+    font-size: var(--fs-64); line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--color-ink);
+  }
+  .page-header__subtitle {
+    margin-top: var(--space-3);
+    color: var(--color-ink-soft);
+    font-size: var(--fs-16);
+  }
+  @media (max-width: 920px) {
+    .page-header__title { font-size: var(--fs-48); }
+  }
+
   /* —— 印章式日期框（首頁 hero） —— */
   /* 四角描邊裝飾，Tailwind 無法直接表達 */
   .date-stamp-frame {
