@@ -18,21 +18,46 @@ const isEmpty = computed(() => count.value === 0);
 </script>
 
 <template>
-  <section class="shift-col" :class="`shift-col--${type}`">
-    <header class="shift-col__head">
-      <span class="shift-col__icon">
+  <section class="relative overflow-hidden rounded-lg border border-rule bg-surface p-6">
+    <!-- 班別朱條 -->
+    <span
+      class="absolute inset-y-0 left-0 w-[3px]"
+      :class="type === 'day' ? 'bg-day' : 'bg-night'"
+      aria-hidden="true"
+    />
+
+    <header
+      class="mb-5 flex items-center gap-3"
+      :class="type === 'day' ? 'text-day-deep' : 'text-night-deep'"
+    >
+      <span
+        class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-current p-2"
+      >
         <ShiftGlyph :type="type" />
       </span>
-      <span class="serif shift-col__name">{{ meta.name }}</span>
-      <span class="mono tnum shift-col__count">{{ countLabel }}</span>
-      <span class="stamp-label shift-col__sub">{{ meta.sub }}</span>
+      <div class="flex flex-col">
+        <div class="flex items-baseline gap-2">
+          <span class="serif text-fs-22" data-testid="shift-name">{{ meta.name }}</span>
+          <span class="mono tnum text-fs-22 text-ink-soft" data-testid="shift-count">
+            {{ countLabel }}
+          </span>
+        </div>
+        <span class="stamp-label">{{ meta.sub }}</span>
+      </div>
     </header>
 
-    <div v-if="isEmpty" class="shift-col__empty">
-      <span class="serif shift-col__empty-kanji" aria-hidden="true">休</span>
+    <div
+      v-if="isEmpty"
+      class="flex flex-col items-center gap-2 px-6 py-10 text-center text-ink-mute"
+      data-testid="shift-empty"
+    >
+      <span class="serif text-fs-28 text-rule" aria-hidden="true">休</span>
       <span class="stamp-label">無排班</span>
     </div>
-    <div v-else class="shift-col__grid">
+    <div
+      v-else
+      class="grid gap-5 [grid-template-columns:repeat(auto-fill,minmax(108px,1fr))]"
+    >
       <AgentPortrait
         v-for="agent in agents"
         :key="agent.name"
@@ -42,85 +67,3 @@ const isEmpty = computed(() => count.value === 0);
     </div>
   </section>
 </template>
-
-<style scoped>
-.shift-col {
-  position: relative;
-  overflow: hidden;
-  padding: 24px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-}
-.shift-col::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-}
-.shift-col--day::before {
-  background: var(--color-day);
-}
-.shift-col--night::before {
-  background: var(--color-night);
-}
-
-.shift-col__head {
-  display: grid;
-  grid-template-columns: auto auto 1fr;
-  grid-template-rows: auto auto;
-  align-items: center;
-  gap: 4px 12px;
-  margin-bottom: 20px;
-}
-.shift-col--day .shift-col__head {
-  color: var(--color-day-deep);
-}
-.shift-col--night .shift-col__head {
-  color: var(--color-night-deep);
-}
-
-.shift-col__icon {
-  grid-row: 1 / 3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 8px;
-  border: 1px solid currentColor;
-  border-radius: 50%;
-}
-.shift-col__name {
-  font-size: 22px;
-}
-.shift-col__count {
-  font-size: 22px;
-  color: var(--color-ink-soft);
-}
-.shift-col__sub {
-  grid-column: 2 / 4;
-}
-
-.shift-col__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(108px, 1fr));
-  gap: 20px;
-}
-
-.shift-col__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 40px 24px;
-  text-align: center;
-  color: var(--color-ink-mute);
-}
-.shift-col__empty-kanji {
-  font-size: 32px;
-  color: var(--color-rule);
-}
-</style>

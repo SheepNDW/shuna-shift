@@ -36,8 +36,8 @@ describe('ShiftColumn', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.shift-col__name').text()).toBe('早班');
-    expect(wrapper.get('.shift-col__count').text()).toBe('02');
+    expect(wrapper.get('[data-testid="shift-name"]').text()).toBe('早班');
+    expect(wrapper.get('[data-testid="shift-count"]').text()).toBe('02');
     expect(wrapper.findAll('[data-testid="agent-portrait"]')).toHaveLength(2);
     expect(wrapper.get('[data-testid="shift-glyph"]').attributes('data-type')).toBe('day');
   });
@@ -51,8 +51,8 @@ describe('ShiftColumn', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.shift-col__name').text()).toBe('晚班');
-    expect(wrapper.get('.shift-col__count').text()).toBe('01');
+    expect(wrapper.get('[data-testid="shift-name"]').text()).toBe('晚班');
+    expect(wrapper.get('[data-testid="shift-count"]').text()).toBe('01');
   });
 
   it('無排班時應顯示空狀態而非探員頭像', async () => {
@@ -61,8 +61,8 @@ describe('ShiftColumn', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.shift-col__count').text()).toBe('00');
+    expect(wrapper.get('[data-testid="shift-count"]').text()).toBe('00');
     expect(wrapper.findAll('[data-testid="agent-portrait"]')).toHaveLength(0);
-    expect(wrapper.get('.shift-col__empty').text()).toContain('無排班');
+    expect(wrapper.get('[data-testid="shift-empty"]').text()).toContain('無排班');
   });
 });

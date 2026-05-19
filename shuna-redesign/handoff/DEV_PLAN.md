@@ -275,7 +275,13 @@ app/components/
 ## 3. 程式碼 conventions
 
 - 元件以 `<script setup lang="ts">` 撰寫
-- Tailwind 與 token CSS var 混用：簡單 utility（`flex` / `gap` / `p-X`）用 Tailwind，色彩 / 字級 / 圓角 / 陰影一律走 token
+- **樣式採 utility-first**：layout / 間距 / 字級 / 色彩 / 圓角 / 陰影一律用 Tailwind utility class
+  - 色彩走 `@theme` 客製 token（`bg-paper` / `text-shu` / `border-rule` …）
+  - 字級用 `@theme` 的 `text-fs-*`（對應 DESIGN_GUIDELINE §2.2 字級階梯）
+  - 間距用 Tailwind 內建 scale（`gap-3` / `p-6` …，對應 4-based 階梯）
+- 重複的小樣式（`stamp-label` / `kanji-mark` / `btn` / `date-stamp-frame` …）定義為
+  `@layer components` class，集中於 `components.css`
+- `<style scoped>` 只保留 utility 無法表達者：偽元素裝飾、帶 CSS 變數的多層 box-shadow 等
 - 探員代表色透過 inline style 設 `--agent-color` CSS variable，元件用 `var(--agent-color)` 引用（**不要**把顏色硬編到 class）
 - 「今日」、「過期」、「未來」狀態用 boolean prop 控制，不要用 class string
 

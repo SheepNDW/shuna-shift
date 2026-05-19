@@ -24,114 +24,50 @@ const nightNames = computed(() => previewNames(schedule.night));
 </script>
 
 <template>
-  <NuxtLink class="upcoming-card" to="/shifts">
-    <div class="upcoming-card__date">
-      <span v-if="parsedDate" class="mono tnum upcoming-card__md">
+  <NuxtLink
+    class="flex flex-col gap-3 rounded-lg border border-rule bg-surface p-5 transition duration-150 hover:-translate-y-px hover:border-ink-soft"
+    to="/shifts"
+  >
+    <div class="flex items-baseline gap-2.5 border-b border-rule-2 pb-2.5">
+      <span
+        v-if="parsedDate"
+        class="mono tnum text-fs-22 font-medium text-ink"
+        data-testid="upcoming-md"
+      >
         {{ parsedDate.month }}/{{ parsedDate.day }}
       </span>
-      <span class="serif upcoming-card__dow">星期{{ weekday }}</span>
+      <span class="serif text-fs-14 text-ink-soft" data-testid="upcoming-dow">
+        星期{{ weekday }}
+      </span>
     </div>
 
-    <div class="upcoming-card__shifts">
-      <div class="upcoming-card__row">
-        <span class="upcoming-card__pill upcoming-card__pill--day">
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center gap-2.5 text-fs-13">
+        <span
+          class="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border border-day bg-day-soft p-1.5 text-day-deep"
+        >
           <ShiftGlyph type="day" />
         </span>
-        <span class="mono tnum upcoming-card__num">{{ dayCount }}</span>
-        <span class="upcoming-card__names">{{ dayNames }}</span>
+        <span class="mono tnum w-5 text-ink-soft" data-testid="upcoming-num">{{ dayCount }}</span>
+        <span class="truncate text-ink" data-testid="upcoming-names">{{ dayNames }}</span>
       </div>
-      <div class="upcoming-card__row">
-        <span class="upcoming-card__pill upcoming-card__pill--night">
+      <div class="flex items-center gap-2.5 text-fs-13">
+        <span
+          class="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border border-night bg-night-soft p-1.5 text-night-deep"
+        >
           <ShiftGlyph type="night" />
         </span>
-        <span class="mono tnum upcoming-card__num">{{ nightCount }}</span>
-        <span class="upcoming-card__names">{{ nightNames }}</span>
+        <span class="mono tnum w-5 text-ink-soft" data-testid="upcoming-num">{{ nightCount }}</span>
+        <span class="truncate text-ink" data-testid="upcoming-names">{{ nightNames }}</span>
       </div>
     </div>
 
-    <span v-if="schedule.date.description" class="stamp-label upcoming-card__note">
+    <span
+      v-if="schedule.date.description"
+      class="stamp-label text-shu"
+      data-testid="upcoming-note"
+    >
       ※ {{ schedule.date.description }}
     </span>
   </NuxtLink>
 </template>
-
-<style scoped>
-.upcoming-card {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 20px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-lg);
-  transition: border-color 0.15s, transform 0.1s;
-}
-.upcoming-card:hover {
-  border-color: var(--color-ink-soft);
-  transform: translateY(-1px);
-}
-
-.upcoming-card__date {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--color-rule-2);
-}
-.upcoming-card__md {
-  font-size: 22px;
-  font-weight: 500;
-  color: var(--color-ink);
-}
-.upcoming-card__dow {
-  font-size: 14px;
-  color: var(--color-ink-soft);
-}
-
-.upcoming-card__shifts {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.upcoming-card__row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-}
-.upcoming-card__pill {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 26px;
-  height: 26px;
-  padding: 6px;
-  border: 1px solid;
-  border-radius: 50%;
-}
-.upcoming-card__pill--day {
-  color: var(--color-day-deep);
-  background: var(--color-day-soft);
-  border-color: var(--color-day);
-}
-.upcoming-card__pill--night {
-  color: var(--color-night-deep);
-  background: var(--color-night-soft);
-  border-color: var(--color-night);
-}
-.upcoming-card__num {
-  width: 20px;
-  color: var(--color-ink-soft);
-}
-.upcoming-card__names {
-  color: var(--color-ink);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.upcoming-card__note {
-  color: var(--color-shu);
-}
-</style>

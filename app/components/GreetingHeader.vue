@@ -21,105 +21,57 @@ const description = computed(() => today?.date.description ?? '');
 
 <template>
   <ClientOnly>
-    <section class="greeting" aria-label="今日問候">
-      <div class="greeting__text">
-        <span class="stamp-label greeting__stamp">星期{{ weekday }} · {{ todayLabel }}</span>
-        <h1 class="serif greeting__hello">
-          {{ greeting.ja }}、<span class="greeting__hello-shu">朱雫</span>
+    <section
+      class="mb-10 grid grid-cols-[1fr_auto] items-end gap-12 border-b border-rule pb-10 max-[920px]:grid-cols-1 max-[920px]:gap-6"
+      aria-label="今日問候"
+    >
+      <div>
+        <span class="stamp-label mb-4 block">星期{{ weekday }} · {{ todayLabel }}</span>
+        <h1
+          class="serif text-[clamp(48px,7vw,84px)] leading-[0.95] tracking-[-0.02em] text-ink"
+          data-testid="greeting-hello"
+        >
+          {{ greeting.ja }}、<span class="text-shu">朱雫</span>
         </h1>
-        <p class="greeting__sub">{{ greeting.zh }}，今日當班的探員如下。</p>
+        <p class="mt-4 max-w-[36ch] text-fs-18 text-ink-soft" data-testid="greeting-sub">
+          {{ greeting.zh }}，今日當班的探員如下。
+        </p>
       </div>
 
-      <div v-if="parsedDate" class="date-stamp-frame greeting__date">
-        <div class="greeting__date-mono">
-          <span class="mono tnum greeting__date-num">{{ parsedDate.month }}</span>
-          <span class="greeting__date-slash">／</span>
-          <span class="mono tnum greeting__date-num">{{ parsedDate.day }}</span>
+      <div
+        v-if="parsedDate"
+        class="date-stamp-frame flex flex-col items-center gap-1 max-[920px]:self-start"
+      >
+        <div class="flex items-baseline">
+          <span
+            class="mono tnum text-[56px] font-medium leading-none text-ink"
+            data-testid="greeting-date-num"
+          >
+            {{ parsedDate.month }}
+          </span>
+          <span class="mx-0.5 text-fs-36 text-ink-mute">／</span>
+          <span
+            class="mono tnum text-[56px] font-medium leading-none text-ink"
+            data-testid="greeting-date-num"
+          >
+            {{ parsedDate.day }}
+          </span>
         </div>
-        <div class="serif greeting__date-dow">星期{{ weekday }}</div>
-        <span v-if="description" class="greeting__date-desc">{{ description }}</span>
+        <div class="serif text-fs-16 text-ink-soft" data-testid="greeting-date-dow">
+          星期{{ weekday }}
+        </div>
+        <span
+          v-if="description"
+          class="mt-1.5 text-fs-13 text-shu"
+          data-testid="greeting-date-desc"
+        >
+          {{ description }}
+        </span>
       </div>
     </section>
 
     <template #fallback>
-      <div class="greeting greeting--loading" aria-hidden="true" />
+      <div class="mb-10 min-h-[200px]" aria-hidden="true" />
     </template>
   </ClientOnly>
 </template>
-
-<style scoped>
-.greeting {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: end;
-  gap: 48px;
-  margin-bottom: 40px;
-  padding-bottom: 40px;
-  border-bottom: 1px solid var(--color-rule);
-}
-.greeting--loading {
-  min-height: 200px;
-}
-
-.greeting__stamp {
-  display: block;
-  margin-bottom: 16px;
-}
-.greeting__hello {
-  font-size: clamp(48px, 7vw, 84px);
-  line-height: 0.95;
-  letter-spacing: -0.02em;
-  color: var(--color-ink);
-}
-.greeting__hello-shu {
-  color: var(--color-shu);
-}
-.greeting__sub {
-  margin-top: 16px;
-  max-width: 36ch;
-  font-size: 18px;
-  color: var(--color-ink-soft);
-}
-
-/* 印章式日期框，框體四角描邊由 components.css 的 .date-stamp-frame 提供 */
-.greeting__date {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-}
-.greeting__date-mono {
-  display: flex;
-  align-items: baseline;
-}
-.greeting__date-num {
-  font-size: 56px;
-  line-height: 1;
-  font-weight: 500;
-  color: var(--color-ink);
-}
-.greeting__date-slash {
-  margin: 0 2px;
-  font-size: 36px;
-  color: var(--color-ink-mute);
-}
-.greeting__date-dow {
-  font-size: 16px;
-  color: var(--color-ink-soft);
-}
-.greeting__date-desc {
-  margin-top: 6px;
-  font-size: 13px;
-  color: var(--color-shu);
-}
-
-@media (max-width: 920px) {
-  .greeting {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .greeting__date {
-    align-self: start;
-  }
-}
-</style>

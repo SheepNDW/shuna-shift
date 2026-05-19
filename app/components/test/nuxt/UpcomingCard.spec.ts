@@ -47,9 +47,9 @@ describe('UpcomingCard', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.upcoming-card__md').text()).toBe('10/12');
+    expect(wrapper.get('[data-testid="upcoming-md"]').text()).toBe('10/12');
     // 2024/10/12 為星期六
-    expect(wrapper.get('.upcoming-card__dow').text()).toBe('星期六');
+    expect(wrapper.get('[data-testid="upcoming-dow"]').text()).toBe('星期六');
   });
 
   it('應顯示早 / 晚班人數', async () => {
@@ -58,7 +58,7 @@ describe('UpcomingCard', () => {
       global: { stubs: globalStubs },
     });
 
-    const counts = wrapper.findAll('.upcoming-card__num');
+    const counts = wrapper.findAll('[data-testid="upcoming-num"]');
     expect(counts[0]?.text()).toBe('03');
     expect(counts[1]?.text()).toBe('01');
   });
@@ -69,7 +69,7 @@ describe('UpcomingCard', () => {
       global: { stubs: globalStubs },
     });
 
-    const names = wrapper.findAll('.upcoming-card__names');
+    const names = wrapper.findAll('[data-testid="upcoming-names"]');
     expect(names[0]?.text()).toBe('泠泠、七尾…');
     expect(names[1]?.text()).toBe('小花');
   });
@@ -80,7 +80,7 @@ describe('UpcomingCard', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.upcoming-card__note').text()).toContain('特別營業');
+    expect(wrapper.get('[data-testid="upcoming-note"]').text()).toContain('特別營業');
   });
 
   it('無排班的班別應顯示破折號', async () => {
@@ -91,7 +91,7 @@ describe('UpcomingCard', () => {
       global: { stubs: globalStubs },
     });
 
-    const names = wrapper.findAll('.upcoming-card__names');
+    const names = wrapper.findAll('[data-testid="upcoming-names"]');
     expect(names[1]?.text()).toBe('—');
   });
 

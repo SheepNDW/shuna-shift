@@ -27,8 +27,8 @@ describe('GreetingHeader', () => {
         global: { stubs: { ClientOnly: ClientOnlyStub } },
       });
 
-      expect(wrapper.get('.greeting__hello').text()).toContain('おはよう');
-      expect(wrapper.get('.greeting__sub').text()).toContain('早安');
+      expect(wrapper.get('[data-testid="greeting-hello"]').text()).toContain('おはよう');
+      expect(wrapper.get('[data-testid="greeting-sub"]').text()).toContain('早安');
     });
 
     it('下午應顯示「こんにちは」與「午安」', async () => {
@@ -37,8 +37,8 @@ describe('GreetingHeader', () => {
         global: { stubs: { ClientOnly: ClientOnlyStub } },
       });
 
-      expect(wrapper.get('.greeting__hello').text()).toContain('こんにちは');
-      expect(wrapper.get('.greeting__sub').text()).toContain('午安');
+      expect(wrapper.get('[data-testid="greeting-hello"]').text()).toContain('こんにちは');
+      expect(wrapper.get('[data-testid="greeting-sub"]').text()).toContain('午安');
     });
 
     it('晚上應顯示「こんばんは」與「晚安」', async () => {
@@ -47,8 +47,8 @@ describe('GreetingHeader', () => {
         global: { stubs: { ClientOnly: ClientOnlyStub } },
       });
 
-      expect(wrapper.get('.greeting__hello').text()).toContain('こんばんは');
-      expect(wrapper.get('.greeting__sub').text()).toContain('晚安');
+      expect(wrapper.get('[data-testid="greeting-hello"]').text()).toContain('こんばんは');
+      expect(wrapper.get('[data-testid="greeting-sub"]').text()).toContain('晚安');
     });
   });
 
@@ -62,11 +62,11 @@ describe('GreetingHeader', () => {
         global: { stubs: { ClientOnly: ClientOnlyStub } },
       });
 
-      const nums = wrapper.findAll('.greeting__date-num');
+      const nums = wrapper.findAll('[data-testid="greeting-date-num"]');
       expect(nums[0]?.text()).toBe('10');
       expect(nums[1]?.text()).toBe('28');
       // 2024/10/28 為星期一
-      expect(wrapper.get('.greeting__date-dow').text()).toBe('星期一');
+      expect(wrapper.get('[data-testid="greeting-date-dow"]').text()).toBe('星期一');
     });
 
     it('有 today 特殊日說明時應顯示說明文字', async () => {
@@ -75,7 +75,7 @@ describe('GreetingHeader', () => {
         global: { stubs: { ClientOnly: ClientOnlyStub } },
       });
 
-      expect(wrapper.get('.greeting__date-desc').text()).toBe('生誕祭');
+      expect(wrapper.get('[data-testid="greeting-date-desc"]').text()).toBe('生誕祭');
     });
 
     it('未提供 today 時不顯示說明文字', async () => {
@@ -83,7 +83,7 @@ describe('GreetingHeader', () => {
         global: { stubs: { ClientOnly: ClientOnlyStub } },
       });
 
-      expect(wrapper.find('.greeting__date-desc').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="greeting-date-desc"]').exists()).toBe(false);
     });
   });
 });

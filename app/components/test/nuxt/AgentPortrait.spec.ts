@@ -28,7 +28,7 @@ describe('AgentPortrait', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.agent-portrait__name').text()).toBe('泠泠');
+    expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('泠泠');
     expect(wrapper.find('a').attributes('to')).toBe('/agents/rin');
     expect(wrapper.find('img').attributes('alt')).toBe('泠泠 的照片');
   });
@@ -39,7 +39,7 @@ describe('AgentPortrait', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.agent-portrait').attributes('style')).toContain(
+    expect(wrapper.get('[data-testid="agent-portrait"]').attributes('style')).toContain(
       '--agent-color: #123456'
     );
   });
@@ -50,7 +50,7 @@ describe('AgentPortrait', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.agent-portrait__emoji').text()).toBe('🐷');
+    expect(wrapper.get('[data-testid="agent-emoji"]').text()).toBe('🐷');
   });
 
   it('帶括號的替班名稱應完整顯示，並連回原探員', async () => {
@@ -59,7 +59,7 @@ describe('AgentPortrait', () => {
       global: { stubs: globalStubs },
     });
 
-    expect(wrapper.get('.agent-portrait__name').text()).toBe('泠泠(七尾)');
+    expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('泠泠(七尾)');
     expect(wrapper.find('a').attributes('to')).toBe('/agents/rin');
   });
 
@@ -70,6 +70,6 @@ describe('AgentPortrait', () => {
     });
 
     expect(wrapper.find('a').exists()).toBe(false);
-    expect(wrapper.get('.agent-portrait__name').text()).toBe('查無此人');
+    expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('查無此人');
   });
 });

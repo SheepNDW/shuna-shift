@@ -10,7 +10,7 @@ defineProps<{
 <template>
   <svg
     v-if="type === 'day'"
-    class="shift-glyph"
+    class="block h-full w-full"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -25,7 +25,7 @@ defineProps<{
   </svg>
   <svg
     v-else
-    class="shift-glyph"
+    class="block h-full w-full"
     viewBox="0 0 24 24"
     fill="none"
     stroke="currentColor"
@@ -37,11 +37,3 @@ defineProps<{
     <path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7 7 0 0 0 11 11Z" />
   </svg>
 </template>
-
-<style scoped>
-.shift-glyph {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-</style>

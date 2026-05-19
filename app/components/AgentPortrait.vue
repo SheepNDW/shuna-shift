@@ -36,54 +36,54 @@ const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {
 <template>
   <component
     :is="agentInfo.id ? 'NuxtLink' : 'div'"
-    class="agent-portrait"
+    class="agent-portrait flex flex-col items-center gap-2 text-center transition-transform duration-150 hover:-translate-y-0.5"
     :to="agentInfo.id ? `/agents/${agentInfo.id}` : undefined"
     :style="ringStyle"
+    data-testid="agent-portrait"
   >
     <span
-      class="agent-portrait__photo"
+      class="agent-portrait__photo relative rounded-full bg-paper-2 transition-shadow duration-200"
       :style="{ width: `${size}px`, height: `${size}px` }"
     >
       <NuxtImg
         v-if="agentInfo.picture"
         :src="agentInfo.picture"
         :alt="`${agentInfo.displayName} 的照片`"
-        class="agent-portrait__img"
+        class="block h-full w-full rounded-full object-cover"
         loading="lazy"
       />
-      <span v-else class="serif agent-portrait__placeholder" aria-hidden="true">
+      <span
+        v-else
+        class="serif flex h-full w-full items-center justify-center rounded-full text-fs-28 text-ink-soft"
+        aria-hidden="true"
+      >
         {{ agentInfo.displayName.charAt(0) }}
       </span>
-      <span v-if="agentInfo.emoji" class="agent-portrait__emoji" aria-hidden="true">
+      <span
+        v-if="agentInfo.emoji"
+        class="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border border-rule bg-paper text-fs-15"
+        aria-hidden="true"
+        data-testid="agent-emoji"
+      >
         {{ agentInfo.emoji }}
       </span>
     </span>
-    <span class="serif agent-portrait__name">{{ agentInfo.displayName }}</span>
+    <span
+      class="agent-portrait__name serif text-fs-15 leading-tight"
+      data-testid="agent-name"
+    >
+      {{ agentInfo.displayName }}
+    </span>
   </component>
 </template>
 
 <style scoped>
-.agent-portrait {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  text-align: center;
-  transition: transform 0.15s ease;
-}
-.agent-portrait:hover {
-  transform: translateY(-2px);
-}
-
+/* 探員代表色 ring 與名字色：帶 --agent-color 變數的多層 box-shadow，utility 無法表達 */
 .agent-portrait__photo {
-  position: relative;
-  border-radius: 50%;
-  background: var(--color-paper-2);
   box-shadow:
     0 0 0 1px var(--color-rule),
     0 0 0 4px var(--color-paper),
     0 0 0 5px var(--agent-color, var(--color-rule));
-  transition: box-shadow 0.2s ease;
 }
 .agent-portrait:hover .agent-portrait__photo {
   box-shadow:
@@ -91,44 +91,7 @@ const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {
     0 0 0 4px var(--color-paper),
     0 0 0 5px var(--agent-color, var(--color-shu));
 }
-
-.agent-portrait__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  display: block;
-}
-
-.agent-portrait__placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  font-size: 32px;
-  color: var(--color-ink-soft);
-  border-radius: 50%;
-}
-
-.agent-portrait__emoji {
-  position: absolute;
-  right: -4px;
-  bottom: -4px;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  background: var(--color-paper);
-  border: 1px solid var(--color-rule);
-  border-radius: 50%;
-}
-
 .agent-portrait__name {
-  font-size: 15px;
-  line-height: 1.2;
   color: var(--agent-color, var(--color-ink));
 }
 </style>

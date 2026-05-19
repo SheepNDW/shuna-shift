@@ -34,49 +34,49 @@ useHead({
 
     <ClientOnly>
       <!-- 今日早 / 晚班 -->
-      <section
-        v-if="todaySchedule"
-        class="home-today"
-        aria-labelledby="home-today-heading"
-      >
-        <div class="home-today__line">
+      <section v-if="todaySchedule" class="mb-12" aria-labelledby="home-today-heading">
+        <div class="mb-6 flex items-center gap-3">
           <span class="kanji-mark serif" aria-hidden="true">今</span>
-          <h2 id="home-today-heading" class="stamp-label home-today__label">
+          <h2 id="home-today-heading" class="stamp-label shrink-0">
             TODAY · 本日のシフト
           </h2>
-          <span class="home-today__rule" />
-          <span class="stamp-label mono tnum home-today__counts">
+          <span class="h-px flex-1 bg-rule" />
+          <span class="stamp-label mono tnum shrink-0 max-[920px]:hidden">
             EARLY {{ pad(todayCounts.day) }} ／ LATE {{ pad(todayCounts.night) }}
           </span>
         </div>
 
-        <div class="home-today__grid">
+        <div class="grid grid-cols-2 gap-6 max-[920px]:grid-cols-1">
           <ShiftColumn type="day" :agents="todaySchedule.day" />
           <ShiftColumn type="night" :agents="todaySchedule.night" />
         </div>
       </section>
 
       <!-- 今日無排班 -->
-      <div v-else class="home-empty">
-        <span class="serif home-empty__kanji" aria-hidden="true">休</span>
-        <h2 class="serif home-empty__title">今日無排班</h2>
-        <p class="home-empty__sub">今天沒有值班安排，好好休息吧。</p>
+      <div
+        v-else
+        class="mb-12 flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
+      >
+        <span
+          class="serif flex h-22 w-22 items-center justify-center border-[1.5px] border-shu text-[56px] text-shu"
+          aria-hidden="true"
+        >休</span>
+        <h2 class="serif text-fs-28 text-ink">今日無排班</h2>
+        <p class="text-ink-soft">今天沒有值班安排，好好休息吧。</p>
       </div>
 
       <!-- 近日のシフト -->
       <section
         v-if="upcomingSchedules.length > 0"
-        class="home-upcoming"
+        class="mb-12"
         aria-labelledby="home-upcoming-heading"
       >
-        <div class="home-upcoming__head">
-          <span class="serif home-upcoming__kanji">近日</span>
-          <h2 id="home-upcoming-heading" class="stamp-label">
-            UPCOMING · 近日のシフト
-          </h2>
-          <span class="home-upcoming__rule" />
+        <div class="mb-6 flex items-center gap-3">
+          <span class="serif shrink-0 text-fs-18 text-shu">近日</span>
+          <h2 id="home-upcoming-heading" class="stamp-label">UPCOMING · 近日のシフト</h2>
+          <span class="h-px flex-1 bg-rule" />
         </div>
-        <div class="home-upcoming__grid">
+        <div class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
           <UpcomingCard
             v-for="schedule in upcomingSchedules"
             :key="schedule.date.datetime"
@@ -86,7 +86,7 @@ useHead({
       </section>
 
       <!-- CTA -->
-      <div class="home-cta">
+      <div class="mt-2 flex flex-wrap justify-center gap-3">
         <NuxtLink class="btn ghost" to="/shifts">查看完整班表 →</NuxtLink>
         <a class="btn shu" :href="BOOKING_URL" target="_blank" rel="noopener noreferrer">
           預約座位 →
@@ -99,110 +99,3 @@ useHead({
     </ClientOnly>
   </UContainer>
 </template>
-
-<style scoped>
-/* —— 今日班表 —— */
-.home-today {
-  margin-bottom: 48px;
-}
-.home-today__line {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.home-today__label {
-  flex-shrink: 0;
-}
-.home-today__rule {
-  flex: 1;
-  height: 1px;
-  background: var(--color-rule);
-}
-.home-today__counts {
-  flex-shrink: 0;
-}
-.home-today__grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 24px;
-}
-
-/* —— 今日無排班 —— */
-.home-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 48px;
-  padding: 64px 24px;
-  text-align: center;
-  border: 1px dashed var(--color-rule);
-  border-radius: var(--radius-lg);
-}
-.home-empty__kanji {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 88px;
-  height: 88px;
-  margin-bottom: 4px;
-  font-size: 56px;
-  color: var(--color-shu);
-  border: 1.5px solid var(--color-shu);
-}
-.home-empty__title {
-  font-size: 28px;
-  color: var(--color-ink);
-}
-.home-empty__sub {
-  color: var(--color-ink-soft);
-}
-
-/* —— 近日預覽 —— */
-.home-upcoming {
-  margin-bottom: 48px;
-}
-.home-upcoming__head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-.home-upcoming__kanji {
-  flex-shrink: 0;
-  font-size: 18px;
-  color: var(--color-shu);
-}
-.home-upcoming__rule {
-  flex: 1;
-  height: 1px;
-  background: var(--color-rule);
-}
-
-.home-upcoming__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
-}
-
-/* —— CTA —— */
-.home-cta {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-@media (max-width: 920px) {
-  .home-today__grid {
-    grid-template-columns: 1fr;
-  }
-  /* 窄螢幕收掉 today 行的 EARLY / LATE 計數，
-     避免溢出；班別人數已由 ShiftColumn 標題呈現 */
-  .home-today__counts {
-    display: none;
-  }
-}
-</style>
