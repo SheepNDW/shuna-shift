@@ -84,6 +84,13 @@
     background: var(--color-shu-deep);
     border-color: var(--color-shu-deep);
   }
+  /* 尊重 prefers-reduced-motion：關閉按鈕位移 */
+  @media (prefers-reduced-motion: reduce) {
+    .btn:hover,
+    .btn:active {
+      transform: none;
+    }
+  }
 
   /* —— 共用頁首 PageHeader —— */
   /* 字級 / 間距寫死 px，與本檔 .kanji-mark / .stamp-label 等

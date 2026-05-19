@@ -36,7 +36,7 @@ const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {
 <template>
   <component
     :is="agentInfo.id ? 'NuxtLink' : 'div'"
-    class="agent-portrait flex flex-col items-center gap-2 text-center transition-transform duration-150 hover:-translate-y-0.5"
+    class="agent-portrait flex flex-col items-center gap-2 text-center transition-transform duration-150 motion-safe:hover:-translate-y-0.5"
     :to="agentInfo.id ? `/agents/${agentInfo.id}` : undefined"
     :style="ringStyle"
     data-testid="agent-portrait"

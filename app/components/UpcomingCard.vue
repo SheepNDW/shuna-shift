@@ -17,15 +17,15 @@ function previewNames(list: { name: string }[]): string {
   return list.length > 2 ? `${head}…` : head;
 }
 
-const dayCount = computed(() => String(schedule.day.length).padStart(2, '0'));
-const nightCount = computed(() => String(schedule.night.length).padStart(2, '0'));
+const dayCount = computed(() => padZero(schedule.day.length));
+const nightCount = computed(() => padZero(schedule.night.length));
 const dayNames = computed(() => previewNames(schedule.day));
 const nightNames = computed(() => previewNames(schedule.night));
 </script>
 
 <template>
   <NuxtLink
-    class="flex flex-col gap-3 rounded-lg border border-rule bg-surface p-5 transition duration-150 hover:-translate-y-px hover:border-ink-soft"
+    class="flex flex-col gap-3 rounded-lg border border-rule bg-surface p-5 transition duration-150 hover:border-ink-soft motion-safe:hover:-translate-y-px"
     to="/shifts"
   >
     <div class="flex items-baseline gap-2.5 border-b border-rule-2 pb-2.5">

@@ -13,7 +13,7 @@ const meta = computed(() =>
 );
 
 const count = computed(() => agents.length);
-const countLabel = computed(() => String(count.value).padStart(2, '0'));
+const countLabel = computed(() => padZero(count.value));
 const isEmpty = computed(() => count.value === 0);
 </script>
 

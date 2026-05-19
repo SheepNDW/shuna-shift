@@ -20,8 +20,6 @@ const upcomingSchedules = computed(() => {
     .slice(0, 4);
 });
 
-const pad = (value: number) => String(value).padStart(2, '0');
-
 const appConfig = useAppConfig();
 useHead({
   title: `${appConfig.title} - 今日班表`,
@@ -42,7 +40,7 @@ useHead({
           </h2>
           <span class="h-px flex-1 bg-rule" />
           <span class="stamp-label mono tnum shrink-0 max-[920px]:hidden">
-            EARLY {{ pad(todayCounts.day) }} ／ LATE {{ pad(todayCounts.night) }}
+            EARLY {{ padZero(todayCounts.day) }} ／ LATE {{ padZero(todayCounts.night) }}
           </span>
         </div>
 
