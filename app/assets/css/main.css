@@ -65,6 +65,19 @@
   --font-mono:  "JetBrains Mono", "IBM Plex Mono", ui-monospace,
                 "SFMono-Regular", monospace;
 
+  /* —— Font size scale（對應 DESIGN_GUIDELINE §2.2，產生 text-fs-* utility）—— */
+  --text-fs-12:  12px;
+  --text-fs-13:  13px;
+  --text-fs-14:  14px;
+  --text-fs-15:  15px;
+  --text-fs-16:  16px;
+  --text-fs-18:  18px;
+  --text-fs-22:  22px;
+  --text-fs-28:  28px;
+  --text-fs-36:  36px;
+  --text-fs-48:  48px;
+  --text-fs-64:  64px;
+
   /* —— Radius —— */
   --radius-sm:   4px;
   --radius-md:   8px;

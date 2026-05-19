@@ -4,8 +4,10 @@ import {
   getCurrentHour,
   getCurrentYear,
   getTodayLabel,
+  getWeekdayLabel,
   isToday,
   isTodayOrFuture,
+  parseDateLabel,
 } from '../../date';
 
 describe('date utils', () => {
@@ -290,6 +292,47 @@ describe('date utils', () => {
         expect(result).toBeTruthy();
         expect(result).toMatch(/2024/);
       });
+    });
+  });
+
+  describe('parseDateLabel', () => {
+    it('應該解析「X月Y日」格式並取出月與日', () => {
+      expect(parseDateLabel('10月28日')).toEqual({ month: '10', day: '28' });
+    });
+
+    it('應該保留單位數的月與日（不補零）', () => {
+      expect(parseDateLabel('5月3日')).toEqual({ month: '5', day: '3' });
+    });
+
+    it('應該對格式不符的字串回傳 null', () => {
+      expect(parseDateLabel('2024-10-28')).toBeNull();
+      expect(parseDateLabel('October 28')).toBeNull();
+      expect(parseDateLabel('')).toBeNull();
+    });
+  });
+
+  describe('getWeekdayLabel', () => {
+    it('應該回傳「X月Y日」對應的星期中文字', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY); // 2024 年
+
+      // 2024/10/28 為星期一
+      expect(getWeekdayLabel('10月28日')).toBe('一');
+    });
+
+    it('應該以當前年份推算星期', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY); // 2024 年
+
+      const month = 9; // 10 月
+      const day = 28;
+      const expected = ['日', '一', '二', '三', '四', '五', '六'][
+        new Date(2024, month, day).getDay()
+      ];
+      expect(getWeekdayLabel('10月28日')).toBe(expected);
+    });
+
+    it('應該對格式不符的字串回傳空字串', () => {
+      expect(getWeekdayLabel('2024-10-28')).toBe('');
+      expect(getWeekdayLabel('')).toBe('');
     });
   });
 

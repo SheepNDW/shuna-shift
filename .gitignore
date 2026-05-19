@@ -17,6 +17,10 @@ logs
 .DS_Store
 .fleet
 .idea
+.playwright-cli
+
+# Local-only code review reports（內容寫進 PR，本地留存自查即可）
+.claude/reviews/
 
 # Local env files
 .env
