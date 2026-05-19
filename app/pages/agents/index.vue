@@ -36,21 +36,13 @@ useHead({
 
 <template>
   <UContainer class="py-8 md:py-12">
-    <!-- 頁面標題區 -->
-    <div class="text-center mb-12">
-      <div
-        class="inline-flex items-center gap-2 px-4 py-2 bg-pink-100 rounded-full mb-4"
-      >
-        <UIcon name="i-heroicons-users" class="w-5 h-5 text-pink-600" />
-        <span class="text-sm font-medium text-pink-700">探員一覽</span>
-      </div>
-      <h1
-        class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
-      >
-        探員圖鑑
-      </h1>
-      <p class="text-gray-600 text-lg">認識所有探員們</p>
-    </div>
+    <PageHeader
+      kanji="員"
+      label="AGENTS · 探員圖鑑"
+      title="探員圖鑑"
+      subtitle="認識所有探員們"
+      :meta="`正職 ${fullTimeAgents.length} · 現役 ${partTimeAgents.length}`"
+    />
 
     <!-- 正職探員區 -->
     <section class="mb-16">

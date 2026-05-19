@@ -31,24 +31,12 @@ useHead({
 
 <template>
   <UContainer class="py-8 md:py-12">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <div
-        class="inline-flex items-center gap-2 px-4 py-2 bg-emerald-100 rounded-full mb-4"
-      >
-        <UIcon
-          name="i-heroicons-chart-bar"
-          class="w-5 h-5 text-emerald-600"
-        />
-        <span class="text-sm font-medium text-emerald-700">排班紀錄</span>
-      </div>
-      <h1
-        class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
-      >
-        出勤統計
-      </h1>
-      <p class="text-gray-600 text-lg">近期排班紀錄</p>
-    </div>
+    <PageHeader
+      kanji="計"
+      label="STATISTICS · 出勤統計"
+      title="出勤統計"
+      subtitle="近期排班紀錄"
+    />
 
     <!-- Loading State -->
     <LoadingState v-if="status === 'pending'" message="載入統計資料中..." />
