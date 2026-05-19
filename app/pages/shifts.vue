@@ -54,24 +54,12 @@ useHead({
 
 <template>
   <UContainer class="py-8 md:py-12">
-    <!-- Header -->
-    <div class="text-center mb-12">
-      <div
-        class="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 rounded-full mb-4"
-      >
-        <UIcon
-          name="i-heroicons-calendar-days"
-          class="w-5 h-5 text-purple-600"
-        />
-        <span class="text-sm font-medium text-purple-700">完整排班資訊</span>
-      </div>
-      <h1
-        class="text-4xl md:text-5xl font-bold bg-linear-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-3"
-      >
-        完整班表
-      </h1>
-      <p class="text-gray-600 text-lg">查看表單最近已排班日期的值班安排</p>
-    </div>
+    <PageHeader
+      kanji="表"
+      label="SHIFT TIMETABLE · 班表"
+      title="完整班表"
+      subtitle="查看表單最近已排班日期的值班安排"
+    />
 
     <ClientOnly>
       <!-- Schedule Filter & Date Jump -->
