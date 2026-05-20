@@ -49,6 +49,24 @@ function scrollToDate(datetime: string): void {
   element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
+// 從探員頁過來的 ?date=... 自動捲到當日卡片(review M3 — 原本連結是空包彈,
+// 落到頁頂)。等 ClientOnly 渲染完 schedule-${date} 節點再呼叫,所以用 watch
+// + flush:'post';一次就好,後續使用者切篩選不再自動捲。
+const route = useRoute();
+const initialDateScrollDone = ref(false);
+watch(
+  [filteredSchedules, () => route.query.date],
+  () => {
+    if (initialDateScrollDone.value) return;
+    const dateQuery = route.query.date;
+    if (typeof dateQuery !== 'string' || !dateQuery) return;
+    if (filteredSchedules.value.length === 0) return;
+    initialDateScrollDone.value = true;
+    nextTick(() => scrollToDate(dateQuery));
+  },
+  { immediate: true, flush: 'post' }
+);
+
 const appConfig = useAppConfig();
 useHead({
   title: `${appConfig.title} - 完整班表`,
