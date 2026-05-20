@@ -5,7 +5,7 @@
 // 註：班表原始資料並無「探員代表色」欄位（textColor 僅承載晚班時段 / 代班語意），
 // 故篩選 chip 的 active 狀態統一採品牌朱色——透過 section 上的 --agent-color
 // 變數注入，由 components.css 的 .filter-chip 取用。
-import { AGENTS } from '~~/shared/constant';
+import { AGENT_FILTER_PRIORITY, AGENTS } from '~~/shared/constant';
 
 const selected = defineModel<string[]>({ required: true });
 
@@ -18,17 +18,15 @@ const emit = defineEmits<{
   jump: [datetime: string];
 }>();
 
-// 探員排序：正職優先，其次偏好探員，其餘維持原序（沿用舊 ScheduleFilter 慣例）
-const PREFERRED_AGENTS = ['景子', '和実', '音', '芽', '百夜'];
-
+// 探員排序：正職優先，其次依 AGENT_FILTER_PRIORITY 的偏好順位，其餘維持原序
 const agentRoster = computed(() =>
   [...AGENTS]
     .map(([name, info]) => ({ name, isFullTime: info.isFullTime ?? false }))
     .sort((a, b) => {
       if (a.isFullTime !== b.isFullTime) return a.isFullTime ? -1 : 1;
 
-      const aIndex = PREFERRED_AGENTS.indexOf(a.name);
-      const bIndex = PREFERRED_AGENTS.indexOf(b.name);
+      const aIndex = AGENT_FILTER_PRIORITY.indexOf(a.name);
+      const bIndex = AGENT_FILTER_PRIORITY.indexOf(b.name);
       if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
       if (aIndex !== -1) return -1;
       if (bIndex !== -1) return 1;

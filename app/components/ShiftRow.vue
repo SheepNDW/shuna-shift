@@ -50,7 +50,11 @@ function isHighlighted(name: string): boolean {
         <ShiftGlyph :type="type" />
       </span>
       <span class="serif text-fs-18" data-testid="shift-row-name">{{ shiftName }}</span>
-      <span class="mono tnum text-fs-14 text-ink-mute" data-testid="shift-row-count">
+      <span
+        class="mono tnum text-fs-14 text-ink-mute"
+        :aria-label="`共 ${agents.length} 人`"
+        data-testid="shift-row-count"
+      >
         {{ countLabel }}
       </span>
     </div>

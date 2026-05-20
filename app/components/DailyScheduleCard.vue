@@ -15,7 +15,7 @@ const today = computed(() => isToday(schedule.date.datetime));
 
 <template>
   <article
-    class="grid grid-cols-[200px_1fr] gap-8 rounded-lg border border-rule bg-surface p-6 max-[920px]:grid-cols-1 max-[920px]:gap-4"
+    class="grid grid-cols-[200px_1fr] gap-8 rounded-lg border border-rule bg-surface p-6 scroll-mt-24 max-[920px]:grid-cols-1 max-[920px]:gap-4 max-[920px]:scroll-mt-20"
     :class="{ 'daily-card-today': today }"
     data-testid="daily-schedule-card"
     :data-today="today"

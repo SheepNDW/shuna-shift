@@ -44,6 +44,12 @@ export function normalizeAgentName(name: string): string {
 export const BOOKING_URL =
   'https://inline.app/booking/-NdeCHclNdQ-Yuxen_np:inline-live-3/-NdeCHpH1ow_BuIvlFhM';
 
+/**
+ * 跨頁面共用的「探員優先順序」陣列：排在正職之後、其餘探員之前的偏好順位。
+ * Phase 4 篩選列、Phase 6 統計頁等任何「需排序探員清單」之處可重用。
+ */
+export const AGENT_FILTER_PRIORITY: readonly string[] = ['景子', '和実', '音', '芽', '百夜'];
+
 /** 班表資料來源（公開的 Google 試算表）。其 ID 與後端 `NUXT_SPREADSHEET_ID` 為同一份。 */
 export const SCHEDULE_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/';

@@ -32,14 +32,17 @@ const subtitle = computed(() => {
   const list = futureSchedules.value;
   if (list.length === 0) return '近期尚無排班資料';
 
-  const first = list[0]?.date.datetime ?? '';
-  const last = list[list.length - 1]?.date.datetime ?? '';
+  const first = list[0]!.date.datetime;
+  const last = list[list.length - 1]!.date.datetime;
   return `${list.length} 日 · ${first} – ${last}`;
 });
 
-const headerMeta = computed(
-  () => `${filteredSchedules.value.length} / ${futureSchedules.value.length} 日`
-);
+// meta：未篩選顯示總天數；套篩選時明示「篩選 X / 共 Y 日」避免與副標的全範圍混淆
+const headerMeta = computed(() => {
+  const total = futureSchedules.value.length;
+  if (!hasFilter.value) return `${total} 日`;
+  return `篩選 ${filteredSchedules.value.length} / 共 ${total} 日`;
+});
 
 function scrollToDate(datetime: string): void {
   const element = document.getElementById(`schedule-${datetime}`);
