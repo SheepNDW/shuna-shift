@@ -93,3 +93,23 @@ app/pages/                      → 頁面消費資料
 ## 型別定義位置
 
 所有共用型別定義在 `shared/types/index.ts`，前後端均可引用（使用 `~~/shared/types` 路徑別名，`~~` 指向專案根目錄）。
+
+## 可用輔助 Skills
+
+本專案安裝了 `vue-skills-bundle`，下列 skill 與本專案技術棧匹配，**遇到對應任務時主動呼叫**：
+
+| Skill | 何時用 |
+|---|---|
+| `/vue-best-practices` | 寫新 SFC 元件、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
+| `/vue-testing-best-practices` | 寫 `app/**/test/nuxt/*.spec.ts`，比對 `mountSuspended` + stub + `data-testid` 模式 |
+| `/vue-pinia-best-practices` | 修改 `app/stores/schedule.ts` 或新增 store |
+| `/vue-router-best-practices` | 動 `app/pages/`、middleware、route guard |
+| `/create-adaptable-composable` | 抽 `app/composables/` 新 composable（如未來把 `useAgent` 風格的探員查表抽出共用） |
+| `/vue-debug-guides` | 響應性失效、hydration mismatch、watch 重複觸發等 debug |
+
+**不適用本專案**（已知，不要拉）：
+
+- `vue-jsx-best-practices` — 本專案用 SFC template，不寫 JSX
+- `vue-options-api-best-practices` — 本專案統一 `<script setup>` Composition API
+
+呼叫慣例：與其他既有 skill（`/ecc:code-review`、`/plan` 等）相同 —— 在需要時透過 `Skill` 工具呼叫，使用者直接輸入 `/<skill-name>` 也可觸發。
