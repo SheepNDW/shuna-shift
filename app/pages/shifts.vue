@@ -1,49 +1,52 @@
 <script setup lang="ts">
 const scheduleStore = useScheduleStore();
-
 const { schedules } = storeToRefs(scheduleStore);
 
-// 探員篩選
-type SelectedAgent = { label: string; name: string };
-const selectedAgent = ref<SelectedAgent[]>([]);
-const hasAgentFilter = computed(() => selectedAgent.value.length > 0);
-const selectedAgentNames = computed(() =>
-  selectedAgent.value.map((agent) => agent.label).join('、')
+// 探員篩選：選中的探員名稱（對應 AGENTS 的鍵值）
+const selectedAgents = ref<string[]>([]);
+const hasFilter = computed(() => selectedAgents.value.length > 0);
+const highlightedAgentNames = computed(() => new Set(selectedAgents.value));
+
+// 今日與未來的班表
+const futureSchedules = computed(() =>
+  schedules.value.filter((schedule) => isTodayOrFuture(schedule.date.datetime))
 );
 
-// 高亮探員名稱集合
-const highlightedAgentNames = computed(
-  () => new Set(selectedAgent.value.map((agent) => agent.name))
-);
-
+// 套用探員篩選後的班表：只保留有選中探員值班的日期，但保留該日全體探員
 const filteredSchedules = computed(() => {
-  const futureSchedules = schedules.value.filter((schedule) =>
-    isTodayOrFuture(schedule.date.datetime)
-  );
+  if (!hasFilter.value) return futureSchedules.value;
 
-  if (!hasAgentFilter.value) return futureSchedules;
-
-  // 只保留「有選中探員值班」的日期，但保留該日期所有探員
-  return futureSchedules.filter(
+  return futureSchedules.value.filter(
     (schedule) =>
       schedule.day.some((agent) => highlightedAgentNames.value.has(agent.name)) ||
       schedule.night.some((agent) => highlightedAgentNames.value.has(agent.name))
   );
 });
 
-// 日期快速跳轉
-const availableDates = computed(() =>
-  filteredSchedules.value.map((schedule) => ({
-    label: schedule.date.datetime,
-    value: schedule.date.datetime,
-  }))
+const jumpDates = computed(() =>
+  filteredSchedules.value.map((schedule) => schedule.date.datetime)
 );
 
-function scrollToDate(datetime: string) {
+// 動態副標：{X} 日 · {首日} – {末日}
+const subtitle = computed(() => {
+  const list = futureSchedules.value;
+  if (list.length === 0) return '近期尚無排班資料';
+
+  const first = list[0]!.date.datetime;
+  const last = list[list.length - 1]!.date.datetime;
+  return `${list.length} 日 · ${first} – ${last}`;
+});
+
+// meta：未篩選顯示總天數；套篩選時明示「篩選 X / 共 Y 日」避免與副標的全範圍混淆
+const headerMeta = computed(() => {
+  const total = futureSchedules.value.length;
+  if (!hasFilter.value) return `${total} 日`;
+  return `篩選 ${filteredSchedules.value.length} / 共 ${total} 日`;
+});
+
+function scrollToDate(datetime: string): void {
   const element = document.getElementById(`schedule-${datetime}`);
-  if (element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+  element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 const appConfig = useAppConfig();
@@ -58,76 +61,51 @@ useHead({
       kanji="表"
       label="SHIFT TIMETABLE · 班表"
       title="完整班表"
-      subtitle="查看表單最近已排班日期的值班安排"
+      :subtitle="subtitle"
+      :meta="headerMeta"
     />
 
     <ClientOnly>
-      <!-- Schedule Filter & Date Jump -->
-      <div class="max-w-4xl mx-auto mb-8">
-        <div
-          class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200"
-        >
-          <div class="flex flex-col sm:flex-row gap-4 sm:items-start">
-            <!-- Agent Filter -->
-            <ScheduleFilter v-model="selectedAgent" class="flex-1" />
+      <FilterBar v-model="selectedAgents" :dates="jumpDates" @jump="scrollToDate" />
 
-            <!-- Date Quick Jump -->
-            <DateJumper :dates="availableDates" @jump="scrollToDate" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Schedules List -->
-      <div v-if="filteredSchedules && filteredSchedules.length > 0" class="max-w-6xl mx-auto">
+      <!-- 班表列表 -->
+      <section
+        v-if="filteredSchedules.length > 0"
+        class="flex flex-col gap-6"
+        aria-label="班表列表"
+      >
         <DailyScheduleCard
           v-for="schedule in filteredSchedules"
           :id="`schedule-${schedule.date.datetime}`"
           :key="schedule.date.datetime"
           :schedule="schedule"
-          :highlighted-agents="hasAgentFilter ? highlightedAgentNames : undefined"
+          :highlighted-agents="hasFilter ? highlightedAgentNames : undefined"
         />
+      </section>
 
-        <!-- Color Legend -->
-        <div class="mt-12">
-          <ColorLegend />
-        </div>
-      </div>
-
-      <!-- Empty State (when filter returns no results) -->
+      <!-- 篩選無結果 -->
       <div
-        v-else-if="hasAgentFilter"
-        class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto"
+        v-else-if="hasFilter"
+        class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
+        data-testid="shifts-empty-filter"
       >
-        <div
-          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300"
-        >
-          <UIcon
-            name="i-heroicons-magnifying-glass"
-            class="w-16 h-16 text-gray-400 mx-auto mb-4"
-          />
-          <h3 class="text-2xl font-bold text-gray-700 mb-2">找不到班表</h3>
-          <p class="text-gray-600 mb-6">
-            探員 <strong>{{ selectedAgentNames }}</strong> 在近期沒有排班記錄
-          </p>
-          <UButton color="primary" size="lg" @click="selectedAgent = []">
-            <UIcon name="i-heroicons-arrow-path" class="w-5 h-5" />
-            查看所有班表
-          </UButton>
-        </div>
+        <span class="empty-kanji" aria-hidden="true">無</span>
+        <h2 class="serif text-fs-28 text-ink">找不到班表</h2>
+        <p class="max-w-[36ch] text-ink-soft">所選探員在近期沒有排班記錄。</p>
+        <button class="btn ghost mt-4" type="button" @click="selectedAgents = []">
+          清除篩選 →
+        </button>
       </div>
 
-      <!-- Empty State (no future schedules) -->
-      <div v-else class="flex flex-col items-center justify-center py-20 max-w-2xl mx-auto">
-        <div
-          class="bg-white rounded-3xl p-12 shadow-xl text-center border-4 border-dashed border-gray-300"
-        >
-          <UIcon
-            name="i-heroicons-calendar-days"
-            class="w-16 h-16 text-gray-400 mx-auto mb-4"
-          />
-          <h3 class="text-2xl font-bold text-gray-700 mb-2">沒有未來班表</h3>
-          <p class="text-gray-600">目前沒有已排定的未來班表資料</p>
-        </div>
+      <!-- 無未來班表 -->
+      <div
+        v-else
+        class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
+        data-testid="shifts-empty"
+      >
+        <span class="empty-kanji" aria-hidden="true">空</span>
+        <h2 class="serif text-fs-28 text-ink">沒有未來班表</h2>
+        <p class="text-ink-soft">目前沒有已排定的未來班表資料。</p>
       </div>
 
       <template #fallback>
