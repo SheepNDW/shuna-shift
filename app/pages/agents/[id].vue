@@ -7,13 +7,23 @@ const agentId = computed(() => route.params.id as string);
 
 const { agentInfo, agentSchedules } = useAgent(agentId.value);
 
+// 無效 agentId 直接 404;不再用 navigateTo + 繼續跑後續 setup(useFetch / useHead
+// 仍會打 API + 把 title 短暫設成「undefined · 排班資訊」)。 review M1
 if (!agentInfo.value) {
-  await navigateTo('/agents', { replace: true });
+  throw createError({
+    statusCode: 404,
+    statusMessage: '找不到該探員',
+    fatal: true,
+  });
 }
 
-// 近三個月日 / 夜 / 總統計:從 /api/statistics 取得後 find by agentId;失敗或無資料以 0 顯示
+// 近三個月日 / 夜 / 總統計:從 /api/statistics 取得後 find by agentId
 const TWO_HOURS = 2 * 60 * 60 * 1000;
-const { data: statisticsData } = await useFetch<StatisticsResponse>('/api/statistics', {
+const {
+  data: statisticsData,
+  error: statisticsError,
+  status: statisticsStatus,
+} = await useFetch<StatisticsResponse>('/api/statistics', {
   key: 'agent-detail-statistics',
   default: () => ({
     statistics: [],
@@ -32,7 +42,12 @@ const { data: statisticsData } = await useFetch<StatisticsResponse>('/api/statis
   },
 });
 
+// 失敗或還在 pending 時回傳 null,AgentProfile 會渲染「—」骨架;
+// 避免把「fetch 失敗 / timeout / invalid payload」偽裝成「真的零班」 review M4
 const stats = computed(() => {
+  if (statisticsError.value || statisticsStatus.value === 'pending') {
+    return { dayCount: null, nightCount: null, total: null };
+  }
   const found = statisticsData.value?.statistics.find((s) => s.agentId === agentId.value);
   return {
     dayCount: found?.dayCount ?? 0,

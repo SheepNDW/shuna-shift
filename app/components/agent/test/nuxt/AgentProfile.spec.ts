@@ -165,4 +165,21 @@ describe('AgentProfile', () => {
     expect(section.exists()).toBe(true);
     expect(section.findAll('[data-testid="agent-photo-image"]').length).toBe(2);
   });
+
+  // review M4:fetch 失敗時上游會把三格 stats 全傳 null,UI 必須顯示「—」
+  // 而非把錯誤偽裝成「真的零班(00 / 00 / 00)」
+  it('stats 為 null 時三格統計顯示「—」骨架,不顯示 00', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: {
+        agentInfo: baseAgent,
+        fileNumber: '003',
+        stats: { dayCount: null, nightCount: null, total: null },
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.get('[data-testid="agent-profile-stat-day"]').text()).toBe('—');
+    expect(wrapper.get('[data-testid="agent-profile-stat-night"]').text()).toBe('—');
+    expect(wrapper.get('[data-testid="agent-profile-stat-total"]').text()).toBe('—');
+  });
 });

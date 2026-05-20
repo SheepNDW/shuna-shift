@@ -15,11 +15,11 @@ const {
   agentInfo: Agent;
   /** AGENT FILE 編號(已 padStart,如「003」) */
   fileNumber: string;
-  /** 近三個月統計;若無資料可傳 0/0/0 */
+  /** 近三個月統計;欄位為 null 代表 fetch 失敗 / pending,UI 以「—」呈現 */
   stats: {
-    dayCount: number;
-    nightCount: number;
-    total: number;
+    dayCount: number | null;
+    nightCount: number | null;
+    total: number | null;
   };
 }>();
 
@@ -31,7 +31,8 @@ const instagramHandle = computed(() => {
 
 const hasPhotos = computed(() => (agentInfo.photos ?? []).filter(Boolean).length > 0);
 
-const padded = (value: number) => String(value).padStart(2, '0');
+const padded = (value: number | null) =>
+  value === null ? '—' : String(value).padStart(2, '0');
 </script>
 
 <template>

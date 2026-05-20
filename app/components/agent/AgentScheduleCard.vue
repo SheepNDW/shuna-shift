@@ -4,7 +4,68 @@
 //
 // 樣式策略:layout / 間距 / 字級走 Tailwind utility;早 / 晚 badge 沿用
 // components.css 的 .shift-icon-day / .shift-icon-night class(currentColor)。
+//
+// badge 渲染策略(2026-05 review 修正):per-shift 而非單一 boolean。
+// 晚班時段以 textColor 還原(綠 15:00–19:30 / 橘 16:00–21:30 / 預設 17:30–21:30),
+// textColor 為 #ef4444 / #3b82f6 時額外標出「代班 / 換班」與原班探員名字,
+// 對齊舊 ShiftItem 的語意,避免使用者看不出該日是代班或不同時段晚班。
 import type { AgentScheduleItem } from '~~/app/composables/useAgent';
+import { getNightShiftIconColor, getNightShiftTime } from '~~/app/utils/colors';
+
+const SUBSTITUTE_COLOR = '#ef4444';
+const EXCHANGE_COLOR = '#3b82f6';
+
+interface ShiftMeta {
+  iconColor: string;
+  time: string;
+  hasBracket: boolean;
+  displayName: string;
+  originalAgent: string;
+  substituteType: 'substitute' | 'exchange' | null;
+}
+
+function parseShift(
+  shift: { name: string; textColor: string },
+  type: 'day' | 'night'
+): ShiftMeta {
+  const hasBracket = shift.name.includes('(');
+  let displayName = shift.name;
+  let originalAgent = '';
+  if (hasBracket) {
+    const match = shift.name.match(/(.+?)\((.+?)\)/);
+    if (match) {
+      displayName = match[1]?.trim() || shift.name;
+      originalAgent = match[2]?.trim() || '';
+    }
+  }
+
+  const substituteType: ShiftMeta['substituteType'] =
+    shift.textColor === SUBSTITUTE_COLOR
+      ? 'substitute'
+      : shift.textColor === EXCHANGE_COLOR
+        ? 'exchange'
+        : null;
+
+  if (type === 'day') {
+    return {
+      iconColor: '',
+      time: '13:30 ~ 17:30',
+      hasBracket,
+      displayName,
+      originalAgent,
+      substituteType,
+    };
+  }
+
+  return {
+    iconColor: getNightShiftIconColor(shift.textColor),
+    time: getNightShiftTime(shift.textColor),
+    hasBracket,
+    displayName,
+    originalAgent,
+    substituteType,
+  };
+}
 
 const { schedule } = defineProps<{
   schedule: AgentScheduleItem;
@@ -14,8 +75,12 @@ const today = computed(() => isToday(schedule.date.datetime));
 const parsed = computed(() => parseDateLabel(schedule.date.datetime));
 const weekday = computed(() => getWeekdayLabel(schedule.date.datetime));
 
-const hasDayShift = computed(() => schedule.dayShifts.length > 0);
-const hasNightShift = computed(() => schedule.nightShifts.length > 0);
+const dayShiftMetas = computed(() =>
+  schedule.dayShifts.map((shift) => parseShift(shift, 'day'))
+);
+const nightShiftMetas = computed(() =>
+  schedule.nightShifts.map((shift) => parseShift(shift, 'night'))
+);
 </script>
 
 <template>
@@ -42,27 +107,60 @@ const hasNightShift = computed(() => schedule.nightShifts.length > 0);
       >TODAY</span>
     </div>
 
-    <div class="flex flex-wrap gap-2" data-testid="agent-schedule-badges">
-      <span
-        v-if="hasDayShift"
-        class="shift-icon-day inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13"
-        data-testid="agent-schedule-badge-day"
+    <div class="flex flex-col gap-1.5" data-testid="agent-schedule-badges">
+      <div
+        v-for="(meta, i) in dayShiftMetas"
+        :key="`d-${i}`"
+        class="flex flex-wrap items-center gap-2"
       >
-        <span class="block h-3.5 w-3.5">
-          <ShiftGlyph type="day" />
+        <span
+          class="shift-icon-day inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13"
+          data-testid="agent-schedule-badge-day"
+        >
+          <span class="block h-3.5 w-3.5">
+            <ShiftGlyph type="day" />
+          </span>
+          早班 {{ meta.time }}
         </span>
-        早班
-      </span>
-      <span
-        v-if="hasNightShift"
-        class="shift-icon-night inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13"
-        data-testid="agent-schedule-badge-night"
+        <span
+          v-if="meta.substituteType"
+          class="inline-flex items-center gap-1 text-fs-12"
+          :style="{ color: meta.substituteType === 'substitute' ? SUBSTITUTE_COLOR : EXCHANGE_COLOR }"
+          :data-substitute-type="meta.substituteType"
+          data-testid="agent-schedule-substitute"
+        >
+          <span aria-hidden="true">{{ meta.substituteType === 'substitute' ? '↻' : '⇄' }}</span>
+          {{ meta.substituteType === 'substitute' ? '代班' : '換班' }}
+          <span v-if="meta.originalAgent" class="text-ink-mute">(原: {{ meta.originalAgent }})</span>
+        </span>
+      </div>
+      <div
+        v-for="(meta, i) in nightShiftMetas"
+        :key="`n-${i}`"
+        class="flex flex-wrap items-center gap-2"
       >
-        <span class="block h-3.5 w-3.5">
-          <ShiftGlyph type="night" />
+        <span
+          class="shift-icon-night inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13"
+          :style="meta.iconColor ? { color: meta.iconColor } : undefined"
+          data-testid="agent-schedule-badge-night"
+        >
+          <span class="block h-3.5 w-3.5">
+            <ShiftGlyph type="night" />
+          </span>
+          晚班 {{ meta.time }}
         </span>
-        晚班
-      </span>
+        <span
+          v-if="meta.substituteType"
+          class="inline-flex items-center gap-1 text-fs-12"
+          :style="{ color: meta.substituteType === 'substitute' ? SUBSTITUTE_COLOR : EXCHANGE_COLOR }"
+          :data-substitute-type="meta.substituteType"
+          data-testid="agent-schedule-substitute"
+        >
+          <span aria-hidden="true">{{ meta.substituteType === 'substitute' ? '↻' : '⇄' }}</span>
+          {{ meta.substituteType === 'substitute' ? '代班' : '換班' }}
+          <span v-if="meta.originalAgent" class="text-ink-mute">(原: {{ meta.originalAgent }})</span>
+        </span>
+      </div>
     </div>
 
     <NuxtLink

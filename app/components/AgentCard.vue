@@ -7,7 +7,9 @@
 //
 // 註:探員身分色設計上一律走品牌朱(var(--color-shu))。班表中的 textColor 承載
 // 「晚班時段 / 代班」語意,與身分無關;AGENTS Map 也沒有 color 欄位,故卡片
-// border / 名字色 / 章色都直接用朱色 utility,不再帶 --agent-color 變數。
+// border / 名字色 / 章色都直接用朱色 utility。例外:full variant 的
+// `.agent-profile-photo`(多層 ring 由 box-shadow 堆疊)仍透過 --agent-color
+// CSS 變數驅動,沿用 components.css 既有實作,所以該段仍 inline 設一次。
 import type { Agent } from '~~/shared/types';
 
 const {
