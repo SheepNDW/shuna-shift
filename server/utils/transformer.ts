@@ -5,6 +5,7 @@ import {
   rgbToHex,
   type ShiftType,
 } from './parser';
+import { getSpecialDateKind, getSpecialDateLabel } from '~~/shared/date-meta';
 
 export interface ParsedRow {
   date: {
@@ -120,14 +121,31 @@ export function isUnscheduledSchedule(schedule: ShiftSchedule): boolean {
 }
 
 /**
+ * 把特殊日分類補進 `date.description`，讓活動週 / 一日限定 / 生誕祭以文字呈現，
+ * 不必再靠日期格底色判讀。格式為「分類・原說明」，原本無說明時則僅保留分類。
+ * 店休不在此處理 —— 由前端卡片以「休」印章呈現。
+ */
+function withSpecialDateDescription(schedule: ShiftSchedule): ShiftSchedule {
+  const kind = getSpecialDateKind(schedule.date.backgroundColor);
+  if (!kind || kind === 'closed') return schedule;
+
+  const label = getSpecialDateLabel(kind);
+  const original = schedule.date.description;
+  const description = original ? `${label}・${original}` : label;
+
+  return { ...schedule, date: { ...schedule.date, description } };
+}
+
+/**
  * 將 Google Sheets API 的原始資料轉換為班表資料。
  *
  * 開放式範圍會一併讀到表單預先填好、但尚未排班的未來日期列，
- * 這些列在此過濾掉，只保留實際已排班與店休／節日等有意義的日期。
+ * 這些列在此過濾掉，只保留實際已排班與店休／節日等有意義的日期；
+ * 最後把特殊日分類補進 description。
  */
 export function transformSheetDataToSchedules(rows: RowData[]): ShiftSchedule[] {
   const parsedRows = rows.map(transformRowToParsedData);
-  return mergeDayAndNightShifts(parsedRows).filter(
-    (schedule) => !isUnscheduledSchedule(schedule),
-  );
+  return mergeDayAndNightShifts(parsedRows)
+    .filter((schedule) => !isUnscheduledSchedule(schedule))
+    .map(withSpecialDateDescription);
 }

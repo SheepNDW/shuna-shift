@@ -113,4 +113,20 @@ describe('DailyScheduleCard', () => {
     expect(rows[0]?.attributes('data-highlighted')).toContain('泠泠');
     expect(rows[1]?.attributes('data-highlighted')).toContain('米捲');
   });
+
+  it('店休日（灰底）應顯示「休」印章而非班別列', async () => {
+    const wrapper = await mountSuspended(DailyScheduleCard, {
+      props: {
+        schedule: {
+          date: { datetime: '10月13日', backgroundColor: '#999999', description: '' },
+          day: [],
+          night: [],
+        },
+      },
+      global: { stubs: globalStubs },
+    });
+
+    expect(wrapper.get('[data-testid="daily-closed"]').text()).toContain('CLOSED');
+    expect(wrapper.findAll('[data-testid="shift-row"]')).toHaveLength(0);
+  });
 });

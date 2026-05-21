@@ -147,6 +147,50 @@ describe('transformSheetDataToSchedules — B 欄班別判定', () => {
   });
 });
 
+describe('transformSheetDataToSchedules — 特殊日 description 文字化', () => {
+  const rgb = (r: number, g: number, b: number) => ({
+    red: r / 255,
+    green: g / 255,
+    blue: b / 255,
+  });
+  const specialRow = (rgbColor: ReturnType<typeof rgb>, desc?: string): RowData[] => [
+    {
+      values: [
+        {
+          userEnteredValue: desc
+            ? { numberValue: 45800, stringValue: desc }
+            : { numberValue: 45800 },
+          userEnteredFormat: { backgroundColor: rgbColor },
+        },
+        { userEnteredValue: { stringValue: '早' } },
+        { userEnteredValue: { stringValue: '🐷' } },
+      ],
+    },
+  ];
+
+  it('活動週（藍底、無原說明）description 補為「活動週」', () => {
+    const [schedule] = transformSheetDataToSchedules(specialRow(rgb(156, 194, 229)));
+    expect(schedule?.date.description).toBe('活動週');
+  });
+
+  it('一日限定（綠底、有原說明）description 為「一日限定・原說明」', () => {
+    const [schedule] = transformSheetDataToSchedules(
+      specialRow(rgb(182, 215, 168), '總統就職紀念日'),
+    );
+    expect(schedule?.date.description).toBe('一日限定・總統就職紀念日');
+  });
+
+  it('生誕祭（粉底、有原說明）description 為「生誕祭・原說明」', () => {
+    const [schedule] = transformSheetDataToSchedules(specialRow(rgb(213, 166, 189), '熊子'));
+    expect(schedule?.date.description).toBe('生誕祭・熊子');
+  });
+
+  it('店休（灰底）description 不加工，維持空字串', () => {
+    const [schedule] = transformSheetDataToSchedules(specialRow(rgb(153, 153, 153)));
+    expect(schedule?.date.description).toBe('');
+  });
+});
+
 describe('isUnscheduledSchedule', () => {
   const emptySchedule = (
     backgroundColor: string,

@@ -103,4 +103,20 @@ describe('UpcomingCard', () => {
 
     expect(wrapper.find('a').attributes('to')).toBe('/shifts');
   });
+
+  it('店休日應顯示「休」而非早晚班人數', async () => {
+    const wrapper = await mountSuspended(UpcomingCard, {
+      props: {
+        schedule: {
+          date: { datetime: '10月13日', backgroundColor: '#999999', description: '' },
+          day: [],
+          night: [],
+        },
+      },
+      global: { stubs: globalStubs },
+    });
+
+    expect(wrapper.get('[data-testid="upcoming-closed"]').text()).toContain('休');
+    expect(wrapper.findAll('[data-testid="upcoming-num"]')).toHaveLength(0);
+  });
 });

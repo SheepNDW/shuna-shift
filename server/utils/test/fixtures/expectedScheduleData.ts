@@ -177,7 +177,7 @@ export const expectedScheduleDataNewMonth: ShiftSchedule[] = [
     date: {
       datetime: '10月31日',
       backgroundColor: '#b6d7a8',
-      description: '萬聖',
+      description: '一日限定・萬聖',
     },
     day: [
       {

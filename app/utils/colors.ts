@@ -1,17 +1,15 @@
-const SPECIAL_DAY = '#b6d7a8';
-const EVENT_WEEK = '#a4c2f4';
-const BIRTHDAY = '#d5a6bd';
-const CLOSED = '#999999';
+import { DATE_BACKGROUND } from '~~/shared/date-meta';
 
+// 日期顏色對照（供 ColorLegend debug 元件）；色碼單一真實來源為 shared/date-meta。
 export const DATE_COLOR_MAP = {
   /** 一日限定 */
-  SPECIAL_DAY,
+  SPECIAL_DAY: DATE_BACKGROUND.SPECIAL_DAY,
   /** 活動週 */
-  EVENT_WEEK,
+  EVENT_WEEK: DATE_BACKGROUND.EVENT_WEEK,
   /** 生誕祭/生誕出勤 */
-  BIRTHDAY,
+  BIRTHDAY: DATE_BACKGROUND.BIRTHDAY,
   /** 店休 */
-  CLOSED,
+  CLOSED: DATE_BACKGROUND.CLOSED,
 };
 
 const GREEN_SHIFT = '#93c47d';
