@@ -45,27 +45,48 @@ const headerMeta = computed(() => {
 });
 
 function scrollToDate(datetime: string): void {
+  // 捲動屬 DOM 操作，SSR 階段無 document —— 防禦性提前略過。
+  if (import.meta.server) return;
   const element = document.getElementById(`schedule-${datetime}`);
   element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// 從探員頁過來的 ?date=... 自動捲到當日卡片(review M3 — 原本連結是空包彈,
-// 落到頁頂)。等 ClientOnly 渲染完 schedule-${date} 節點再呼叫,所以用 watch
-// + flush:'post';一次就好,後續使用者切篩選不再自動捲。
 const route = useRoute();
-const initialDateScrollDone = ref(false);
-watch(
-  [filteredSchedules, () => route.query.date],
-  () => {
-    if (initialDateScrollDone.value) return;
-    const dateQuery = route.query.date;
-    if (typeof dateQuery !== 'string' || !dateQuery) return;
-    if (filteredSchedules.value.length === 0) return;
-    initialDateScrollDone.value = true;
-    nextTick(() => scrollToDate(dateQuery));
-  },
-  { immediate: true, flush: 'post' }
-);
+
+// DailyScheduleCard 的 scroll-mt-24,捲動定位的目標位移(距視窗頂 96px)。
+const SCROLL_MARGIN_TOP = 96;
+
+// 從探員頁帶 ?date=... 進來時自動捲到當日卡片(review M3)。需處理兩點:
+// (1) 班表清單包在 <ClientOnly> 內,卡片掛載後才進 DOM;
+// (2) SPA 導航時 Nuxt router 會在導航結束後把頁面捲回頂端,蓋掉我們的捲動。
+// 故以 rAF 在 3 秒內持續校正:卡片未就位則等待、被 router 歸零則再捲回,
+// 連續對齊數幀(router 只歸零一次)後即停止;逾時則安靜放棄。
+function scrollToDateWhenReady(datetime: string): void {
+  const deadline = Date.now() + 3000;
+  let stableFrames = 0;
+  const tick = (): void => {
+    const element = document.getElementById(`schedule-${datetime}`);
+    if (element) {
+      const offset = element.getBoundingClientRect().top - SCROLL_MARGIN_TOP;
+      if (Math.abs(offset) <= 2) {
+        if (++stableFrames >= 3) return;
+      } else {
+        stableFrames = 0;
+        element.scrollIntoView({ block: 'start' });
+      }
+    }
+    if (Date.now() < deadline) requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+// onMounted 僅在 client 執行,天然避開 SSR;每次進入 /shifts 觸發一次。
+onMounted(() => {
+  const dateQuery = route.query.date;
+  if (typeof dateQuery === 'string' && dateQuery) {
+    scrollToDateWhenReady(dateQuery);
+  }
+});
 
 const appConfig = useAppConfig();
 useHead({
