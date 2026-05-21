@@ -1,6 +1,9 @@
 <script setup lang="ts">
 // 圓形探員頭像 + 代表色 ring，用於首頁今日早 / 晚班。
 // 代表色透過 --agent-color CSS 變數傳入，ring / 名字皆引用同一變數。
+// NuxtLink 直接從 #components import：字串 'NuxtLink' 在 runtime 無法被
+// resolveDynamicComponent 解析（會渲染成無作用的 <nuxtlink> 元素）。
+import { NuxtLink } from '#components';
 import { AGENTS } from '~~/shared/constant';
 
 const {
@@ -35,7 +38,7 @@ const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {
 
 <template>
   <component
-    :is="agentInfo.id ? 'NuxtLink' : 'div'"
+    :is="agentInfo.id ? NuxtLink : 'div'"
     class="agent-portrait flex flex-col items-center gap-2 text-center transition-transform duration-150 motion-safe:hover:-translate-y-0.5"
     :to="agentInfo.id ? `/agents/${agentInfo.id}` : undefined"
     :style="ringStyle"
