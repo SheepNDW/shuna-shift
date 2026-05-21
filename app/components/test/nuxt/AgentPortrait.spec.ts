@@ -3,11 +3,7 @@ import { defineComponent } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import AgentPortrait from '../../AgentPortrait.vue';
 
-const NuxtLinkStub = defineComponent({
-  inheritAttrs: false,
-  template: '<a v-bind="$attrs"><slot /></a>',
-});
-
+// 僅 stub NuxtImg；NuxtLink 維持真實元件,以驗證實際渲染出可導航的 <a>。
 const NuxtImgStub = defineComponent({
   props: {
     src: { type: String, default: '' },
@@ -16,20 +12,19 @@ const NuxtImgStub = defineComponent({
   template: '<img :src="src" :alt="alt" />',
 });
 
-const globalStubs = {
-  NuxtLink: NuxtLinkStub,
-  NuxtImg: NuxtImgStub,
-} as const;
+const globalStubs = { NuxtImg: NuxtImgStub } as const;
 
 describe('AgentPortrait', () => {
-  it('已知探員應顯示名字、照片與探員頁連結', async () => {
+  it('已知探員應顯示名字、照片與真實 <a> 探員頁連結', async () => {
     const wrapper = await mountSuspended(AgentPortrait, {
       props: { name: '泠泠', textColor: '#123456' },
       global: { stubs: globalStubs },
     });
 
     expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('泠泠');
-    expect(wrapper.find('a').attributes('to')).toBe('/agents/rin');
+    const root = wrapper.get('[data-testid="agent-portrait"]');
+    expect(root.element.tagName).toBe('A');
+    expect(root.attributes('href')).toBe('/agents/rin');
     expect(wrapper.find('img').attributes('alt')).toBe('泠泠 的照片');
   });
 
@@ -60,7 +55,7 @@ describe('AgentPortrait', () => {
     });
 
     expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('泠泠(七尾)');
-    expect(wrapper.find('a').attributes('to')).toBe('/agents/rin');
+    expect(wrapper.get('[data-testid="agent-portrait"]').attributes('href')).toBe('/agents/rin');
   });
 
   it('未知探員應以非連結容器渲染', async () => {
@@ -70,6 +65,7 @@ describe('AgentPortrait', () => {
     });
 
     expect(wrapper.find('a').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="agent-portrait"]').element.tagName).toBe('DIV');
     expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('查無此人');
   });
 });

@@ -2,6 +2,9 @@
 // 排班列表中代表單一探員的 pill：文字色圓點 + 名字 + emoji。
 // textColor 來自班表，承載晚班時段 / 紅字代班 / 藍字換班語意；空字串時退回中性色。
 // 樣式沿用 components.css 的 .agent-chip（含動態 --agent-color）。
+// NuxtLink 直接從 #components import：字串 'NuxtLink' 在 runtime 無法被
+// resolveDynamicComponent 解析（會渲染成無作用的 <nuxtlink> 元素）。
+import { NuxtLink } from '#components';
 import { AGENTS } from '~~/shared/constant';
 
 const {
@@ -35,7 +38,7 @@ const colorStyle = computed(() => (textColor ? { '--agent-color': textColor } : 
 
 <template>
   <component
-    :is="agentInfo.id ? 'NuxtLink' : 'span'"
+    :is="agentInfo.id ? NuxtLink : 'span'"
     class="agent-chip"
     :class="{ 'is-highlighted': highlighted, 'cursor-auto': !agentInfo.id }"
     :to="agentInfo.id ? `/agents/${agentInfo.id}` : undefined"
