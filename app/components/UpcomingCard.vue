@@ -1,11 +1,17 @@
 <script setup lang="ts">
 // 首頁底部「近日のシフト」預覽卡：日期 + 早 / 晚班人數與前兩位探員。
+// 店休日改顯示「休」取代早晚班人數列。
+import { getSpecialDateKind } from '~~/shared/date-meta';
+
 const { schedule } = defineProps<{
   schedule: ShiftSchedule;
 }>();
 
 const parsedDate = computed(() => parseDateLabel(schedule.date.datetime));
 const weekday = computed(() => getWeekdayLabel(schedule.date.datetime));
+const isClosed = computed(
+  () => getSpecialDateKind(schedule.date.backgroundColor) === 'closed'
+);
 
 /** 取班別前兩位探員名稱，超過則加省略號；無人時回傳「—」 */
 function previewNames(list: { name: string }[]): string {
@@ -41,7 +47,15 @@ const nightNames = computed(() => previewNames(schedule.night));
       </span>
     </div>
 
-    <div class="flex flex-col gap-2">
+    <div
+      v-if="isClosed"
+      class="flex items-center gap-2 py-2"
+      data-testid="upcoming-closed"
+    >
+      <span class="serif text-fs-28 text-shu" aria-hidden="true">休</span>
+      <span class="stamp-label">店休日</span>
+    </div>
+    <div v-else class="flex flex-col gap-2">
       <div class="flex items-center gap-2.5 text-fs-13">
         <span
           class="inline-flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border border-day bg-day-soft p-1.5 text-day-deep"

@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { BOOKING_URL } from '~~/shared/constant';
+import { getSpecialDateKind } from '~~/shared/date-meta';
 
 const scheduleStore = useScheduleStore();
 const { todaySchedule, schedules } = storeToRefs(scheduleStore);
+
+// 今日是否店休（灰底）；店休與「今日無排班」分開呈現
+const isTodayClosed = computed(
+  () => getSpecialDateKind(todaySchedule.value?.date.backgroundColor ?? '') === 'closed'
+);
 
 const todayCounts = computed(() => ({
   day: todaySchedule.value?.day.length ?? 0,
@@ -32,7 +38,11 @@ useHead({
 
     <ClientOnly>
       <!-- 今日早 / 晚班 -->
-      <section v-if="todaySchedule" class="mb-12" aria-labelledby="home-today-heading">
+      <section
+        v-if="todaySchedule && !isTodayClosed"
+        class="mb-12"
+        aria-labelledby="home-today-heading"
+      >
         <div class="mb-6 flex items-center gap-3">
           <span class="kanji-mark serif" aria-hidden="true">今</span>
           <h2 id="home-today-heading" class="stamp-label shrink-0">
@@ -49,6 +59,15 @@ useHead({
           <ShiftColumn type="night" :agents="todaySchedule.night" />
         </div>
       </section>
+
+      <!-- 今日店休 -->
+      <EmptyState
+        v-else-if="isTodayClosed"
+        class="mb-12"
+        kanji="休"
+        title="本日店休"
+        subtitle="今日沒有排班，明日再見。"
+      />
 
       <!-- 今日無排班 -->
       <EmptyState
