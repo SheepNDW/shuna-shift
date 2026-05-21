@@ -1,26 +1,21 @@
 <script setup lang="ts">
-import { BOOKING_URL } from '~~/shared/constant';
+// 回到頁首的浮動小圓鈕:捲動超過閾值才淡入。朱紅實心、無漸層、無重陰影。
+const SCROLL_THRESHOLD = 300;
 
 const isVisible = ref(false);
-const isAtPageBottom = ref(false);
 
-const checkScroll = () => {
-  const { scrollY, innerHeight } = window;
-  const { scrollHeight } = document.documentElement;
-  isVisible.value = scrollY > 300;
-  isAtPageBottom.value = innerHeight + scrollY >= scrollHeight - 50;
-};
+function checkScroll(): void {
+  isVisible.value = window.scrollY > SCROLL_THRESHOLD;
+}
 
-const scrollToTop = () => {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const goToBooking = () => {
-  window.open(BOOKING_URL, '_blank', 'noopener,noreferrer');
-};
+function scrollToTop(): void {
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+}
 
 onMounted(() => {
-  window.addEventListener('scroll', checkScroll);
+  checkScroll();
+  window.addEventListener('scroll', checkScroll, { passive: true });
 });
 
 onUnmounted(() => {
@@ -30,36 +25,22 @@ onUnmounted(() => {
 
 <template>
   <Transition
-    enter-active-class="transition-all duration-300 ease-out"
-    enter-from-class="opacity-0 translate-y-4"
-    enter-to-class="opacity-100 translate-y-0"
-    leave-active-class="transition-all duration-200 ease-in"
-    leave-from-class="opacity-100 translate-y-0"
-    leave-to-class="opacity-0 translate-y-4"
+    enter-active-class="transition-opacity duration-300 ease-out"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-active-class="transition-opacity duration-200 ease-in"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
   >
-    <div v-if="isVisible" class="fixed bottom-8 right-8 z-50 flex flex-col gap-3">
-      <UButton
-        v-if="!isAtPageBottom"
-        color="primary"
-        variant="solid"
-        size="lg"
-        icon="i-heroicons-calendar"
-        class="rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200"
-        @click="goToBooking"
-      >
-        <span class="hidden sm:inline">線上訂位</span>
-      </UButton>
-
-      <UButton
-        color="neutral"
-        variant="solid"
-        size="lg"
-        icon="i-heroicons-arrow-up"
-        class="rounded-full shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-200"
-        @click="scrollToTop"
-      >
-        <span class="hidden sm:inline">回到頂部</span>
-      </UButton>
-    </div>
+    <button
+      v-if="isVisible"
+      type="button"
+      class="fixed bottom-8 right-8 z-50 flex size-11 items-center justify-center rounded-full bg-shu text-white shadow-paper-2 transition-colors duration-150 hover:bg-shu-deep"
+      aria-label="回到頂部"
+      data-testid="back-to-top"
+      @click="scrollToTop"
+    >
+      <UIcon name="i-heroicons-arrow-up" class="size-5" aria-hidden="true" />
+    </button>
   </Transition>
 </template>

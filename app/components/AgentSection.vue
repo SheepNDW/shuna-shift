@@ -32,7 +32,15 @@ defineProps<{
       >{{ String(agents.length).padStart(2, '0') }}</span>
     </header>
 
+    <EmptyState
+      v-if="agents.length === 0"
+      kanji="無"
+      title="尚無探員"
+      subtitle="這個分類目前沒有探員。"
+      data-testid="agent-section-empty"
+    />
     <div
+      v-else
       class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       data-testid="agent-section-grid"
     >

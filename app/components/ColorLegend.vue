@@ -1,118 +1,89 @@
 <script setup lang="ts">
+// 色彩圖例(紙感區塊)。供開發者 / debug 對照班表中的日期與班別配色,不放在主流程頁面。
 import { DATE_COLOR_MAP, NIGHT_SHIFT_COLOR_MAP } from '~/utils/colors';
 
-const colorLegend = [
-  { color: DATE_COLOR_MAP.SPECIAL_DAY, label: '一日限定', icon: 'i-heroicons-star' },
-  { color: DATE_COLOR_MAP.EVENT_WEEK, label: '活動週', icon: 'i-heroicons-fire' },
-  { color: DATE_COLOR_MAP.BIRTHDAY, label: '生誕祭/生誕出勤', icon: 'i-heroicons-cake' },
-  { color: DATE_COLOR_MAP.CLOSED, label: '店休', icon: 'i-heroicons-x-circle' },
-];
+interface LegendEntry {
+  /** 色票色碼;留空時以中性墨灰呈現 */
+  color: string;
+  label: string;
+  /** 選填補充說明(時段 / 註記) */
+  note?: string;
+}
 
-const shiftLegend = [
-  { color: '', label: '早班', time: '13:30 ~ 17:30', icon: 'i-heroicons-sun' },
-  {
-    color: NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT,
-    label: '晚班',
-    time: '15:00 ~ 19:30',
-    icon: 'i-heroicons-moon',
-  },
-  {
-    color: NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT,
-    label: '晚班',
-    time: '16:00 ~ 21:30',
-    icon: 'i-heroicons-moon',
-  },
-  { color: '', label: '晚班', time: '17:30 ~ 21:30', icon: 'i-heroicons-moon' },
-];
+interface LegendGroup {
+  kanji: string;
+  label: string;
+  entries: LegendEntry[];
+}
 
-const specialLegend = [
+const groups: LegendGroup[] = [
   {
-    color: '#ef4444',
-    label: '紅字代班',
-    description: '(括弧內為原本出勤的探員)',
-    icon: 'i-heroicons-arrow-path',
+    kanji: '日',
+    label: 'DATE · 日期顏色',
+    entries: [
+      { color: DATE_COLOR_MAP.SPECIAL_DAY, label: '一日限定' },
+      { color: DATE_COLOR_MAP.EVENT_WEEK, label: '活動週' },
+      { color: DATE_COLOR_MAP.BIRTHDAY, label: '生誕祭 / 生誕出勤' },
+      { color: DATE_COLOR_MAP.CLOSED, label: '店休' },
+    ],
   },
   {
-    color: '#3b82f6',
-    label: '藍字換班',
-    description: '(括弧內為原本出勤的探員)',
-    icon: 'i-heroicons-arrow-path-rounded-square',
+    kanji: '時',
+    label: 'SHIFT · 班別時段',
+    entries: [
+      { color: '', label: '早班', note: '13:30 ~ 17:30' },
+      { color: NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT, label: '晚班', note: '15:00 ~ 19:30' },
+      { color: NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT, label: '晚班', note: '16:00 ~ 21:30' },
+      { color: '', label: '晚班', note: '17:30 ~ 21:30' },
+    ],
+  },
+  {
+    kanji: '記',
+    label: 'SPECIAL · 特殊標記',
+    entries: [
+      { color: '#c0392b', label: '紅字代班', note: '括弧內為原本出勤的探員' },
+      { color: '#2f6fb0', label: '藍字換班', note: '括弧內為原本出勤的探員' },
+    ],
   },
 ];
 </script>
 
 <template>
-  <div class="mb-10">
+  <section class="rounded-lg border border-rule bg-paper-2 p-6" data-testid="color-legend">
+    <header class="mb-6 flex items-center gap-4">
+      <span
+        class="serif flex size-10 items-center justify-center border border-shu text-fs-22 text-shu"
+        aria-hidden="true"
+      >色</span>
+      <div class="flex flex-col">
+        <span class="stamp-label">COLOR LEGEND</span>
+        <span class="serif text-fs-18 text-ink">班表配色對照</span>
+      </div>
+    </header>
+
     <div
-      class="bg-white rounded-2xl shadow-lg p-6 border border-gray-200"
+      v-for="(group, index) in groups"
+      :key="group.label"
+      :class="{ 'mt-6 border-t border-rule-2 pt-6': index > 0 }"
     >
-      <!-- 日期顏色說明 -->
-      <div class="flex items-center justify-center gap-2 mb-4">
-        <UIcon name="i-heroicons-information-circle" class="w-5 h-5 text-purple-500" />
-        <h3 class="text-lg font-bold text-gray-800">日期顏色說明</h3>
+      <div class="mb-3 flex items-center gap-2">
+        <span class="serif text-fs-16 text-shu" aria-hidden="true">{{ group.kanji }}</span>
+        <span class="stamp-label">{{ group.label }}</span>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-        <div
-          v-for="item in colorLegend"
-          :key="item.label"
-          class="flex items-center gap-3 p-3 rounded-lg bg-gray-50"
+      <ul class="grid gap-x-4 gap-y-2 [grid-template-columns:repeat(auto-fill,minmax(170px,1fr))]">
+        <li
+          v-for="entry in group.entries"
+          :key="`${group.label}-${entry.label}-${entry.note ?? ''}`"
+          class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-fs-14 text-ink"
         >
-          <div
-            class="w-8 h-8 rounded-full flex items-center justify-center shadow-md"
-            :style="{ backgroundColor: item.color }"
-          >
-            <UIcon :name="item.icon" class="w-4 h-4 text-gray-700" />
-          </div>
-          <span class="text-sm font-medium text-gray-700">
-            {{ item.label }}
-          </span>
-        </div>
-      </div>
-
-      <!-- 分隔線 -->
-      <div class="border-t border-gray-200 my-6" />
-
-      <!-- 班別顏色說明 -->
-      <div class="flex items-center justify-center gap-2 mb-4">
-        <UIcon name="i-heroicons-clock" class="w-5 h-5 text-blue-500" />
-        <h3 class="text-lg font-bold text-gray-800">班別顏色說明</h3>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div
-          v-for="item in shiftLegend"
-          :key="item.label"
-          class="flex flex-col gap-2 p-4 rounded-lg bg-gray-50"
-        >
-          <div class="flex items-center gap-3">
-            <UIcon :name="item.icon" class="w-5 h-5" :style="{ color: item.color }" />
-            <span class="text-sm font-medium" :style="{ color: item.color }">
-              {{ item.label }}
-            </span>
-          </div>
-          <span class="text-xs ml-8" :style="{ color: item.color }">
-            {{ item.time }}
-          </span>
-        </div>
-      </div>
-
-      <!-- 特殊說明 -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div
-          v-for="item in specialLegend"
-          :key="item.label"
-          class="flex items-center gap-3 p-3 rounded-lg bg-gray-50"
-        >
-          <UIcon :name="item.icon" class="w-5 h-5" :style="{ color: item.color }" />
-          <div class="flex flex-col">
-            <span class="text-sm font-medium" :style="{ color: item.color }">
-              {{ item.label }}
-            </span>
-            <span class="text-xs text-gray-600">
-              {{ item.description }}
-            </span>
-          </div>
-        </div>
-      </div>
+          <span
+            class="size-3.5 shrink-0 rounded-sm border border-rule"
+            :style="{ backgroundColor: entry.color || 'var(--color-ink-mute)' }"
+          />
+          <span>{{ entry.label }}</span>
+          <span v-if="entry.note" class="text-fs-13 text-ink-mute">· {{ entry.note }}</span>
+        </li>
+      </ul>
     </div>
-  </div>
+  </section>
 </template>
