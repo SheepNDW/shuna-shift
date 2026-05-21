@@ -27,6 +27,28 @@ useHead({
     },
   ],
 });
+
+const statistics = computed(() => data.value?.statistics ?? []);
+const hasStatistics = computed(() => statistics.value.length > 0);
+
+// 早 / 晚 / 總班次摘要
+const totalDay = computed(() =>
+  statistics.value.reduce((sum, stat) => sum + stat.dayCount, 0),
+);
+const totalNight = computed(() =>
+  statistics.value.reduce((sum, stat) => sum + stat.nightCount, 0),
+);
+const totalShifts = computed(() => totalDay.value + totalNight.value);
+
+// MVP：榜首探員（statistics 已由 server 端依總班次降序排列）
+const topAgent = computed(() => statistics.value[0] ?? null);
+
+// 統計期間：以資料實際日期範圍呈現於 PageHeader meta
+const dateRangeLabel = computed(() => {
+  const range = data.value?.metadata.dateRange;
+  if (!range?.from || !range?.to) return undefined;
+  return `${range.from} – ${range.to}`;
+});
 </script>
 
 <template>
@@ -35,105 +57,65 @@ useHead({
       kanji="計"
       label="STATISTICS · 出勤統計"
       title="出勤統計"
-      subtitle="近期排班紀錄"
+      subtitle="近三個月每位探員的日 / 夜班次數。"
+      :meta="dateRangeLabel"
     />
 
-    <!-- Loading State -->
+    <!-- 載入中 -->
     <LoadingState v-if="status === 'pending'" message="載入統計資料中..." />
 
-    <!-- Content -->
-    <div v-else-if="data" class="max-w-4xl mx-auto">
-      <!-- Metadata Card -->
-      <div
-        class="bg-white/70 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 mb-8"
+    <!-- 內容 -->
+    <template v-else-if="data">
+      <!-- 摘要四格：日總 / 夜總 / 總計 / MVP -->
+      <section
+        v-if="hasStatistics && topAgent"
+        class="mb-12 grid grid-cols-4 gap-4 max-[920px]:grid-cols-2 max-[520px]:grid-cols-1"
+        data-testid="summary-tiles"
       >
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <div
-              class="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center"
-            >
-              <UIcon
-                name="i-heroicons-calendar-days"
-                class="w-6 h-6 text-emerald-600"
-              />
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">統計期間</p>
-              <p class="font-semibold text-gray-900">
-                {{ data.metadata.dateRange.from }} ~ {{ data.metadata.dateRange.to }}
-              </p>
-            </div>
-          </div>
-          <div class="flex items-center gap-3">
-            <div
-              class="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center"
-            >
-              <UIcon
-                name="i-heroicons-document-text"
-                class="w-6 h-6 text-purple-600"
-              />
-            </div>
-            <div>
-              <p class="text-sm text-gray-500">統計天數</p>
-              <p class="font-semibold text-gray-900">
-                {{ data.metadata.totalSchedules }} 天
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
+        <SummaryTile
+          kanji="日"
+          label="DAY SHIFTS"
+          desc="早班總次數"
+          :value="totalDay"
+          accent="day"
+        />
+        <SummaryTile
+          kanji="夜"
+          label="NIGHT SHIFTS"
+          desc="晚班總次數"
+          :value="totalNight"
+          accent="night"
+        />
+        <SummaryTile
+          kanji="總"
+          label="TOTAL"
+          desc="班次總合"
+          :value="totalShifts"
+          accent="shu"
+        />
+        <SummaryTile
+          kanji="冠"
+          label="MOST · MVP"
+          :desc="topAgent.name"
+          :value="topAgent.total"
+          accent="ink"
+          :sub-value="`${topAgent.dayCount} 日 / ${topAgent.nightCount} 夜`"
+        />
+      </section>
 
-      <!-- Statistics Table -->
-      <div
-        class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden"
-      >
-        <div class="p-4 border-b border-gray-200">
-          <h2
-            class="text-lg font-semibold text-gray-900 flex items-center gap-2"
-          >
-            <UIcon name="i-heroicons-users" class="w-5 h-5 text-pink-500" />
-            探員排班統計
-          </h2>
-          <p class="text-sm text-gray-500 mt-1">點擊欄位標題可進行排序</p>
-        </div>
-        <StatisticsTable :statistics="data.statistics" />
-      </div>
+      <!-- 出勤排行表 -->
+      <StatisticsTable :statistics="statistics" />
+    </template>
 
-      <!-- Legend -->
-      <div class="mt-6 flex flex-wrap items-center justify-center gap-4 text-sm">
-        <div class="flex items-center gap-2">
-          <span
-            class="w-4 h-4 rounded bg-pink-50 border border-pink-200"
-          />
-          <span class="text-gray-600">正職探員</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span
-            class="inline-flex items-center justify-center w-6 h-6 bg-yellow-100 text-yellow-700 rounded-full text-xs"
-          >
-            N
-          </span>
-          <span class="text-gray-600">日班次數</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span
-            class="inline-flex items-center justify-center w-6 h-6 bg-indigo-100 text-indigo-700 rounded-full text-xs"
-          >
-            N
-          </span>
-          <span class="text-gray-600">晚班次數</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Error State -->
+    <!-- 錯誤狀態 -->
     <div
       v-else
-      class="flex flex-col items-center justify-center py-20 text-gray-500"
+      class="flex flex-col items-center gap-3 py-20 text-center"
+      data-testid="statistics-error"
     >
-      <UIcon name="i-heroicons-exclamation-circle" class="w-16 h-16 mb-4 text-red-400" />
-      <p class="text-lg">無法載入統計資料</p>
-      <p class="text-sm mt-2">請稍後再試</p>
+      <span class="empty-kanji serif" aria-hidden="true">無</span>
+      <p class="serif text-fs-22 text-ink">無法載入統計資料</p>
+      <p class="text-fs-14 text-ink-soft">請稍後再重新整理頁面</p>
     </div>
   </UContainer>
 </template>

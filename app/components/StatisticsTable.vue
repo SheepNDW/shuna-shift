@@ -1,143 +1,146 @@
 <script setup lang="ts">
+// 出勤排行表（prototype 的 stat-table）：排名 + 探員 + stacked bar + 日 / 夜 / 總。
+// statistics 已由 server 端 calculateAgentStatistics 依總班次降序排列，
+// 此處直接以陣列順序作為固定排名，不再提供互動排序（排名語意需要固定順序）。
 import type { AgentStatistics } from '~~/shared/types';
 
-const props = defineProps<{
+const { statistics } = defineProps<{
   statistics: AgentStatistics[];
 }>();
 
-type SortKey = 'dayCount' | 'nightCount' | 'total';
-type SortDirection = 'asc' | 'desc';
+// stacked bar 的滿格基準：以排行中的最高總班次計算
+const maxTotal = computed(() =>
+  statistics.reduce((max, stat) => Math.max(max, stat.total), 0),
+);
 
-const sortKey = ref<SortKey>('total');
-const sortDirection = ref<SortDirection>('desc');
-
-const sortedStatistics = computed(() => {
-  return props.statistics.toSorted((a, b) => {
-    const comparison = a[sortKey.value] - b[sortKey.value];
-    return sortDirection.value === 'desc' ? -comparison : comparison;
-  });
-});
-
-function toggleSort(key: SortKey) {
-  if (sortKey.value === key) {
-    sortDirection.value = sortDirection.value === 'desc' ? 'asc' : 'desc';
-  } else {
-    sortKey.value = key;
-    sortDirection.value = 'desc';
-  }
-}
-
-function getSortIcon(key: SortKey): string {
-  if (sortKey.value !== key) return 'i-heroicons-arrows-up-down';
-  return sortDirection.value === 'desc' ? 'i-heroicons-arrow-down' : 'i-heroicons-arrow-up';
+/** 兩位數補零，供排名與班次數字使用 */
+function pad2(value: number): string {
+  return String(value).padStart(2, '0');
 }
 </script>
 
 <template>
-  <div class="p-4">
-    <!-- Header -->
+  <section
+    class="overflow-hidden rounded-lg border border-rule bg-surface"
+    data-testid="statistics-table"
+  >
+    <!-- 表頭：標題 + 早 / 晚班圖例 -->
     <div
-      class="grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-3 mb-2 bg-gray-100 rounded-lg text-sm font-semibold text-gray-700"
+      class="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-6 py-5 max-[520px]:px-4"
     >
-      <!-- Rank -->
-      <span class="text-center">#</span>
-
-      <!-- Agent -->
-      <span>探員</span>
-
-      <!-- Day Count -->
-      <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
-        @click="toggleSort('dayCount')"
-      >
-        <UIcon name="i-heroicons-sun" class="w-4 h-4 text-yellow-500" />
-        <span class="hidden sm:inline">日班</span>
-        <UIcon :name="getSortIcon('dayCount')" class="w-3 h-3 sm:w-4 sm:h-4" />
-      </button>
-
-      <!-- Night Count -->
-      <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
-        @click="toggleSort('nightCount')"
-      >
-        <UIcon name="i-heroicons-moon" class="w-4 h-4 text-indigo-500" />
-        <span class="hidden sm:inline">晚班</span>
-        <UIcon :name="getSortIcon('nightCount')" class="w-3 h-3 sm:w-4 sm:h-4" />
-      </button>
-
-      <!-- Total -->
-      <button
-        class="flex items-center justify-center gap-1 hover:text-gray-900 transition-colors"
-        @click="toggleSort('total')"
-      >
-        <span class="hidden sm:inline">總計</span>
-        <span class="sm:hidden">總</span>
-        <UIcon :name="getSortIcon('total')" class="w-3 h-3 sm:w-4 sm:h-4" />
-      </button>
+      <h2 class="serif text-fs-22 text-ink">探員出勤排行</h2>
+      <div class="flex gap-4">
+        <span class="inline-flex items-center gap-1.5 text-fs-13 text-ink-soft">
+          <span class="h-3 w-3 rounded-[2px] bg-day" aria-hidden="true" />早班
+        </span>
+        <span class="inline-flex items-center gap-1.5 text-fs-13 text-ink-soft">
+          <span class="h-3 w-3 rounded-[2px] bg-night" aria-hidden="true" />晚班
+        </span>
+      </div>
     </div>
 
-    <!-- Grid Layout -->
-    <div class="grid gap-2 sm:gap-3">
-      <NuxtLink
-        v-for="(stat, index) in sortedStatistics"
-        :key="stat.agentId"
-        :to="`/agents/${stat.agentId}`"
-        :class="[
-          'grid grid-cols-[1fr_2fr_1fr_1fr_1fr] items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg border transition-colors',
-          stat.isFullTime
-            ? 'border-pink-200 bg-pink-50 hover:bg-pink-100'
-            : 'border-gray-200 hover:bg-gray-50',
-        ]"
-      >
-        <!-- Rank -->
-        <span class="text-sm text-gray-500 text-center">
-          {{ index + 1 }}
-        </span>
-
-        <!-- Agent Info -->
-        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
-          <NuxtImg
-            :src="stat.picture"
-            :alt="stat.name"
-            class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover ring-2 ring-pink-200 shrink-0"
-            densities="x1"
-            loading="lazy"
-          />
-          <span class="font-medium text-gray-900 truncate text-sm sm:text-base">
-            {{ stat.name }}
-          </span>
-        </div>
-
-        <!-- Day Count -->
-        <span
-          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs sm:text-sm font-medium"
-        >
-          {{ stat.dayCount }}
-        </span>
-
-        <!-- Night Count -->
-        <span
-          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs sm:text-sm font-medium"
-        >
-          {{ stat.nightCount }}
-        </span>
-
-        <!-- Total -->
-        <span
-          class="inline-flex items-center justify-center min-w-6 sm:min-w-8 px-2 sm:px-3 py-0.5 sm:py-1 bg-pink-100 text-pink-700 rounded-full text-xs sm:text-sm font-bold"
-        >
-          {{ stat.total }}
-        </span>
-      </NuxtLink>
+    <!-- 窄螢幕欄位較多時改水平捲動，避免欄位被 section 的 overflow 裁切 -->
+    <div v-if="statistics.length > 0" class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="border-b border-rule bg-paper-2">
+            <th
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              #
+            </th>
+            <th
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              探員
+            </th>
+            <th
+              class="stamp-label whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              分佈<span class="max-[520px]:hidden"> · DISTRIBUTION</span>
+            </th>
+            <th
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              日
+            </th>
+            <th
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              夜
+            </th>
+            <th
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              總
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="(stat, index) in statistics"
+            :key="stat.agentId"
+            class="border-b border-rule-2 transition-colors last:border-b-0 hover:bg-shu-50"
+            data-testid="statistics-table-row"
+          >
+            <td
+              class="mono tnum px-6 py-3.5 align-middle text-fs-13 text-ink-mute max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              {{ pad2(index + 1) }}
+            </td>
+            <td class="px-6 py-3.5 align-middle max-[520px]:px-3 max-[520px]:py-2.5">
+              <NuxtLink
+                :to="`/agents/${stat.agentId}`"
+                class="group inline-flex items-center gap-2 whitespace-nowrap"
+                data-testid="statistics-table-link"
+              >
+                <span
+                  class="h-2.5 w-2.5 shrink-0 rounded-full bg-shu"
+                  aria-hidden="true"
+                />
+                <span
+                  class="serif text-fs-16 text-ink transition-colors group-hover:text-shu"
+                  data-testid="statistics-table-name"
+                >{{ stat.name }}</span>
+                <span
+                  v-if="stat.isFullTime"
+                  class="inline-flex items-center rounded-sm border border-shu px-1.5 py-px text-[10px] tracking-stamp text-shu"
+                  data-testid="statistics-table-full"
+                >FULL</span>
+              </NuxtLink>
+            </td>
+            <td
+              class="px-6 py-3.5 align-middle max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              <StatBar
+                :day-count="stat.dayCount"
+                :night-count="stat.nightCount"
+                :max-total="maxTotal"
+              />
+            </td>
+            <td
+              class="mono tnum px-6 py-3.5 align-middle text-fs-14 text-ink-soft max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              {{ pad2(stat.dayCount) }}
+            </td>
+            <td
+              class="mono tnum px-6 py-3.5 align-middle text-fs-14 text-ink-soft max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              {{ pad2(stat.nightCount) }}
+            </td>
+            <td
+              class="mono tnum px-6 py-3.5 align-middle text-fs-14 font-medium text-ink max-[520px]:px-3 max-[520px]:py-2.5"
+            >
+              {{ pad2(stat.total) }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <!-- Empty State -->
-    <div
-      v-if="sortedStatistics.length === 0"
-      class="text-center py-12 text-gray-500"
-    >
-      <UIcon name="i-heroicons-chart-bar" class="w-12 h-12 mx-auto mb-4 opacity-50" />
-      <p>沒有統計資料</p>
+    <!-- 空狀態 -->
+    <div v-else class="px-6 py-16 text-center" data-testid="statistics-table-empty">
+      <p class="serif text-fs-18 text-ink-soft">沒有統計資料</p>
     </div>
-  </div>
+  </section>
 </template>

@@ -212,18 +212,6 @@
     background: var(--color-paper-2);
   }
 
-  /* —— 出勤統計 stacked bar —— */
-  .stat-bar {
-    display: flex;
-    width: 100%;
-    height: 18px;
-    background: var(--color-paper-2);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .stat-bar__day   { background: var(--color-day); }
-  .stat-bar__night { background: var(--color-night); }
-
   /* —— 班次小圖示底色（用 currentColor） —— */
   .shift-icon-day {
     color: var(--color-day-deep);
