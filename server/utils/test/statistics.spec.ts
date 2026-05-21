@@ -244,6 +244,21 @@ describe('calculateAgentStatistics', () => {
     expect(result[0]?.total).toBeGreaterThanOrEqual(result[1]?.total ?? 0);
   });
 
+  it('總班次平手時應以日班數作為決定性 tie-breaker', () => {
+    // 鑑別性設計：米捲先進 Map（插入序 [juano, rin]），但泠泠日班較多。
+    // 泠泠 2 日 / 0 夜、米捲 1 日 / 1 夜 —— 同為 total 2。
+    // 舊程式碼（只比 total）會維持插入序輸出 [juano, rin] 而 FAIL，
+    // 唯有 tie-breaker 把日班多的泠泠提前才會 PASS。
+    const schedules = [
+      createSchedule('12月1日', ['米捲', '泠泠'], []),
+      createSchedule('12月2日', ['泠泠'], ['米捲']),
+    ];
+
+    const result = calculateAgentStatistics(schedules);
+
+    expect(result.map((s) => s.agentId)).toEqual(['rin', 'juano']);
+  });
+
   it('應該處理代班名稱（括號情況）', () => {
     const schedules = [createSchedule('12月1日', ['小楓(泠泠)'], ['音（Luna）'])];
 

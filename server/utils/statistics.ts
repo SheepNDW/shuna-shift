@@ -99,7 +99,7 @@ export function filterRecentMonths(
 /**
  * 從班表資料計算各探員的值班統計
  * @param schedules - 班表資料陣列
- * @returns 按總班次降序排列的統計陣列
+ * @returns 統計陣列（依總班次降序；平手時以日班數、名稱決定先後）
  */
 export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStatistics[] {
   // 使用 Map 來累計各探員的班次
@@ -166,8 +166,14 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
     }),
   );
 
-  // 按總班次降序排列
-  return statistics.sort((a, b) => b.total - a.total);
+  // 依總班次降序排列；平手時以日班數降序、再以名稱升序作為決定性 tie-breaker，
+  // 避免排名與 MVP 因 Map 插入序而產生不穩定／不公平的先後。
+  return statistics.sort(
+    (a, b) =>
+      b.total - a.total ||
+      b.dayCount - a.dayCount ||
+      a.name.localeCompare(b.name),
+  );
 }
 
 /**
