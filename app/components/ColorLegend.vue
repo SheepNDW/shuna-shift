@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // 色彩圖例(紙感區塊)。供開發者 / debug 對照班表中的日期與班別配色,不放在主流程頁面。
-import { DATE_COLOR_MAP, NIGHT_SHIFT_COLOR_MAP } from '~/utils/colors';
+import { DATE_COLOR_MAP, NIGHT_SHIFT_COLOR_MAP, SUBSTITUTE_COLOR_MAP } from '~/utils/colors';
 
 interface LegendEntry {
   /** 色票色碼;留空時以中性墨灰呈現 */
@@ -41,8 +41,8 @@ const groups: LegendGroup[] = [
     kanji: '記',
     label: 'SPECIAL · 特殊標記',
     entries: [
-      { color: '#c0392b', label: '紅字代班', note: '括弧內為原本出勤的探員' },
-      { color: '#2f6fb0', label: '藍字換班', note: '括弧內為原本出勤的探員' },
+      { color: SUBSTITUTE_COLOR_MAP.SUBSTITUTE, label: '紅字代班', note: '括弧內為原本出勤的探員' },
+      { color: SUBSTITUTE_COLOR_MAP.EXCHANGE, label: '藍字換班', note: '括弧內為原本出勤的探員' },
     ],
   },
 ];

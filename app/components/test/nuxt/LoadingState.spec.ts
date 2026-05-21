@@ -21,7 +21,7 @@ describe('LoadingState', () => {
     const wrapper = await mountSuspended(LoadingState);
     const status = wrapper.get('[data-testid="loading-state"]');
 
+    // role="status" 已隱含 aria-live="polite",不另外標註
     expect(status.attributes('role')).toBe('status');
-    expect(status.attributes('aria-live')).toBe('polite');
   });
 });

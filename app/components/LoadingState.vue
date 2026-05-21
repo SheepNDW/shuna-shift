@@ -10,7 +10,6 @@ const { message = '資料載入中…' } = defineProps<{
   <div
     class="flex flex-col items-center gap-6 py-20"
     role="status"
-    aria-live="polite"
     data-testid="loading-state"
   >
     <div class="flex w-full max-w-md flex-col gap-3" aria-hidden="true">

@@ -10,10 +10,14 @@
 // textColor 為 #ef4444 / #3b82f6 時額外標出「代班 / 換班」與原班探員名字,
 // 對齊舊 ShiftItem 的語意,避免使用者看不出該日是代班或不同時段晚班。
 import type { AgentScheduleItem } from '~~/app/composables/useAgent';
-import { getNightShiftIconColor, getNightShiftTime } from '~~/app/utils/colors';
+import {
+  getNightShiftIconColor,
+  getNightShiftTime,
+  SUBSTITUTE_COLOR_MAP,
+} from '~~/app/utils/colors';
 
-const SUBSTITUTE_COLOR = '#ef4444';
-const EXCHANGE_COLOR = '#3b82f6';
+const SUBSTITUTE_COLOR = SUBSTITUTE_COLOR_MAP.SUBSTITUTE;
+const EXCHANGE_COLOR = SUBSTITUTE_COLOR_MAP.EXCHANGE;
 
 interface ShiftMeta {
   iconColor: string;
