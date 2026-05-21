@@ -102,29 +102,28 @@ useHead({
       </section>
 
       <!-- 篩選無結果 -->
-      <div
+      <EmptyState
         v-else-if="hasFilter"
-        class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
+        kanji="無"
+        title="找不到班表"
+        subtitle="所選探員在近期沒有排班記錄。"
         data-testid="shifts-empty-filter"
       >
-        <span class="empty-kanji" aria-hidden="true">無</span>
-        <h2 class="serif text-fs-28 text-ink">找不到班表</h2>
-        <p class="max-w-[36ch] text-ink-soft">所選探員在近期沒有排班記錄。</p>
-        <button class="btn ghost mt-4" type="button" @click="selectedAgents = []">
-          清除篩選 →
-        </button>
-      </div>
+        <template #action>
+          <button class="btn ghost" type="button" @click="selectedAgents = []">
+            清除篩選 →
+          </button>
+        </template>
+      </EmptyState>
 
       <!-- 無未來班表 -->
-      <div
+      <EmptyState
         v-else
-        class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
+        kanji="空"
+        title="沒有未來班表"
+        subtitle="目前沒有已排定的未來班表資料。"
         data-testid="shifts-empty"
-      >
-        <span class="empty-kanji" aria-hidden="true">空</span>
-        <h2 class="serif text-fs-28 text-ink">沒有未來班表</h2>
-        <p class="text-ink-soft">目前沒有已排定的未來班表資料。</p>
-      </div>
+      />
 
       <template #fallback>
         <LoadingState />

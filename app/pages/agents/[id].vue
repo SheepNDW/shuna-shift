@@ -92,16 +92,17 @@ useHead({
           <span class="stamp-label">UPCOMING · {{ agentInfo.name }}</span>
         </header>
 
-        <div
+        <EmptyState
           v-if="agentSchedules.length === 0"
-          class="flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
+          kanji="空"
+          title="近期無排班"
+          subtitle="這段期間沒有安排到班次。"
           data-testid="agent-schedule-empty"
         >
-          <span class="empty-kanji" aria-hidden="true">空</span>
-          <h2 class="serif text-fs-28 text-ink">近期無排班</h2>
-          <p class="max-w-[36ch] text-ink-soft">這段期間沒有安排到班次。</p>
-          <NuxtLink to="/shifts" class="btn ghost mt-4">查看完整班表 →</NuxtLink>
-        </div>
+          <template #action>
+            <NuxtLink to="/shifts" class="btn ghost">查看完整班表 →</NuxtLink>
+          </template>
+        </EmptyState>
 
         <ul
           v-else
@@ -115,8 +116,6 @@ useHead({
           />
         </ul>
       </section>
-
-      <BackToTop />
     </template>
   </UContainer>
 </template>

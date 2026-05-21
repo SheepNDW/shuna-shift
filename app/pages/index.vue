@@ -51,17 +51,13 @@ useHead({
       </section>
 
       <!-- 今日無排班 -->
-      <div
+      <EmptyState
         v-else
-        class="mb-12 flex flex-col items-center gap-3 rounded-lg border border-dashed border-rule px-6 py-16 text-center"
-      >
-        <span
-          class="serif flex h-22 w-22 items-center justify-center border-[1.5px] border-shu text-[56px] text-shu"
-          aria-hidden="true"
-        >休</span>
-        <h2 class="serif text-fs-28 text-ink">今日無排班</h2>
-        <p class="text-ink-soft">今天沒有值班安排，好好休息吧。</p>
-      </div>
+        class="mb-12"
+        kanji="休"
+        title="今日無排班"
+        subtitle="今天沒有值班安排，好好休息吧。"
+      />
 
       <!-- 近日のシフト -->
       <section

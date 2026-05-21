@@ -68,7 +68,7 @@ describe('AgentSection', () => {
     expect(wrapper.findAll('[data-testid="agent-card"]')).toHaveLength(3);
   });
 
-  it('agents 為空陣列時計數為 00 且 grid 內無卡片', async () => {
+  it('agents 為空陣列時計數為 00 並顯示 EmptyState', async () => {
     const wrapper = await mountSuspended(AgentSection, {
       props: {
         kanji: '正',
@@ -81,5 +81,7 @@ describe('AgentSection', () => {
 
     expect(wrapper.get('[data-testid="agent-section-count"]').text()).toBe('00');
     expect(wrapper.findAll('[data-testid="agent-card"]')).toHaveLength(0);
+    expect(wrapper.find('[data-testid="agent-section-empty"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="agent-section-grid"]').exists()).toBe(false);
   });
 });

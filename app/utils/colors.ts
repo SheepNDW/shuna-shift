@@ -24,6 +24,20 @@ export const NIGHT_SHIFT_COLOR_MAP = {
   ORANGE_SHIFT,
 };
 
+const SUBSTITUTE_TEXT = '#ef4444';
+const EXCHANGE_TEXT = '#3b82f6';
+
+/**
+ * 班表中以探員文字顏色標記的特殊出勤。
+ * AgentScheduleCard 用來判定 substituteType，ColorLegend 用於圖例對照。
+ */
+export const SUBSTITUTE_COLOR_MAP = {
+  /** 代班：班表中的紅字 */
+  SUBSTITUTE: SUBSTITUTE_TEXT,
+  /** 換班：班表中的藍字 */
+  EXCHANGE: EXCHANGE_TEXT,
+};
+
 /**
  * 根據晚班文字顏色判斷時間段
  * @param textColor 晚班探員的文字顏色

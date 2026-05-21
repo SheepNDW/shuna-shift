@@ -50,7 +50,7 @@ const dateRangeLabel = computed(() => formatDateRange(data.value?.metadata.dateR
     />
 
     <!-- 載入中 -->
-    <LoadingState v-if="status === 'pending'" message="載入統計資料中..." />
+    <LoadingState v-if="status === 'pending'" message="載入統計資料中…" />
 
     <!-- 內容 -->
     <template v-else-if="data">
@@ -96,14 +96,12 @@ const dateRangeLabel = computed(() => formatDateRange(data.value?.metadata.dateR
     </template>
 
     <!-- 錯誤狀態 -->
-    <div
+    <EmptyState
       v-else
-      class="flex flex-col items-center gap-3 py-20 text-center"
+      kanji="無"
+      title="無法載入統計資料"
+      subtitle="請稍後再重新整理頁面。"
       data-testid="statistics-error"
-    >
-      <span class="empty-kanji serif" aria-hidden="true">無</span>
-      <p class="serif text-fs-22 text-ink">無法載入統計資料</p>
-      <p class="text-fs-14 text-ink-soft">請稍後再重新整理頁面</p>
-    </div>
+    />
   </UContainer>
 </template>
