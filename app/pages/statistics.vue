@@ -31,24 +31,12 @@ useHead({
 const statistics = computed(() => data.value?.statistics ?? []);
 const hasStatistics = computed(() => statistics.value.length > 0);
 
-// 早 / 晚 / 總班次摘要
-const totalDay = computed(() =>
-  statistics.value.reduce((sum, stat) => sum + stat.dayCount, 0),
-);
-const totalNight = computed(() =>
-  statistics.value.reduce((sum, stat) => sum + stat.nightCount, 0),
-);
-const totalShifts = computed(() => totalDay.value + totalNight.value);
-
-// MVP：榜首探員（statistics 已由 server 端依總班次降序排列）
-const topAgent = computed(() => statistics.value[0] ?? null);
+// 摘要四格數據（日總 / 夜總 / 總計 / MVP）；topAgent 另抽 computed 便於 template 收斂型別
+const summary = computed(() => summarizeStatistics(statistics.value));
+const topAgent = computed(() => summary.value.topAgent);
 
 // 統計期間：以資料實際日期範圍呈現於 PageHeader meta
-const dateRangeLabel = computed(() => {
-  const range = data.value?.metadata.dateRange;
-  if (!range?.from || !range?.to) return undefined;
-  return `${range.from} – ${range.to}`;
-});
+const dateRangeLabel = computed(() => formatDateRange(data.value?.metadata.dateRange));
 </script>
 
 <template>
@@ -69,28 +57,28 @@ const dateRangeLabel = computed(() => {
       <!-- 摘要四格：日總 / 夜總 / 總計 / MVP -->
       <section
         v-if="hasStatistics && topAgent"
-        class="mb-12 grid grid-cols-4 gap-4 max-[920px]:grid-cols-2 max-[520px]:grid-cols-1"
+        class="mb-12 grid grid-cols-4 gap-4 max-[920px]:grid-cols-2 max-xs:grid-cols-1"
         data-testid="summary-tiles"
       >
         <SummaryTile
           kanji="日"
           label="DAY SHIFTS"
           desc="早班總次數"
-          :value="totalDay"
+          :value="summary.totalDay"
           accent="day"
         />
         <SummaryTile
           kanji="夜"
           label="NIGHT SHIFTS"
           desc="晚班總次數"
-          :value="totalNight"
+          :value="summary.totalNight"
           accent="night"
         />
         <SummaryTile
           kanji="總"
           label="TOTAL"
           desc="班次總合"
-          :value="totalShifts"
+          :value="summary.totalShifts"
           accent="shu"
         />
         <SummaryTile

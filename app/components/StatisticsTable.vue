@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // 出勤排行表（prototype 的 stat-table）：排名 + 探員 + stacked bar + 日 / 夜 / 總。
-// statistics 已由 server 端 calculateAgentStatistics 依總班次降序排列，
-// 此處直接以陣列順序作為固定排名，不再提供互動排序（排名語意需要固定順序）。
+// statistics 已由 server 端 calculateAgentStatistics 依總班次降序排列（含決定性
+// tie-breaker），此處直接以陣列順序作為固定排名，不提供互動排序。
 import type { AgentStatistics } from '~~/shared/types';
 
 const { statistics } = defineProps<{
@@ -12,11 +12,6 @@ const { statistics } = defineProps<{
 const maxTotal = computed(() =>
   statistics.reduce((max, stat) => Math.max(max, stat.total), 0),
 );
-
-/** 兩位數補零，供排名與班次數字使用 */
-function pad2(value: number): string {
-  return String(value).padStart(2, '0');
-}
 </script>
 
 <template>
@@ -26,7 +21,7 @@ function pad2(value: number): string {
   >
     <!-- 表頭：標題 + 早 / 晚班圖例 -->
     <div
-      class="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-6 py-5 max-[520px]:px-4"
+      class="flex flex-wrap items-center justify-between gap-3 border-b border-rule px-6 py-5 max-xs:px-4"
     >
       <h2 class="serif text-fs-22 text-ink">探員出勤排行</h2>
       <div class="flex gap-4">
@@ -45,32 +40,38 @@ function pad2(value: number): string {
         <thead>
           <tr class="border-b border-rule bg-paper-2">
             <th
-              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+              scope="col"
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-xs:px-3 max-xs:py-2.5"
             >
               #
             </th>
             <th
-              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+              scope="col"
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-xs:px-3 max-xs:py-2.5"
             >
               探員
             </th>
             <th
-              class="stamp-label whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+              scope="col"
+              class="stamp-label whitespace-nowrap px-6 py-3.5 text-left font-normal max-xs:px-3 max-xs:py-2.5"
             >
-              分佈<span class="max-[520px]:hidden"> · DISTRIBUTION</span>
+              分佈<span class="max-xs:hidden"> · DISTRIBUTION</span>
             </th>
             <th
-              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+              scope="col"
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-xs:px-3 max-xs:py-2.5"
             >
               日
             </th>
             <th
-              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+              scope="col"
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-xs:px-3 max-xs:py-2.5"
             >
               夜
             </th>
             <th
-              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-[520px]:px-3 max-[520px]:py-2.5"
+              scope="col"
+              class="stamp-label w-[1%] whitespace-nowrap px-6 py-3.5 text-left font-normal max-xs:px-3 max-xs:py-2.5"
             >
               總
             </th>
@@ -84,11 +85,11 @@ function pad2(value: number): string {
             data-testid="statistics-table-row"
           >
             <td
-              class="mono tnum px-6 py-3.5 align-middle text-fs-13 text-ink-mute max-[520px]:px-3 max-[520px]:py-2.5"
+              class="mono tnum px-6 py-3.5 align-middle text-fs-13 text-ink-mute max-xs:px-3 max-xs:py-2.5"
             >
-              {{ pad2(index + 1) }}
+              {{ padZero(index + 1) }}
             </td>
-            <td class="px-6 py-3.5 align-middle max-[520px]:px-3 max-[520px]:py-2.5">
+            <td class="px-6 py-3.5 align-middle max-xs:px-3 max-xs:py-2.5">
               <NuxtLink
                 :to="`/agents/${stat.agentId}`"
                 class="group inline-flex items-center gap-2 whitespace-nowrap"
@@ -109,9 +110,7 @@ function pad2(value: number): string {
                 >FULL</span>
               </NuxtLink>
             </td>
-            <td
-              class="px-6 py-3.5 align-middle max-[520px]:px-3 max-[520px]:py-2.5"
-            >
+            <td class="px-6 py-3.5 align-middle max-xs:px-3 max-xs:py-2.5">
               <StatBar
                 :day-count="stat.dayCount"
                 :night-count="stat.nightCount"
@@ -119,19 +118,19 @@ function pad2(value: number): string {
               />
             </td>
             <td
-              class="mono tnum px-6 py-3.5 align-middle text-fs-14 text-ink-soft max-[520px]:px-3 max-[520px]:py-2.5"
+              class="mono tnum px-6 py-3.5 align-middle text-fs-14 text-ink-soft max-xs:px-3 max-xs:py-2.5"
             >
-              {{ pad2(stat.dayCount) }}
+              {{ padZero(stat.dayCount) }}
             </td>
             <td
-              class="mono tnum px-6 py-3.5 align-middle text-fs-14 text-ink-soft max-[520px]:px-3 max-[520px]:py-2.5"
+              class="mono tnum px-6 py-3.5 align-middle text-fs-14 text-ink-soft max-xs:px-3 max-xs:py-2.5"
             >
-              {{ pad2(stat.nightCount) }}
+              {{ padZero(stat.nightCount) }}
             </td>
             <td
-              class="mono tnum px-6 py-3.5 align-middle text-fs-14 font-medium text-ink max-[520px]:px-3 max-[520px]:py-2.5"
+              class="mono tnum px-6 py-3.5 align-middle text-fs-14 font-medium text-ink max-xs:px-3 max-xs:py-2.5"
             >
-              {{ pad2(stat.total) }}
+              {{ padZero(stat.total) }}
             </td>
           </tr>
         </tbody>

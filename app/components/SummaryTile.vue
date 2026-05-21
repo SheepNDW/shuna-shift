@@ -33,7 +33,7 @@ const accentClass: Record<Accent, string> = {
   ink: 'text-paper border-ink bg-ink',
 };
 
-const displayValue = computed(() => String(value).padStart(2, '0'));
+const displayValue = computed(() => padZero(value));
 </script>
 
 <template>

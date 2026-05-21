@@ -244,6 +244,18 @@ describe('calculateAgentStatistics', () => {
     expect(result[0]?.total).toBeGreaterThanOrEqual(result[1]?.total ?? 0);
   });
 
+  it('總班次平手時應以日班數作為決定性 tie-breaker', () => {
+    // 泠泠 2 日 / 0 夜、米捲 1 日 / 1 夜 —— 同為 total 2，日班數多者在前
+    const schedules = [
+      createSchedule('12月1日', ['泠泠', '米捲'], []),
+      createSchedule('12月2日', ['泠泠'], ['米捲']),
+    ];
+
+    const result = calculateAgentStatistics(schedules);
+
+    expect(result.map((s) => s.agentId)).toEqual(['rin', 'juano']);
+  });
+
   it('應該處理代班名稱（括號情況）', () => {
     const schedules = [createSchedule('12月1日', ['小楓(泠泠)'], ['音（Luna）'])];
 
