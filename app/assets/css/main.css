@@ -99,6 +99,9 @@
 
   /* —— Container width —— */
   --container-shuna: 1180px;
+
+  /* —— Breakpoint（DESIGN_GUIDELINE §6：≤ 520px summary tiles / agents grid 改單欄） —— */
+  --breakpoint-xs: 520px;
 }
 
 /* ============================================================

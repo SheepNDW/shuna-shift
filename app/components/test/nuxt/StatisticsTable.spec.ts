@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { defineComponent } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import StatisticsTable from '../../StatisticsTable.vue';
 import type { AgentStatistics } from '~~/shared/types';
 
+// 依總班次降序排列（server 端 calculateAgentStatistics 的輸出順序）。
+// luna 設為非正職，用於驗證 FULL 標記僅出現於正職探員。
 const mockStatistics: AgentStatistics[] = [
   {
     agentId: 'rin',
@@ -30,162 +31,91 @@ const mockStatistics: AgentStatistics[] = [
     dayCount: 5,
     nightCount: 8,
     total: 13,
-    isFullTime: true,
+    isFullTime: false,
   },
 ];
 
-const IconStub = defineComponent({
-  props: {
-    name: {
-      type: String,
-      required: true,
-    },
-  },
-  template: '<i :data-name="name"><slot /></i>',
-});
-
-const BadgeStub = defineComponent({
-  props: {
-    color: String,
-    variant: String,
-    size: String,
-  },
-  template: '<span class="badge"><slot /></span>',
-});
-
-const NuxtImgStub = defineComponent({
-  props: {
-    src: String,
-    alt: String,
-    densities: String,
-    loading: String,
-  },
-  template: '<img :src="src" :alt="alt" />',
-});
-
 describe('StatisticsTable', () => {
-  it('應正確渲染表格欄位', async () => {
+  it('應渲染表頭欄位', async () => {
     const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: mockStatistics,
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
+      props: { statistics: mockStatistics },
     });
 
-    // 檢查表頭
-    expect(wrapper.text()).toContain('探員');
-    expect(wrapper.text()).toContain('日班');
-    expect(wrapper.text()).toContain('晚班');
-    expect(wrapper.text()).toContain('總計');
+    const headerText = wrapper.findAll('th').map((th) => th.text()).join(' ');
+    expect(headerText).toContain('探員');
+    expect(headerText).toContain('分佈');
+    expect(headerText).toContain('日');
+    expect(headerText).toContain('夜');
+    expect(headerText).toContain('總');
   });
 
-  it('應顯示所有探員資料', async () => {
+  it('應顯示所有探員', async () => {
     const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: mockStatistics,
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
+      props: { statistics: mockStatistics },
     });
 
-    expect(wrapper.text()).toContain('泠泠');
-    expect(wrapper.text()).toContain('米捲');
-    expect(wrapper.text()).toContain('Luna');
+    const names = wrapper
+      .findAll('[data-testid="statistics-table-name"]')
+      .map((el) => el.text());
+    expect(names).toEqual(['泠泠', '米捲', 'Luna']);
   });
 
-  it('應顯示正確的班次數字', async () => {
+  it('應以陣列順序顯示補零排名', async () => {
     const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: mockStatistics,
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
+      props: { statistics: mockStatistics },
     });
 
-    // 泠泠的班次
-    expect(wrapper.text()).toContain('10');
-    expect(wrapper.text()).toContain('15');
+    const rows = wrapper.findAll('[data-testid="statistics-table-row"]');
+    expect(rows[0]?.text()).toContain('01');
+    expect(rows[1]?.text()).toContain('02');
+    expect(rows[2]?.text()).toContain('03');
+  });
+
+  it('應顯示補零後的班次數字', async () => {
+    const wrapper = await mountSuspended(StatisticsTable, {
+      props: { statistics: mockStatistics },
+    });
+
+    // 泠泠：日 10 / 夜 05 / 總 15
+    const firstRow = wrapper.findAll('[data-testid="statistics-table-row"]')[0];
+    expect(firstRow?.text()).toContain('10');
+    expect(firstRow?.text()).toContain('05');
+    expect(firstRow?.text()).toContain('15');
   });
 
   it('探員名稱應連結至個人頁面', async () => {
     const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: mockStatistics,
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
+      props: { statistics: mockStatistics },
     });
 
-    const links = wrapper.findAll('a');
-    const rinLink = links.find((link) => link.attributes('href')?.includes('/agents/rin'));
-    expect(rinLink?.exists()).toBe(true);
+    const links = wrapper.findAll('[data-testid="statistics-table-link"]');
+    expect(links[0]?.attributes('href')).toContain('/agents/rin');
   });
 
-  it('點擊欄位標題應切換排序', async () => {
+  it('每列應渲染一個出勤分佈 bar', async () => {
     const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: mockStatistics,
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
+      props: { statistics: mockStatistics },
     });
 
-    // 找到日班欄位並點擊
-    const headers = wrapper.findAll('th');
-    const dayHeader = headers.find((h) => h.text().includes('日班'));
-
-    await dayHeader?.trigger('click');
-
-    // 再次點擊應切換排序方向
-    await dayHeader?.trigger('click');
-
-    // 檢查排序圖示有變化
-    expect(
-      wrapper.find('[data-name="i-heroicons-arrow-up"]').exists() ||
-        wrapper.find('[data-name="i-heroicons-arrow-down"]').exists()
-    ).toBe(true);
+    expect(wrapper.findAll('[data-testid="stat-bar"]')).toHaveLength(3);
   });
 
-  it('當沒有資料時應顯示空狀態', async () => {
+  it('FULL 標記應僅出現於正職探員', async () => {
     const wrapper = await mountSuspended(StatisticsTable, {
-      props: {
-        statistics: [],
-      },
-      global: {
-        stubs: {
-          UIcon: IconStub,
-          UBadge: BadgeStub,
-          NuxtImg: NuxtImgStub,
-        },
-      },
+      props: { statistics: mockStatistics },
     });
 
+    // rin 與 juano 為正職，luna 非正職
+    expect(wrapper.findAll('[data-testid="statistics-table-full"]')).toHaveLength(2);
+  });
+
+  it('沒有資料時應顯示空狀態', async () => {
+    const wrapper = await mountSuspended(StatisticsTable, {
+      props: { statistics: [] },
+    });
+
+    expect(wrapper.find('[data-testid="statistics-table-empty"]').exists()).toBe(true);
     expect(wrapper.text()).toContain('沒有統計資料');
+    expect(wrapper.find('table').exists()).toBe(false);
   });
 });
