@@ -3,6 +3,15 @@
 const GREEN_SHIFT = '#93c47d';
 const ORANGE_SHIFT = '#ff9900';
 
+// 晚班綠時段可能出現的相近綠 —— 班表填寫者用色卡時偶爾選到不同綠:
+// #93c47d 是 Google Sheets 調色盤淺綠、#70ad47 是 MS Office 綠,兩者
+// 皆指同一個綠時段(15:00 ~ 19:30)。日後再出現填錯的相近綠補進此陣列即可。
+const GREEN_SHIFT_ALIASES = [GREEN_SHIFT, '#70ad47'];
+
+function isGreenShift(textColor: string): boolean {
+  return GREEN_SHIFT_ALIASES.includes(textColor);
+}
+
 export const NIGHT_SHIFT_COLOR_MAP = {
   /** 綠班 */
   GREEN_SHIFT,
@@ -34,7 +43,7 @@ export const SUBSTITUTE_COLOR_MAP = {
  * @returns 時間段字串
  */
 export function getNightShiftTime(textColor: string): string {
-  if (textColor === NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT) {
+  if (isGreenShift(textColor)) {
     return '15:00 ~ 19:30';
   }
   if (textColor === NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT) {
@@ -49,7 +58,8 @@ export function getNightShiftTime(textColor: string): string {
  * @returns 圖示顏色
  */
 export function getNightShiftIconColor(textColor: string): string {
-  if (textColor === NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT) {
+  // 任一綠別名都正規化回 canonical 綠,讓圖示色一致
+  if (isGreenShift(textColor)) {
     return NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT;
   }
   if (textColor === NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT) {

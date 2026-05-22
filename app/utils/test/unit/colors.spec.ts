@@ -15,6 +15,12 @@ describe('colors utils', () => {
       expect(result).toBe('15:00 ~ 19:30');
     });
 
+    it('相近綠 #70ad47（色卡填錯的別名）應視為綠班', () => {
+      const result = getNightShiftTime('#70ad47');
+
+      expect(result).toBe('15:00 ~ 19:30');
+    });
+
     it('當文字顏色為 ORANGE_SHIFT 時應回傳對應的時段', () => {
       const result = getNightShiftTime(NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT);
 
@@ -31,6 +37,12 @@ describe('colors utils', () => {
   describe('getNightShiftIconColor', () => {
     it('當文字顏色為 GREEN_SHIFT 時應回傳對應的顏色', () => {
       const result = getNightShiftIconColor(NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT);
+
+      expect(result).toBe(NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT);
+    });
+
+    it('相近綠 #70ad47 應正規化回 canonical 綠', () => {
+      const result = getNightShiftIconColor('#70ad47');
 
       expect(result).toBe(NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT);
     });
