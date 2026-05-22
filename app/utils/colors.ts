@@ -1,16 +1,4 @@
-import { DATE_BACKGROUND } from '~~/shared/date-meta';
-
-// 日期顏色對照（供 ColorLegend debug 元件）；色碼單一真實來源為 shared/date-meta。
-export const DATE_COLOR_MAP = {
-  /** 一日限定 */
-  SPECIAL_DAY: DATE_BACKGROUND.SPECIAL_DAY,
-  /** 活動週 */
-  EVENT_WEEK: DATE_BACKGROUND.EVENT_WEEK,
-  /** 生誕祭/生誕出勤 */
-  BIRTHDAY: DATE_BACKGROUND.BIRTHDAY,
-  /** 店休 */
-  CLOSED: DATE_BACKGROUND.CLOSED,
-};
+// 班表「探員文字色」對照 —— 晚班時段(綠 / 橘)與代 / 換班(紅 / 藍)的色碼與判讀工具。
 
 const GREEN_SHIFT = '#93c47d';
 const ORANGE_SHIFT = '#ff9900';
@@ -22,8 +10,12 @@ export const NIGHT_SHIFT_COLOR_MAP = {
   ORANGE_SHIFT,
 };
 
-const SUBSTITUTE_TEXT = '#ef4444';
-const EXCHANGE_TEXT = '#3b82f6';
+// 代班 / 換班的探員文字色 —— 必須與 parser `rgbToHex` 對試算表紅 / 藍字的輸出
+// 完全相等,否則 AgentScheduleCard 永遠比對不到、代班 / 換班標記不顯示。
+// 校正自實際試算表(過去班表 2024–2025 共 8 筆換班):紅 #ff0000、
+// 藍 #1155cc(Google Sheets 標準深藍)。回歸測試見 test/unit/colors.spec.ts。
+const SUBSTITUTE_TEXT = '#ff0000';
+const EXCHANGE_TEXT = '#1155cc';
 
 /**
  * 班表中以探員文字顏色標記的特殊出勤。

@@ -169,11 +169,11 @@ describe('AgentScheduleCard', () => {
       expect(badge.attributes('style') ?? '').not.toContain('#');
     });
 
-    it('代班 (#ef4444) 顯示「代班」標記與原班探員', async () => {
+    it('代班 (#ff0000) 顯示「代班」標記與原班探員', async () => {
       const wrapper = await mountSuspended(AgentScheduleCard, {
         props: {
           schedule: makeItem({
-            dayShifts: [{ name: '小楓(泠泠)', textColor: '#ef4444' }],
+            dayShifts: [{ name: '小楓(泠泠)', textColor: '#ff0000' }],
             nightShifts: [],
           }),
         },
@@ -186,12 +186,12 @@ describe('AgentScheduleCard', () => {
       expect(tag.text()).toContain('(原: 泠泠)');
     });
 
-    it('換班 (#3b82f6) 顯示「換班」標記', async () => {
+    it('換班 (#1155cc) 顯示「換班」標記', async () => {
       const wrapper = await mountSuspended(AgentScheduleCard, {
         props: {
           schedule: makeItem({
             dayShifts: [],
-            nightShifts: [{ name: '小楓(Iroha)', textColor: '#3b82f6' }],
+            nightShifts: [{ name: '小楓(Iroha)', textColor: '#1155cc' }],
           }),
         },
         global: { stubs },

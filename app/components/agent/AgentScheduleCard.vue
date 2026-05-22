@@ -7,7 +7,7 @@
 //
 // badge 渲染策略(2026-05 review 修正):per-shift 而非單一 boolean。
 // 晚班時段以 textColor 還原(綠 15:00–19:30 / 橘 16:00–21:30 / 預設 17:30–21:30),
-// textColor 為 #ef4444 / #3b82f6 時額外標出「代班 / 換班」與原班探員名字,
+// textColor 為 #ff0000 / #1155cc 時額外標出「代班 / 換班」與原班探員名字,
 // 對齊舊 ShiftItem 的語意,避免使用者看不出該日是代班或不同時段晚班。
 import type { AgentScheduleItem } from '~~/app/composables/useAgent';
 import {

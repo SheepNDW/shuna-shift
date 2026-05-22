@@ -1,6 +1,7 @@
 <script setup lang="ts">
-// 色彩圖例(紙感區塊)。供開發者 / debug 對照班表中的日期與班別配色,不放在主流程頁面。
-import { DATE_COLOR_MAP, NIGHT_SHIFT_COLOR_MAP, SUBSTITUTE_COLOR_MAP } from '~/utils/colors';
+// 班表配色圖例(紙感區塊)。掛在 /shifts 底部,說明 AgentChip 文字色承載的
+// 晚班時段與紅 / 藍代換班語意 —— 主班表頁的色彩判讀入口。
+import { NIGHT_SHIFT_COLOR_MAP, SUBSTITUTE_COLOR_MAP } from '~/utils/colors';
 
 interface LegendEntry {
   /** 色票色碼;留空時以中性墨灰呈現 */
@@ -17,16 +18,6 @@ interface LegendGroup {
 }
 
 const groups: LegendGroup[] = [
-  {
-    kanji: '日',
-    label: 'DATE · 日期顏色',
-    entries: [
-      { color: DATE_COLOR_MAP.SPECIAL_DAY, label: '一日限定' },
-      { color: DATE_COLOR_MAP.EVENT_WEEK, label: '活動週' },
-      { color: DATE_COLOR_MAP.BIRTHDAY, label: '生誕祭 / 生誕出勤' },
-      { color: DATE_COLOR_MAP.CLOSED, label: '店休' },
-    ],
-  },
   {
     kanji: '時',
     label: 'SHIFT · 班別時段',

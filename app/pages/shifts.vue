@@ -146,6 +146,8 @@ useHead({
         data-testid="shifts-empty"
       />
 
+      <ColorLegend v-if="filteredSchedules.length > 0" class="mt-8" />
+
       <template #fallback>
         <LoadingState />
       </template>

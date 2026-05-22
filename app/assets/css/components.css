@@ -141,9 +141,9 @@
   .agent-chip__name { color: var(--agent-color, var(--color-ink)); font-weight: 500; }
   .agent-chip:hover { border-color: var(--agent-color, var(--color-ink)); }
   .agent-chip.is-highlighted {
-    border-color: var(--agent-color);
-    background: color-mix(in oklab, var(--agent-color) 12%, var(--color-paper));
-    box-shadow: 0 0 0 1px var(--agent-color);
+    border-color: var(--agent-color, var(--color-shu));
+    background: color-mix(in oklab, var(--agent-color, var(--color-shu)) 12%, var(--color-paper));
+    box-shadow: 0 0 0 1px var(--agent-color, var(--color-shu));
   }
 
   /* —— 篩選 chip（active 反白） —— */
