@@ -137,6 +137,36 @@ describe('parseAgents', () => {
     ]);
   });
 
+  // 回歸測試（PR #26 L-recheck-1）：藍字換班色碼錨定真實資料。
+  // 原始 cell 取自過去班表 2025「🦖、和実、梂、音(小春)、千熊」，換班探員
+  // 「音(小春)」的 foregroundColor 為 Google Sheets API 實際回傳值，經
+  // rgbToHex 應輸出 #1155cc —— 與 colors.ts 的 SUBSTITUTE_COLOR_MAP.EXCHANGE 對齊。
+  it('應從真實換班儲存格解析出藍字 #1155cc', () => {
+    const name = '🦖、和実、梂、音(小春)、千熊';
+
+    const runs: TextFormatRun[] = [
+      { format: {} },
+      {
+        startIndex: 8,
+        format: {
+          foregroundColor: { red: 0.06666667, green: 0.33333334, blue: 0.8 },
+        },
+      },
+      { startIndex: 9, format: {} },
+    ];
+
+    const result = parseAgents(name, runs);
+
+    expect(result).toEqual([
+      // 🦖 未收錄於 AGENTS map，parser 原樣保留（與本回歸測試的藍字錨定無關）
+      { name: '🦖', textColor: '' },
+      { name: '和実', textColor: '' },
+      { name: '梂', textColor: '' },
+      { name: '音(小春)', textColor: '#1155cc' },
+      { name: '千熊', textColor: '' },
+    ]);
+  });
+
   it('應該將 いろは 正規化為 Iroha', () => {
     const name = 'いろは、百夜';
     const result = parseAgents(name);
