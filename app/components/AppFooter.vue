@@ -7,146 +7,69 @@ const scheduleStore = useScheduleStore();
 const lastUpdated = computed(() =>
   scheduleStore.lastUpdated ? formatDateTime(scheduleStore.lastUpdated) : '同步中…',
 );
+
+// 重複的 utility 串集中為 const，維持 utility-first 又不逐處重貼
+const colHeading = 'mb-1.5 font-mono text-fs-12 uppercase tracking-stamp text-ink';
+const footerLink =
+  'w-fit text-fs-14 text-ink-soft transition-colors duration-150 hover:text-shu';
 </script>
 
 <template>
-  <footer class="app-footer">
+  <footer class="relative z-10 mt-16 border-t border-rule bg-paper-2 pt-12 pb-6">
     <UContainer>
-      <div class="app-footer__inner">
-        <div class="app-footer__brand">
+      <div
+        class="mb-10 grid grid-cols-[1.2fr_2fr] gap-12 border-b border-rule pb-8 max-[920px]:grid-cols-1 max-[920px]:gap-6"
+      >
+        <div class="flex items-center gap-3">
           <BrandMark :size="32" />
           <div>
-            <div class="serif app-footer__name">喫茶 朱雫</div>
+            <div class="serif text-fs-22 text-ink">喫茶 朱雫</div>
             <div class="stamp-label">SHUNA · MAID CAFÉ</div>
           </div>
         </div>
 
-        <div class="app-footer__cols">
-          <div class="app-footer__col">
-            <div class="stamp-label">頁面</div>
-            <NuxtLink class="app-footer__link" to="/">今日班表</NuxtLink>
-            <NuxtLink class="app-footer__link" to="/shifts">完整班表</NuxtLink>
-            <NuxtLink class="app-footer__link" to="/agents">探員圖鑑</NuxtLink>
-            <NuxtLink class="app-footer__link" to="/statistics">出勤統計</NuxtLink>
+        <div class="grid grid-cols-3 gap-8 max-[920px]:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <div :class="colHeading">頁面</div>
+            <NuxtLink :class="footerLink" to="/">今日班表</NuxtLink>
+            <NuxtLink :class="footerLink" to="/shifts">完整班表</NuxtLink>
+            <NuxtLink :class="footerLink" to="/agents">探員圖鑑</NuxtLink>
+            <NuxtLink :class="footerLink" to="/statistics">出勤統計</NuxtLink>
           </div>
 
-          <div class="app-footer__col">
-            <div class="stamp-label">營業</div>
+          <div class="flex flex-col gap-2">
+            <div :class="colHeading">營業</div>
             <!-- 綠色中班（15:00–19:30）為少數，footer 顯示一般晚班的常見時段 -->
-            <p class="app-footer__hours">早班 13:30 – 17:30</p>
-            <p class="app-footer__hours">晚班 17:30 – 21:30</p>
-            <p class="app-footer__hours mono">店休 · 不定休</p>
+            <p class="m-0 text-fs-13 text-ink-soft">早班 13:30 – 17:30</p>
+            <p class="m-0 text-fs-13 text-ink-soft">晚班 17:30 – 21:30</p>
+            <p class="mono m-0 text-fs-13 text-ink-soft">店休 · 不定休</p>
           </div>
 
-          <div class="app-footer__col">
-            <div class="stamp-label">資料</div>
+          <div class="flex flex-col gap-2">
+            <div :class="colHeading">資料</div>
             <a
-              class="app-footer__link"
+              :class="footerLink"
               :href="SCHEDULE_SHEET_URL"
               target="_blank"
               rel="noopener noreferrer"
             >朱雫班表 Google 表單</a>
             <a
-              class="app-footer__link"
+              :class="footerLink"
               :href="BOOKING_URL"
               target="_blank"
               rel="noopener noreferrer"
             >線上訂位</a>
-            <p class="app-footer__hours mono">UPDATED · {{ lastUpdated }}</p>
+            <p class="mono m-0 text-fs-13 text-ink-soft">UPDATED · {{ lastUpdated }}</p>
           </div>
         </div>
       </div>
 
-      <div class="app-footer__base">
+      <div
+        class="flex items-center justify-between gap-4 max-xs:flex-col max-xs:items-start max-xs:gap-2"
+      >
         <span class="stamp-label">© {{ currentYear }} 朱雫查班工具 · 非官方</span>
         <span class="stamp-label mono">v2.0 — paper edition</span>
       </div>
     </UContainer>
   </footer>
 </template>
-
-<style scoped>
-.app-footer {
-  position: relative;
-  z-index: 10;
-  margin-top: 64px;
-  padding: 48px 0 24px;
-  border-top: 1px solid var(--color-rule);
-  background: var(--color-paper-2);
-}
-
-.app-footer__inner {
-  display: grid;
-  grid-template-columns: 1.2fr 2fr;
-  gap: 48px;
-  margin-bottom: 40px;
-  padding-bottom: 32px;
-  border-bottom: 1px solid var(--color-rule);
-}
-
-.app-footer__brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.app-footer__name {
-  font-size: 22px;
-  color: var(--color-ink);
-}
-
-.app-footer__cols {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-.app-footer__col {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.app-footer__col > .stamp-label {
-  margin-bottom: 6px;
-  color: var(--color-ink);
-}
-
-.app-footer__link {
-  width: fit-content;
-  color: var(--color-ink-soft);
-  font-size: 14px;
-  transition: color 0.15s;
-}
-.app-footer__link:hover {
-  color: var(--color-shu);
-}
-
-.app-footer__hours {
-  margin: 0;
-  color: var(--color-ink-soft);
-  font-size: 13px;
-}
-
-.app-footer__base {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-@media (max-width: 920px) {
-  .app-footer__inner {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-  .app-footer__cols {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 520px) {
-  .app-footer__base {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-}
-</style>
