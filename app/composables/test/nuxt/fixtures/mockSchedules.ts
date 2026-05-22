@@ -2,7 +2,7 @@ export const mockSchedules: ShiftSchedule[] = [
   {
     date: {
       datetime: '10月30日',
-      backgroundColor: '#a4c2f4',
+      backgroundColor: '#9cc2e5',
       description: '',
     },
     day: [
@@ -120,7 +120,7 @@ export const mockSchedules: ShiftSchedule[] = [
   {
     date: {
       datetime: '11月1日',
-      backgroundColor: '#a4c2f4',
+      backgroundColor: '#9cc2e5',
       description: '',
     },
     day: [
@@ -183,7 +183,7 @@ export const mockSchedules: ShiftSchedule[] = [
   {
     date: {
       datetime: '11月2日',
-      backgroundColor: '#a4c2f4',
+      backgroundColor: '#9cc2e5',
       description: '',
     },
     day: [
