@@ -334,6 +334,15 @@ describe('date utils', () => {
       expect(getWeekdayLabel('2024-10-28')).toBe('');
       expect(getWeekdayLabel('')).toBe('');
     });
+
+    it('跨年：12 月底看到的隔年 1 月應以隔年推算星期', () => {
+      vi.setSystemTime(TEST_DATES.YEAR_END); // 2024年12月31日
+
+      // 月份早於當月 → 視為隔年：2025/1/1 為星期三
+      expect(getWeekdayLabel('1月1日')).toBe('三');
+      // 同月份 → 維持當年：2024/12/31 為星期二
+      expect(getWeekdayLabel('12月31日')).toBe('二');
+    });
   });
 
   describe('整合測試', () => {
