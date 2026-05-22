@@ -8,11 +8,11 @@
 import type { Agent } from '~~/shared/types';
 
 const {
-  agentInfo,
+  agent,
   fileNumber,
   stats,
 } = defineProps<{
-  agentInfo: Agent;
+  agent: Agent;
   /** AGENT FILE 編號(已 padStart,如「003」) */
   fileNumber: string;
   /** 近三個月統計;欄位為 null 代表 fetch 失敗 / pending,UI 以「—」呈現 */
@@ -24,12 +24,12 @@ const {
 }>();
 
 const instagramHandle = computed(() => {
-  if (!agentInfo.instagram) return '';
-  const segments = agentInfo.instagram.split('/').filter(Boolean);
+  if (!agent.instagram) return '';
+  const segments = agent.instagram.split('/').filter(Boolean);
   return segments[segments.length - 1] ?? '';
 });
 
-const hasPhotos = computed(() => (agentInfo.photos ?? []).filter(Boolean).length > 0);
+const hasPhotos = computed(() => (agent.photos ?? []).filter(Boolean).length > 0);
 
 const padded = (value: number | null) =>
   value === null ? '—' : String(value).padStart(2, '0');
@@ -51,9 +51,9 @@ const padded = (value: number | null) =>
       class="agent-profile-photo block w-full max-w-[240px] place-self-center sm:place-self-start"
     >
       <NuxtImg
-        v-if="agentInfo.picture"
-        :src="agentInfo.picture"
-        :alt="`${agentInfo.name} 的照片`"
+        v-if="agent.picture"
+        :src="agent.picture"
+        :alt="`${agent.name} 的照片`"
         class="h-full w-full object-cover"
         loading="lazy"
         data-testid="agent-profile-image"
@@ -68,12 +68,12 @@ const padded = (value: number | null) =>
         class="serif flex items-baseline gap-2 text-fs-48 leading-none text-shu sm:text-[56px]"
         data-testid="agent-profile-name"
       >
-        <span>{{ agentInfo.name }}</span>
+        <span>{{ agent.name }}</span>
         <span
-          v-if="agentInfo.emoji"
+          v-if="agent.emoji"
           class="text-fs-28"
           aria-hidden="true"
-        >{{ agentInfo.emoji }}</span>
+        >{{ agent.emoji }}</span>
       </h1>
 
       <div class="flex flex-wrap gap-2" data-testid="agent-profile-chips">
@@ -82,11 +82,11 @@ const padded = (value: number | null) =>
           data-testid="agent-profile-status"
         >
           <span class="stamp-label text-ink-mute">分類</span>
-          <span class="serif">{{ agentInfo.isFullTime ? '正職探員' : '現役探員' }}</span>
+          <span class="serif">{{ agent.isFullTime ? '正職探員' : '現役探員' }}</span>
         </span>
         <a
-          v-if="agentInfo.instagram"
-          :href="agentInfo.instagram"
+          v-if="agent.instagram"
+          :href="agent.instagram"
           target="_blank"
           rel="noopener noreferrer"
           class="inline-flex items-center gap-2 rounded-pill border border-rule bg-paper px-3 py-1.5 text-fs-13 text-ink transition-colors hover:border-ink"
@@ -130,7 +130,7 @@ const padded = (value: number | null) =>
           <span class="stamp-label">PHOTOS · 照片</span>
           <span class="h-px flex-1 bg-rule-2" aria-hidden="true" />
         </div>
-        <AgentPhotoCarousel :photos="agentInfo.photos" :agent-name="agentInfo.name" />
+        <AgentPhotoCarousel :photos="agent.photos" :agent-name="agent.name" />
       </div>
     </div>
   </section>

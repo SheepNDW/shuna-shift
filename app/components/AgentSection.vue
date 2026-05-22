@@ -16,7 +16,7 @@ defineProps<{
 </script>
 
 <template>
-  <section class="mb-16" data-testid="agent-section">
+  <section class="mb-16">
     <header class="mb-8 flex items-center gap-4">
       <span class="kanji-mark serif" aria-hidden="true">{{ kanji }}</span>
       <div class="flex flex-col">
