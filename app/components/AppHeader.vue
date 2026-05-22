@@ -27,7 +27,7 @@ function isActive(to: string): boolean {
     >
       <BrandMark :size="36" />
       <span class="flex flex-col leading-[1.05]">
-        <span class="serif text-fs-22 tracking-[0.02em] text-ink">朱雫</span>
+        <span class="serif text-fs-22 tracking-[0.02em] text-ink">喫茶 朱雫</span>
         <span class="stamp-label max-xs:hidden">SHUNA · MAID CAFÉ</span>
       </span>
     </NuxtLink>
