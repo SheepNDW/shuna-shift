@@ -136,6 +136,22 @@ describe('AgentScheduleCard', () => {
       expect(badge.attributes('style')).toContain('#93c47d');
     });
 
+    it('相近綠晚班 (#70ad47,色卡填錯) 仍還原 15:00 ~ 19:30 並套 canonical 綠', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [],
+            nightShifts: [{ name: '泠泠', textColor: '#70ad47' }],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const badge = wrapper.get('[data-testid="agent-schedule-badge-night"]');
+      expect(badge.text()).toContain('15:00 ~ 19:30');
+      expect(badge.attributes('style')).toContain('#93c47d');
+    });
+
     it('橘晚班 (#ff9900) 還原時段 16:00 ~ 21:30 並套色', async () => {
       const wrapper = await mountSuspended(AgentScheduleCard, {
         props: {
