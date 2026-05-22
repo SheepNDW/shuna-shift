@@ -217,7 +217,6 @@ describe('date utils', () => {
       expect(isTodayOrFuture('10月27日')).toBe(false);
       expect(isTodayOrFuture('10月1日')).toBe(false);
       expect(isTodayOrFuture('9月30日')).toBe(false);
-      expect(isTodayOrFuture('1月1日')).toBe(false);
     });
 
     it('應該處理空字串', () => {
@@ -247,13 +246,20 @@ describe('date utils', () => {
       expect(isTodayOrFuture('10月27日')).toBe(false);
     });
 
-    it('應該處理跨年情況', () => {
+    it('跨年：12 月底看到的隔年 1 月應判為未來', () => {
       vi.setSystemTime(TEST_DATES.YEAR_END); // 2024年12月31日
 
-      expect(isTodayOrFuture('12月31日')).toBe(true);
-      // 注意：因為我們只比較月日，所以 1月1日 會被視為過去（去年的 1月1日）
-      expect(isTodayOrFuture('1月1日')).toBe(false);
-      expect(isTodayOrFuture('12月30日')).toBe(false);
+      expect(isTodayOrFuture('12月31日')).toBe(true); // 今天
+      expect(isTodayOrFuture('1月1日')).toBe(true); // 隔年 1/1 → 未來（修正前因只比月日誤判為過去）
+      expect(isTodayOrFuture('12月30日')).toBe(false); // 昨天 → 過去
+    });
+
+    it('跨年：1 月初看到去年 12 月殘列應判為過去', () => {
+      vi.setSystemTime(new Date(2025, 0, 3, 12, 0, 0)); // 2025年1月3日
+
+      expect(isTodayOrFuture('1月3日')).toBe(true); // 今天
+      expect(isTodayOrFuture('1月5日')).toBe(true); // 未來
+      expect(isTodayOrFuture('12月20日')).toBe(false); // 去年 12 月殘列 → 過去（修正前誤判為未來）
     });
 
     it('應該處理月份邊界', () => {
@@ -319,7 +325,7 @@ describe('date utils', () => {
       expect(getWeekdayLabel('10月28日')).toBe('一');
     });
 
-    it('應該以當前年份推算星期', () => {
+    it('星期推算應與 Date.getDay 一致', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY); // 2024 年
 
       const month = 9; // 10 月
@@ -338,10 +344,17 @@ describe('date utils', () => {
     it('跨年：12 月底看到的隔年 1 月應以隔年推算星期', () => {
       vi.setSystemTime(TEST_DATES.YEAR_END); // 2024年12月31日
 
-      // 月份早於當月 → 視為隔年：2025/1/1 為星期三
+      // 最接近今天的「1月」是隔年 → 2025/1/1 為星期三
       expect(getWeekdayLabel('1月1日')).toBe('三');
-      // 同月份 → 維持當年：2024/12/31 為星期二
+      // 最接近今天的「12月31日」是當年 → 2024/12/31 為星期二
       expect(getWeekdayLabel('12月31日')).toBe('二');
+    });
+
+    it('跨年：1 月初看到去年 12 月應以去年推算星期', () => {
+      vi.setSystemTime(new Date(2025, 0, 3, 12, 0, 0)); // 2025年1月3日
+
+      // 最接近今天的「12月」是去年 → 2024/12/20 為星期五
+      expect(getWeekdayLabel('12月20日')).toBe('五');
     });
   });
 

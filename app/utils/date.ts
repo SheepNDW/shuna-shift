@@ -57,18 +57,33 @@ export function parseDateLabel(dateLabel: string): { month: string; day: string 
 }
 
 /**
- * 推算「X月Y日」標籤所屬的年份。班表只呈現今天起的近期日期，因此標籤月份
- * 若早於當月，代表它是跨年後的隔年日期（例：12 月看到的「1月」）。
+ * 從「X月Y日」標籤推回實際日期。標籤不帶年份，於是在今天的前一年 /
+ * 當年 / 隔年三個候選中，取與今天最接近者 —— 跨年時（12 月底看到的
+ * 隔年「1月」、1 月初看到的去年「12月」殘列）都能落在正確的一側。
+ * 班表只呈現近期日期，三候選中必有唯一明顯最近者，不會模稜兩可。
  * @param monthIndex - 0-11 的月份索引
+ * @param day - 日
  */
-function resolveUpcomingYear(monthIndex: number): number {
+function resolveLabelDate(monthIndex: number, day: number): Date {
   const today = new Date();
-  return monthIndex < today.getMonth() ? today.getFullYear() + 1 : today.getFullYear();
+  const todayTime = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  ).getTime();
+
+  return [-1, 0, 1]
+    .map((offset) => new Date(today.getFullYear() + offset, monthIndex, day))
+    .reduce((nearest, candidate) =>
+      Math.abs(candidate.getTime() - todayTime) < Math.abs(nearest.getTime() - todayTime)
+        ? candidate
+        : nearest
+    );
 }
 
 /**
- * 取得「X月Y日」對應的星期中文字。年份以 resolveUpcomingYear 推算，
- * 跨年時（12 月底的隔年 1 月）仍能算出正確星期。
+ * 取得「X月Y日」對應的星期中文字。年份以 resolveLabelDate 的「最近年」
+ * 推算，跨年時（12 月底的隔年 1 月、1 月初的去年 12 月）仍正確。
  * @param dateLabel - 日期標籤（格式：10月28日）
  * @returns 星期單字（日～六）；格式不符時回傳空字串
  */
@@ -78,7 +93,7 @@ export function getWeekdayLabel(dateLabel: string): string {
 
   const month = parseInt(parsed.month, 10) - 1;
   const day = parseInt(parsed.day, 10);
-  const weekday = new Date(resolveUpcomingYear(month), month, day).getDay();
+  const weekday = resolveLabelDate(month, day).getDay();
 
   return WEEKDAY_LABELS[weekday] ?? '';
 }
@@ -91,25 +106,20 @@ export function isToday(dateLabel: string): boolean {
 }
 
 /**
- * 檢查日期是否為今天或未來
+ * 檢查「X月Y日」標籤是否為今天或未來。年份以 resolveLabelDate 的「最近年」
+ * 推算，跨年時不會把隔年 1 月誤判為過去、也不會把去年 12 月殘列誤判為未來。
  * @param dateLabel - 日期標籤（格式：10月28日）
  */
 export function isTodayOrFuture(dateLabel: string): boolean {
-  if (!dateLabel) return false;
+  const parsed = parseDateLabel(dateLabel);
+  if (!parsed) return false;
+
+  const month = parseInt(parsed.month, 10) - 1;
+  const day = parseInt(parsed.day, 10);
 
   const today = new Date();
-  const currentYear = today.getFullYear();
-
-  // 解析日期標籤（例如：10月28日）
-  const match = dateLabel.match(/(\d+)月(\d+)日/);
-  if (!match || !match[1] || !match[2]) return false;
-
-  const month = parseInt(match[1], 10) - 1; // JavaScript 的月份是 0-11
-  const day = parseInt(match[2], 10);
-
-  // 建立日期物件進行比較（時間設為 00:00:00）
-  const targetDate = new Date(currentYear, month, day);
-  const todayDate = new Date(currentYear, today.getMonth(), today.getDate());
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const targetDate = resolveLabelDate(month, day);
 
   return targetDate >= todayDate;
 }
