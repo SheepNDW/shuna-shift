@@ -31,7 +31,7 @@ const description = computed(() => today?.date.description ?? '');
           class="serif text-[clamp(48px,7vw,84px)] leading-[0.95] tracking-[-0.02em] text-ink"
           data-testid="greeting-hello"
         >
-          {{ greeting.ja }}、<span class="text-shu">朱雫</span>
+          {{ greeting.ja }}、<span class="text-shu">前輩</span>
         </h1>
         <p class="mt-4 max-w-[36ch] text-fs-18 text-ink-soft" data-testid="greeting-sub">
           {{ greeting.zh }}，今日當班的探員如下。
