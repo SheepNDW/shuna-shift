@@ -44,12 +44,7 @@ defineProps<{
       class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
       data-testid="agent-section-grid"
     >
-      <AgentCard
-        v-for="agent in agents"
-        :key="agent.id"
-        :agent="agent"
-        variant="portrait"
-      />
+      <AgentCard v-for="agent in agents" :key="agent.id" :agent="agent" />
     </div>
   </section>
 </template>

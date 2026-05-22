@@ -33,20 +33,18 @@ const baseAgent: Agent = {
 };
 
 describe('AgentCard', () => {
-  it('portrait variant 為預設,連結指向探員詳情頁', async () => {
+  it('連結指向探員詳情頁', async () => {
     const wrapper = await mountSuspended(AgentCard, {
       props: { agent: baseAgent },
       global: { stubs },
     });
 
-    const root = wrapper.get('[data-testid="agent-card"]');
-    expect(root.attributes('data-variant')).toBe('portrait');
-    expect(root.attributes('to')).toBe('/agents/rin');
+    expect(wrapper.get('[data-testid="agent-card"]').attributes('to')).toBe('/agents/rin');
   });
 
-  it('portrait variant 顯示名字、emoji 章與 IG handle', async () => {
+  it('顯示名字、emoji 章與 IG handle', async () => {
     const wrapper = await mountSuspended(AgentCard, {
-      props: { agent: baseAgent, variant: 'portrait' },
+      props: { agent: baseAgent },
       global: { stubs },
     });
 
@@ -57,7 +55,7 @@ describe('AgentCard', () => {
 
   it('正職探員應顯示 FULL 章', async () => {
     const wrapper = await mountSuspended(AgentCard, {
-      props: { agent: baseAgent, variant: 'portrait' },
+      props: { agent: baseAgent },
       global: { stubs },
     });
 
@@ -66,46 +64,16 @@ describe('AgentCard', () => {
 
   it('現役探員不顯示 FULL 章', async () => {
     const wrapper = await mountSuspended(AgentCard, {
-      props: {
-        agent: { ...baseAgent, isFullTime: false },
-        variant: 'portrait',
-      },
+      props: { agent: { ...baseAgent, isFullTime: false } },
       global: { stubs },
     });
 
     expect(wrapper.find('[data-testid="agent-card-fulltime"]').exists()).toBe(false);
   });
 
-  it('compact variant 渲染圓頭像簡版,不顯示 IG handle', async () => {
-    const wrapper = await mountSuspended(AgentCard, {
-      props: { agent: baseAgent, variant: 'compact' },
-      global: { stubs },
-    });
-
-    expect(wrapper.get('[data-testid="agent-card"]').attributes('data-variant')).toBe('compact');
-    expect(wrapper.get('[data-testid="agent-card-name"]').text()).toBe('泠泠');
-    expect(wrapper.find('[data-testid="agent-card-handle"]').exists()).toBe(false);
-    expect(wrapper.find('[data-testid="agent-card-emoji"]').exists()).toBe(false);
-  });
-
-  it('full variant 顯示 AGENT FILE 編號', async () => {
-    const wrapper = await mountSuspended(AgentCard, {
-      props: { agent: baseAgent, variant: 'full', fileNumber: '003' },
-      global: { stubs },
-    });
-
-    expect(wrapper.get('[data-testid="agent-card"]').attributes('data-variant')).toBe('full');
-    expect(wrapper.get('[data-testid="agent-card-file-number"]').text()).toBe(
-      'AGENT FILE · 003'
-    );
-  });
-
   it('未提供 instagram 時不顯示 handle 區塊', async () => {
     const wrapper = await mountSuspended(AgentCard, {
-      props: {
-        agent: { ...baseAgent, instagram: undefined },
-        variant: 'portrait',
-      },
+      props: { agent: { ...baseAgent, instagram: undefined } },
       global: { stubs },
     });
 
