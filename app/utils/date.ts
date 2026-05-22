@@ -57,7 +57,18 @@ export function parseDateLabel(dateLabel: string): { month: string; day: string 
 }
 
 /**
- * 取得「X月Y日」對應的星期中文字（以當前年份推算）。
+ * 推算「X月Y日」標籤所屬的年份。班表只呈現今天起的近期日期，因此標籤月份
+ * 若早於當月，代表它是跨年後的隔年日期（例：12 月看到的「1月」）。
+ * @param monthIndex - 0-11 的月份索引
+ */
+function resolveUpcomingYear(monthIndex: number): number {
+  const today = new Date();
+  return monthIndex < today.getMonth() ? today.getFullYear() + 1 : today.getFullYear();
+}
+
+/**
+ * 取得「X月Y日」對應的星期中文字。年份以 resolveUpcomingYear 推算，
+ * 跨年時（12 月底的隔年 1 月）仍能算出正確星期。
  * @param dateLabel - 日期標籤（格式：10月28日）
  * @returns 星期單字（日～六）；格式不符時回傳空字串
  */
@@ -67,7 +78,7 @@ export function getWeekdayLabel(dateLabel: string): string {
 
   const month = parseInt(parsed.month, 10) - 1;
   const day = parseInt(parsed.day, 10);
-  const weekday = new Date(getCurrentYear(), month, day).getDay();
+  const weekday = new Date(resolveUpcomingYear(month), month, day).getDay();
 
   return WEEKDAY_LABELS[weekday] ?? '';
 }
