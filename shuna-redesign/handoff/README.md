@@ -35,9 +35,9 @@ shuna-redesign/
 - ✅ **Phase 4** — 完整班表 `/shifts`（PR #22，已合併）
 - ✅ **Phase 5** — 探員圖鑑 `/agents` + 探員頁 `/agents/[id]`（PR #23，已合併）
 - ✅ **Phase 6** — 統計頁 `/statistics`（PR #24，已合併）
-- ⏭️ 下一個：**Phase 7** — 收尾 / 共用元件 / 清理
+- ✅ **Phase 7** — 收尾 / 共用元件 / 清理（PR #25，已合併）
 
-接手前先 `git log --oneline` 確認已合併到哪個 Phase。
+**Phase 0–7 全數完成。** redesign 已以總合 PR（PR #26）整合 `refactor/uiux-redesign` → `main`。
 
 ## Known follow-ups（跨 Phase 待清理）
 

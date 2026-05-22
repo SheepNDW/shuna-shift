@@ -83,7 +83,7 @@ useHead({
     <template v-if="agentInfo">
       <PageBackBar to="/agents" label="探員圖鑑" :stamp="backBarStamp" />
 
-      <AgentProfile :agent-info="agentInfo" :file-number="fileNumber" :stats="stats" />
+      <AgentProfile :agent="agentInfo" :file-number="fileNumber" :stats="stats" />
 
       <section data-testid="agent-schedule">
         <header class="mb-6 flex items-center gap-3">

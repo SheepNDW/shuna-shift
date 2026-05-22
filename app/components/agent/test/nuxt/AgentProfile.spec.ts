@@ -64,7 +64,7 @@ describe('AgentProfile', () => {
 
   it('顯示 AGENT FILE 編號與探員名字', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
-      props: { agentInfo: baseAgent, fileNumber: '003', stats },
+      props: { agent: baseAgent, fileNumber: '003', stats },
       global: { stubs },
     });
 
@@ -77,7 +77,7 @@ describe('AgentProfile', () => {
   it('近三個月日 / 夜 / 總三格統計均以 padStart 顯示', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {
-        agentInfo: baseAgent,
+        agent: baseAgent,
         fileNumber: '003',
         stats: { dayCount: 1, nightCount: 9, total: 10 },
       },
@@ -91,7 +91,7 @@ describe('AgentProfile', () => {
 
   it('正職探員分類 chip 顯示「正職探員」', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
-      props: { agentInfo: baseAgent, fileNumber: '001', stats },
+      props: { agent: baseAgent, fileNumber: '001', stats },
       global: { stubs },
     });
 
@@ -101,7 +101,7 @@ describe('AgentProfile', () => {
   it('現役探員分類 chip 顯示「現役探員」', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {
-        agentInfo: { ...baseAgent, isFullTime: false },
+        agent: { ...baseAgent, isFullTime: false },
         fileNumber: '012',
         stats,
       },
@@ -113,7 +113,7 @@ describe('AgentProfile', () => {
 
   it('提供 instagram 時渲染 IG chip 並帶 handle', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
-      props: { agentInfo: baseAgent, fileNumber: '003', stats },
+      props: { agent: baseAgent, fileNumber: '003', stats },
       global: { stubs },
     });
 
@@ -125,7 +125,7 @@ describe('AgentProfile', () => {
   it('未提供 instagram 時不渲染 IG chip', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {
-        agentInfo: { ...baseAgent, instagram: undefined },
+        agent: { ...baseAgent, instagram: undefined },
         fileNumber: '003',
         stats,
       },
@@ -138,7 +138,7 @@ describe('AgentProfile', () => {
   it('photos 為空陣列時不顯示照片區', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {
-        agentInfo: { ...baseAgent, photos: [] },
+        agent: { ...baseAgent, photos: [] },
         fileNumber: '003',
         stats,
       },
@@ -151,7 +151,7 @@ describe('AgentProfile', () => {
   it('photos 有值時顯示照片區並渲染對應數量的圖片', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {
-        agentInfo: {
+        agent: {
           ...baseAgent,
           photos: ['https://example.com/photo-1.jpg', 'https://example.com/photo-2.jpg'],
         },
@@ -171,7 +171,7 @@ describe('AgentProfile', () => {
   it('stats 為 null 時三格統計顯示「—」骨架,不顯示 00', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {
-        agentInfo: baseAgent,
+        agent: baseAgent,
         fileNumber: '003',
         stats: { dayCount: null, nightCount: null, total: null },
       },
