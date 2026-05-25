@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   getNightShiftIconColor,
   getNightShiftTime,
+  isLeaveColor,
   NIGHT_SHIFT_COLOR_MAP,
   SUBSTITUTE_COLOR_MAP,
 } from '../../colors';
@@ -72,6 +73,40 @@ describe('colors utils', () => {
 
     it('換班色為試算表藍字 #1155cc', () => {
       expect(SUBSTITUTE_COLOR_MAP.EXCHANGE).toBe('#1155cc');
+    });
+  });
+
+  // 灰字＝今日不出勤：班表填寫者把探員姓名改成灰色，代表
+  // 當天臨時不出勤。個人頁需顯式判定才能改變該班 badge 樣式並加上「今日不出勤」
+  // 標記。確保不誤判：班表既有彩色語意（綠 / 橘晚班、紅代班、藍換班）一律 false。
+  describe('isLeaveColor', () => {
+    it('Google Sheets 常見灰階色碼皆視為今日不出勤', () => {
+      expect(isLeaveColor('#cccccc')).toBe(true);
+      expect(isLeaveColor('#999999')).toBe(true);
+      expect(isLeaveColor('#b7b7b7')).toBe(true);
+      expect(isLeaveColor('#d9d9d9')).toBe(true);
+      expect(isLeaveColor('#666666')).toBe(true);
+      expect(isLeaveColor('#434343')).toBe(true);
+    });
+
+    it('純黑 / 純白 / 空字串不視為暫離', () => {
+      expect(isLeaveColor('#000000')).toBe(false);
+      expect(isLeaveColor('#ffffff')).toBe(false);
+      expect(isLeaveColor('')).toBe(false);
+    });
+
+    it('班表既有彩色語意不誤判', () => {
+      expect(isLeaveColor(NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT)).toBe(false);
+      expect(isLeaveColor(NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT)).toBe(false);
+      expect(isLeaveColor(SUBSTITUTE_COLOR_MAP.SUBSTITUTE)).toBe(false);
+      expect(isLeaveColor(SUBSTITUTE_COLOR_MAP.EXCHANGE)).toBe(false);
+      expect(isLeaveColor('#70ad47')).toBe(false);
+    });
+
+    it('格式不合（非 #RRGGBB）回傳 false', () => {
+      expect(isLeaveColor('#abc')).toBe(false);
+      expect(isLeaveColor('rgb(128,128,128)')).toBe(false);
+      expect(isLeaveColor('cccccc')).toBe(false);
     });
   });
 });

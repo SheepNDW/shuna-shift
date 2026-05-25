@@ -67,3 +67,26 @@ export function getNightShiftIconColor(textColor: string): string {
   }
   return ''; // 一般晚班不設定顏色，使用預設的 text-gray-900
 }
+
+/**
+ * 是否為「今日不出勤」灰字色 —— 班表上探員姓名被改成灰色，代表原本排了班
+ * 但當天臨時不出勤（請假、生病、臨時有事等）。班表頁的 AgentChip 透過
+ * `--agent-color` 把這個灰直接套到名字色，視覺上自然呈現「失效」；個人頁
+ * 需顯式判定以便改變該班 badge 樣式並加上「今日不出勤」標記。
+ *
+ * 採算法判定：`#RRGGBB` 三段相等（achromatic）即視為灰，排除純黑 `#000000`
+ * 與純白 `#ffffff` 以避免邊界誤判。班表中的代班（紅 #ff0000）、換班（藍
+ * #1155cc）、綠晚班（#93c47d / #70ad47）、橘晚班（#ff9900）均為彩色，
+ * 不會被此函式誤判。
+ */
+export function isLeaveColor(textColor: string): boolean {
+  if (!textColor || textColor.length !== 7 || !textColor.startsWith('#')) {
+    return false;
+  }
+  const r = textColor.slice(1, 3);
+  const g = textColor.slice(3, 5);
+  const b = textColor.slice(5, 7);
+  if (r !== g || g !== b) return false;
+  if (r === '00' || r === 'ff') return false;
+  return true;
+}
