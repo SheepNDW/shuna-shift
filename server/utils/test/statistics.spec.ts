@@ -281,6 +281,77 @@ describe('calculateAgentStatistics', () => {
     expect(result.length).toBe(1);
     expect(result[0]?.agentId).toBe('rin');
   });
+
+  // 灰字 textColor = 班表填寫者標記的「今日不出勤」(臨時請假),
+  // 不能計入實際出勤統計,否則個人頁的不出勤標記會與「近 3 個月」班次數矛盾。
+  describe('灰字 textColor「今日不出勤」應排除於統計外', () => {
+    // 顯式給 textColor 的工廠(原 createSchedule 一律給 ''，無法表達灰字)
+    const createScheduleWithColors = (
+      datetime: string,
+      dayShifts: { name: string; textColor: string }[],
+      nightShifts: { name: string; textColor: string }[],
+    ): ShiftSchedule => ({
+      date: { datetime, backgroundColor: '', description: '' },
+      day: dayShifts,
+      night: nightShifts,
+    });
+
+    it('早班灰字探員不應被計入 dayCount', () => {
+      const schedules = [
+        createScheduleWithColors(
+          '12月1日',
+          [
+            { name: '泠泠', textColor: '' },
+            { name: '千熊', textColor: '#cccccc' }, // 灰字＝不出勤
+          ],
+          []
+        ),
+      ];
+
+      const result = calculateAgentStatistics(schedules);
+
+      const rin = result.find((s) => s.agentId === 'rin');
+      expect(rin?.dayCount).toBe(1);
+
+      // 千熊整天只有這一筆灰字班次,被排除後不應出現在統計中
+      const senku = result.find((s) => s.agentId === 'senku');
+      expect(senku).toBeUndefined();
+    });
+
+    it('晚班灰字探員不應被計入 nightCount', () => {
+      const schedules = [
+        createScheduleWithColors(
+          '12月1日',
+          [],
+          [
+            { name: 'Luna', textColor: '#93c47d' }, // 綠晚班(正常出勤)
+            { name: '千熊', textColor: '#999999' }, // 灰字＝不出勤
+          ]
+        ),
+      ];
+
+      const result = calculateAgentStatistics(schedules);
+
+      const luna = result.find((s) => s.agentId === 'luna');
+      expect(luna?.nightCount).toBe(1);
+
+      const senku = result.find((s) => s.agentId === 'senku');
+      expect(senku).toBeUndefined();
+    });
+
+    it('同探員多日交替(出勤 + 不出勤)只計出勤日', () => {
+      const schedules = [
+        createScheduleWithColors('12月1日', [{ name: '泠泠', textColor: '' }], []),
+        createScheduleWithColors('12月2日', [{ name: '泠泠', textColor: '#b7b7b7' }], []),
+        createScheduleWithColors('12月3日', [{ name: '泠泠', textColor: '' }], []),
+      ];
+
+      const result = calculateAgentStatistics(schedules);
+      const rin = result.find((s) => s.agentId === 'rin');
+      expect(rin?.dayCount).toBe(2);
+      expect(rin?.total).toBe(2);
+    });
+  });
 });
 
 describe('getDateRange', () => {

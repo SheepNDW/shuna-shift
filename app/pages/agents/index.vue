@@ -15,7 +15,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: '探索喫茶 朱雫 Maid Café 全部現役探員。',
+      content: '探索喫茶 朱雫 Maid Café 正職、現役與卒業探員。',
     },
   ],
 });

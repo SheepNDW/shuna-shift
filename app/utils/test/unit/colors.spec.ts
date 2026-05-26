@@ -95,6 +95,14 @@ describe('colors utils', () => {
       expect(isLeaveColor('')).toBe(false);
     });
 
+    // 函式應 lowercase 後再比對,避免外部呼叫者傳入大寫 hex 時
+    // 三段相等但 'FF' !== 'ff' 而誤判為灰。
+    it('大寫 hex 與小寫等效:純白 #FFFFFF 一樣不視為暫離,大寫灰一樣視為暫離', () => {
+      expect(isLeaveColor('#FFFFFF')).toBe(false);
+      expect(isLeaveColor('#CCCCCC')).toBe(true);
+      expect(isLeaveColor('#AaAaAa')).toBe(true);
+    });
+
     it('班表既有彩色語意不誤判', () => {
       expect(isLeaveColor(NIGHT_SHIFT_COLOR_MAP.GREEN_SHIFT)).toBe(false);
       expect(isLeaveColor(NIGHT_SHIFT_COLOR_MAP.ORANGE_SHIFT)).toBe(false);

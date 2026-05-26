@@ -19,8 +19,11 @@ const emit = defineEmits<{
 }>();
 
 // 探員排序：正職優先，其次依 AGENT_FILTER_PRIORITY 的偏好順位，其餘維持原序
+// 卒業探員不列入篩選 chip：點選後近期班表查無資料、體感為 filter 壞掉。
+// 卒業狀態統一在 /agents 頁面卒業段呈現。
 const agentRoster = computed(() =>
   [...AGENTS]
+    .filter(([, info]) => !info.isGraduated)
     .map(([name, info]) => ({ name, isFullTime: info.isFullTime ?? false }))
     .sort((a, b) => {
       if (a.isFullTime !== b.isFullTime) return a.isFullTime ? -1 : 1;

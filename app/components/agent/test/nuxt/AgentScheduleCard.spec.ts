@@ -253,7 +253,7 @@ describe('AgentScheduleCard', () => {
       expect(badge.classes()).toContain('shift-icon-leave');
       expect(badge.classes()).not.toContain('shift-icon-day');
 
-      const leave = wrapper.get('[data-testid="agent-schedule-leave"]');
+      const leave = wrapper.get('[data-testid="agent-schedule-leave-day"]');
       expect(leave.text()).toContain('今日不出勤');
     });
 
@@ -273,7 +273,7 @@ describe('AgentScheduleCard', () => {
       expect(badge.classes()).toContain('shift-icon-leave');
       // 灰字 badge 不應 inline 注入 color（避免被誤套成綠/橘）
       expect(badge.attributes('style') ?? '').not.toContain('#');
-      expect(wrapper.find('[data-testid="agent-schedule-leave"]').exists()).toBe(true);
+      expect(wrapper.find('[data-testid="agent-schedule-leave-night"]').exists()).toBe(true);
     });
 
     it('一般班次不渲染「今日不出勤」標記，data-leave=false', async () => {
@@ -290,7 +290,27 @@ describe('AgentScheduleCard', () => {
       const badge = wrapper.get('[data-testid="agent-schedule-badge-day"]');
       expect(badge.attributes('data-leave')).toBe('false');
       expect(badge.classes()).toContain('shift-icon-day');
-      expect(wrapper.find('[data-testid="agent-schedule-leave"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="agent-schedule-leave-day"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="agent-schedule-leave-night"]').exists()).toBe(false);
+    });
+
+    // 早晚班的「今日不出勤」標記需以 -day / -night 拆 testid,
+    // 否則同日雙灰字時 `wrapper.get(...)` 會拋「found multiple」。
+    it('同日早晚班皆為灰字時,可分別以 -day / -night 取得兩個「今日不出勤」標記', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [{ name: '千熊', textColor: '#cccccc' }],
+            nightShifts: [{ name: '千熊', textColor: '#999999' }],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const leaveDay = wrapper.get('[data-testid="agent-schedule-leave-day"]');
+      const leaveNight = wrapper.get('[data-testid="agent-schedule-leave-night"]');
+      expect(leaveDay.text()).toContain('今日不出勤');
+      expect(leaveNight.text()).toContain('今日不出勤');
     });
   });
 });

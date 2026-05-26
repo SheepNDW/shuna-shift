@@ -148,7 +148,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '08.07',
       skills: ['放空', '睡一整天'],
       hobbies: ['無尾熊🐨', '諧音梗笑話'],
-      quote: '今天也是想睡覺的一天ᶻ 𝗓 𐰁 ',
+      quote: '今天也是想睡覺的一天ᶻ 𝗓 𐰁',
     },
   ],
   [
@@ -166,7 +166,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '05.21',
       skills: ['人類觀察'],
       hobbies: ['淺羽悠真'],
-      quote: ' 當我拿起刀，就要切蛋糕(๑˃ᴗ˂)ﻭ🔪 ',
+      quote: '當我拿起刀，就要切蛋糕(๑˃ᴗ˂)ﻭ🔪',
     },
   ],
   // [
@@ -211,7 +211,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '06.22',
       skills: ['皇帝企鵝二號', '民刑事訴訟'],
       hobbies: ['以100為單位抽一番賞', '周深', '閃電十一人'],
-      quote: '詐騙手法日益新，你我務必要小心；遇到可疑人事物請記得撥打165反詐專線或聯繫熊律師。 ',
+      quote: '詐騙手法日益新，你我務必要小心；遇到可疑人事物請記得撥打165反詐專線或聯繫熊律師。',
     },
   ],
   [
@@ -226,7 +226,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '03.04',
       skills: ['30秒畫盤'],
       hobbies: ['愛生氣'],
-      quote: '人生夢想💭吃飽、喝足、睡大覺 ',
+      quote: '人生夢想💭吃飽、喝足、睡大覺',
     },
   ],
   [
@@ -427,7 +427,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '08.29',
       skills: ['日本當高雄跑', '厭世臉'],
       hobbies: ['張員瑛'],
-      quote: '肚子好餓 想不到晚餐要吃什麼ᑦ꒰ྀིྀི ˃̶̤́ ࿁ ˂̶̤̀ ྀྀི꒱ᐣ ',
+      quote: '肚子好餓 想不到晚餐要吃什麼ᑦ꒰ྀིྀི ˃̶̤́ ࿁ ˂̶̤̀ ྀྀི꒱ᐣ',
     },
   ],
   [
@@ -463,7 +463,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '10.05',
       skills: ['一天分享30篇廢文'],
       hobbies: ['電競', 'Faker'],
-      quote: ' 能把燈關掉嗎👋🤦‍♂️ 😈\n我要看看我的記憶體...💥 ⚡\n啊啊...無限的...炫酷RGB🌈 🦄 ',
+      quote: '能把燈關掉嗎👋🤦‍♂️ 😈\n我要看看我的記憶體...💥 ⚡\n啊啊...無限的...炫酷RGB🌈 🦄',
     },
   ],
   [
@@ -577,7 +577,7 @@ export const AGENTS = new Map<string, Agent>([
       birthday: '07.22',
       skills: ['吃播', '喜歡都銀虎'],
       hobbies: ['重訓', '體驗新事物'],
-      quote: ' 前輩你看我的二頭肌✨ᕦ( ⍢ )ᕤ✨ ',
+      quote: '前輩你看我的二頭肌✨ᕦ( ⍢ )ᕤ✨',
     },
   ],
   [

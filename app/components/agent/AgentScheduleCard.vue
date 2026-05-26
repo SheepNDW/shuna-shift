@@ -141,7 +141,7 @@ const nightShiftMetas = computed(() =>
         <span
           v-if="meta.isLeave"
           class="inline-flex items-center gap-1 text-fs-12 text-ink-mute"
-          data-testid="agent-schedule-leave"
+          data-testid="agent-schedule-leave-day"
         >
           <span aria-hidden="true">✕</span>
           今日不出勤
@@ -180,7 +180,7 @@ const nightShiftMetas = computed(() =>
         <span
           v-if="meta.isLeave"
           class="inline-flex items-center gap-1 text-fs-12 text-ink-mute"
-          data-testid="agent-schedule-leave"
+          data-testid="agent-schedule-leave-night"
         >
           <span aria-hidden="true">✕</span>
           今日不出勤

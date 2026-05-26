@@ -42,12 +42,13 @@ const statusLabel = computed(() => {
   return '現役探員';
 });
 
-const hasSkills = computed(() => (agent.skills ?? []).length > 0);
-const hasHobbies = computed(() => (agent.hobbies ?? []).length > 0);
-
 // 機關檔案資料列:四列任一有值即顯示整塊
 const hasDossier = computed(
-  () => Boolean(agent.themeColor) || Boolean(agent.birthday) || hasSkills.value || hasHobbies.value
+  () =>
+    Boolean(agent.themeColor)
+    || Boolean(agent.birthday)
+    || Boolean(agent.skills?.length)
+    || Boolean(agent.hobbies?.length)
 );
 
 // 「02.20」→「02 . 20」加裝飾性留白,純視覺風格;非數字格式回退原值
@@ -150,14 +151,14 @@ const joinedHobbies = computed(() => (agent.hobbies ?? []).join(' · '));
             data-testid="agent-profile-dossier-birthday"
           >{{ formattedBirthday }}</dd>
         </template>
-        <template v-if="hasSkills">
+        <template v-if="agent.skills?.length">
           <dt class="stamp-label self-center">特技專長</dt>
           <dd
             class="text-fs-15 text-ink"
             data-testid="agent-profile-dossier-skills"
           >{{ joinedSkills }}</dd>
         </template>
-        <template v-if="hasHobbies">
+        <template v-if="agent.hobbies?.length">
           <dt class="stamp-label self-center">興趣喜好</dt>
           <dd
             class="text-fs-15 text-ink"
