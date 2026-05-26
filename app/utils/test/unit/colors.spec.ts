@@ -60,12 +60,11 @@ describe('colors utils', () => {
     });
   });
 
-  // 回歸測試(PR #26 review M6 / L-recheck-1):SUBSTITUTE_COLOR_MAP 的色碼
-  // 必須等於 parser 對試算表紅 / 藍字儲存格的實際輸出。舊值 #ef4444 / #3b82f6
-  // (Tailwind 色碼)即因與 parser 輸出不符而長期遮蔽 bug。
+  // SUBSTITUTE_COLOR_MAP 的色碼必須等於 parser 對試算表紅 / 藍字儲存格的實際輸出,
+  // 否則 AgentScheduleCard 永遠比對不到、代班 / 換班標記不顯示。
   // 「parser 對真實儲存格 → 此色碼」由 parser 測試以真實過去班表資料錨定
-  // (server/utils/test/parset.spec.ts 的 parseAgents 代班 #ff0000 / 換班
-  // #1155cc 案例);此處只負責鎖定常數本身、確保不被改錯。
+  // (server/utils/test/parset.spec.ts 的代班 #ff0000 / 換班 #1155cc 案例);
+  // 此處只負責鎖定常數本身、確保不被改錯。
   describe('SUBSTITUTE_COLOR_MAP 色碼鎖定', () => {
     it('代班色為試算表紅字 #ff0000', () => {
       expect(SUBSTITUTE_COLOR_MAP.SUBSTITUTE).toBe('#ff0000');

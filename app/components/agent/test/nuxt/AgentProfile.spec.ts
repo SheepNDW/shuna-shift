@@ -269,8 +269,8 @@ describe('AgentProfile', () => {
     expect(section.findAll('[data-testid="agent-photo-image"]').length).toBe(2);
   });
 
-  // review M4:fetch 失敗時上游會把三格 stats 全傳 null,UI 必須顯示「—」
-  // 而非把錯誤偽裝成「真的零班(00 / 00 / 00)」
+  // fetch 失敗 / pending 時上游會把三格 stats 全傳 null,UI 必須顯示「—」,
+  // 不能把錯誤偽裝成「真的零班(00 / 00 / 00)」。
   it('stats 為 null 時三格統計顯示「—」骨架,不顯示 00', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {

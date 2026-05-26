@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // 完整班表的篩選列：探員 chip 多選篩選 + 日期快速跳轉。
-// 取代舊版 ScheduleFilter（下拉選單）與 DateJumper（backdrop-blur 玻璃卡片）。
 //
-// 註：班表原始資料並無「探員代表色」欄位（textColor 僅承載晚班時段 / 代班語意），
+// 班表原始資料並無「探員代表色」欄位（textColor 僅承載晚班時段 / 代班語意），
 // 故篩選 chip 的 active 狀態統一採品牌朱色——透過 section 上的 --agent-color
 // 變數注入，由 components.css 的 .filter-chip 取用。
 import { AGENT_FILTER_PRIORITY, AGENTS } from '~~/shared/constant';

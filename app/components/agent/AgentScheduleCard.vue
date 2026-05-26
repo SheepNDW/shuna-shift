@@ -1,14 +1,13 @@
 <script setup lang="ts">
 // 探員詳情頁的單列排班:三欄式 schedule-row(日期 / 早晚 badge / 當日全體連結)。
-// 取代舊版 UCard + ShiftItem 嵌套,以表格化呈現探員的近期排班。
 //
 // 樣式策略:layout / 間距 / 字級走 Tailwind utility;早 / 晚 badge 沿用
 // components.css 的 .shift-icon-day / .shift-icon-night class(currentColor)。
 //
-// badge 渲染策略(2026-05 review 修正):per-shift 而非單一 boolean。
+// badge 渲染策略採 per-shift 而非單一 boolean,以保留每筆班次的時段與代班語意:
 // 晚班時段以 textColor 還原(綠 15:00–19:30 / 橘 16:00–21:30 / 預設 17:30–21:30),
 // textColor 為 #ff0000 / #1155cc 時額外標出「代班 / 換班」與原班探員名字,
-// 對齊舊 ShiftItem 的語意,避免使用者看不出該日是代班或不同時段晚班。
+// 避免使用者看不出該日是代班或不同時段晚班。
 import type { AgentScheduleItem } from '~~/app/composables/useAgent';
 import {
   getNightShiftIconColor,

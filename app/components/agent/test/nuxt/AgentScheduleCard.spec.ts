@@ -101,8 +101,8 @@ describe('AgentScheduleCard', () => {
     );
   });
 
-  // 回歸測試:per-shift 渲染需還原夜班時段、顏色與代班 / 換班語意
-  // (review H1 — 舊版用 hasDayShift / hasNightShift 兩個 boolean 把這些資訊丟掉了)
+  // per-shift 渲染：每筆班次需獨立還原時段、顏色與代班 / 換班語意,
+  // 不能用單一 boolean(hasDayShift / hasNightShift) 摺疊掉這些資訊。
   describe('per-shift 語意', () => {
     it('早班 badge 顯示固定時段 13:30 ~ 17:30', async () => {
       const wrapper = await mountSuspended(AgentScheduleCard, {
