@@ -101,8 +101,8 @@ describe('AgentScheduleCard', () => {
     );
   });
 
-  // 回歸測試:per-shift 渲染需還原夜班時段、顏色與代班 / 換班語意
-  // (review H1 — 舊版用 hasDayShift / hasNightShift 兩個 boolean 把這些資訊丟掉了)
+  // per-shift 渲染：每筆班次需獨立還原時段、顏色與代班 / 換班語意,
+  // 不能用單一 boolean(hasDayShift / hasNightShift) 摺疊掉這些資訊。
   describe('per-shift 語意', () => {
     it('早班 badge 顯示固定時段 13:30 ~ 17:30', async () => {
       const wrapper = await mountSuspended(AgentScheduleCard, {
@@ -231,6 +231,86 @@ describe('AgentScheduleCard', () => {
       });
 
       expect(wrapper.find('[data-testid="agent-schedule-substitute"]').exists()).toBe(false);
+    });
+  });
+
+  // 灰字＝今日不出勤（個人頁 bug 修正）：班表頁灰字探員 chip 對應「當天臨時
+  // 不出勤」，個人頁原本完全沒有視覺差異，導致使用者誤以為當天會出勤。
+  describe('今日不出勤（灰字）渲染', () => {
+    it('早班灰字應改用 shift-icon-leave 並渲染「今日不出勤」標記', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [{ name: '千熊', textColor: '#cccccc' }],
+            nightShifts: [],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const badge = wrapper.get('[data-testid="agent-schedule-badge-day"]');
+      expect(badge.attributes('data-leave')).toBe('true');
+      expect(badge.classes()).toContain('shift-icon-leave');
+      expect(badge.classes()).not.toContain('shift-icon-day');
+
+      const leave = wrapper.get('[data-testid="agent-schedule-leave-day"]');
+      expect(leave.text()).toContain('今日不出勤');
+    });
+
+    it('晚班灰字 badge 不應套用時段色（iconColor 退回）', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [],
+            nightShifts: [{ name: '千熊', textColor: '#999999' }],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const badge = wrapper.get('[data-testid="agent-schedule-badge-night"]');
+      expect(badge.attributes('data-leave')).toBe('true');
+      expect(badge.classes()).toContain('shift-icon-leave');
+      // 灰字 badge 不應 inline 注入 color（避免被誤套成綠/橘）
+      expect(badge.attributes('style') ?? '').not.toContain('#');
+      expect(wrapper.find('[data-testid="agent-schedule-leave-night"]').exists()).toBe(true);
+    });
+
+    it('一般班次不渲染「今日不出勤」標記，data-leave=false', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [{ name: '泠泠', textColor: '' }],
+            nightShifts: [],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const badge = wrapper.get('[data-testid="agent-schedule-badge-day"]');
+      expect(badge.attributes('data-leave')).toBe('false');
+      expect(badge.classes()).toContain('shift-icon-day');
+      expect(wrapper.find('[data-testid="agent-schedule-leave-day"]').exists()).toBe(false);
+      expect(wrapper.find('[data-testid="agent-schedule-leave-night"]').exists()).toBe(false);
+    });
+
+    // 早晚班的「今日不出勤」標記需以 -day / -night 拆 testid,
+    // 否則同日雙灰字時 `wrapper.get(...)` 會拋「found multiple」。
+    it('同日早晚班皆為灰字時,可分別以 -day / -night 取得兩個「今日不出勤」標記', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [{ name: '千熊', textColor: '#cccccc' }],
+            nightShifts: [{ name: '千熊', textColor: '#999999' }],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const leaveDay = wrapper.get('[data-testid="agent-schedule-leave-day"]');
+      const leaveNight = wrapper.get('[data-testid="agent-schedule-leave-night"]');
+      expect(leaveDay.text()).toContain('今日不出勤');
+      expect(leaveNight.text()).toContain('今日不出勤');
     });
   });
 });

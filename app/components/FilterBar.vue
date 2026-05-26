@@ -1,8 +1,7 @@
 <script setup lang="ts">
 // 完整班表的篩選列：探員 chip 多選篩選 + 日期快速跳轉。
-// 取代舊版 ScheduleFilter（下拉選單）與 DateJumper（backdrop-blur 玻璃卡片）。
 //
-// 註：班表原始資料並無「探員代表色」欄位（textColor 僅承載晚班時段 / 代班語意），
+// 班表原始資料並無「探員代表色」欄位（textColor 僅承載晚班時段 / 代班語意），
 // 故篩選 chip 的 active 狀態統一採品牌朱色——透過 section 上的 --agent-color
 // 變數注入，由 components.css 的 .filter-chip 取用。
 import { AGENT_FILTER_PRIORITY, AGENTS } from '~~/shared/constant';
@@ -19,8 +18,11 @@ const emit = defineEmits<{
 }>();
 
 // 探員排序：正職優先，其次依 AGENT_FILTER_PRIORITY 的偏好順位，其餘維持原序
+// 卒業探員不列入篩選 chip：點選後近期班表查無資料、體感為 filter 壞掉。
+// 卒業狀態統一在 /agents 頁面卒業段呈現。
 const agentRoster = computed(() =>
   [...AGENTS]
+    .filter(([, info]) => !info.isGraduated)
     .map(([name, info]) => ({ name, isFullTime: info.isFullTime ?? false }))
     .sort((a, b) => {
       if (a.isFullTime !== b.isFullTime) return a.isFullTime ? -1 : 1;

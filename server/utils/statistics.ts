@@ -1,5 +1,6 @@
 import { AGENTS, normalizeAgentName } from '~~/shared/constant';
 import type { AgentStatistics, ShiftSchedule } from '~~/shared/types';
+import { isLeaveColor } from '~~/shared/utils/colors';
 
 /**
  * 從探員名稱中提取實際執行值班的探員名稱
@@ -116,6 +117,9 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
   for (const schedule of schedules) {
     // 統計日班
     for (const agent of schedule.day) {
+      // 灰字 textColor 代表「今日不出勤」(臨時請假),不算實際出勤班次
+      if (isLeaveColor(agent.textColor)) continue;
+
       const agentName = extractAgentName(agent.name);
       const agentData = findAgentByName(agentName);
 
@@ -135,6 +139,8 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
 
     // 統計晚班
     for (const agent of schedule.night) {
+      if (isLeaveColor(agent.textColor)) continue;
+
       const agentName = extractAgentName(agent.name);
       const agentData = findAgentByName(agentName);
 

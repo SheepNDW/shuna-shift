@@ -3,8 +3,11 @@ import { AGENTS } from '~~/shared/constant';
 import type { Agent } from '~~/shared/types';
 
 const agents = Array.from(AGENTS.values());
-const fullTimeAgents = agents.filter((agent): agent is Agent => agent.isFullTime === true);
-const partTimeAgents = agents.filter((agent) => !agent.isFullTime);
+// 卒業優先：先抽出卒業，再從剩下的探員區分正職/現役，避免一位探員同時出現在兩段
+const graduatedAgents = agents.filter((agent): agent is Agent => agent.isGraduated === true);
+const activeAgents = agents.filter((agent) => !agent.isGraduated);
+const fullTimeAgents = activeAgents.filter((agent): agent is Agent => agent.isFullTime === true);
+const partTimeAgents = activeAgents.filter((agent) => !agent.isFullTime);
 
 const appConfig = useAppConfig();
 useHead({
@@ -12,7 +15,7 @@ useHead({
   meta: [
     {
       name: 'description',
-      content: '探索喫茶 朱雫 Maid Café 全部現役探員。',
+      content: '探索喫茶 朱雫 Maid Café 正職、現役與卒業探員。',
     },
   ],
 });
@@ -25,7 +28,7 @@ useHead({
       label="AGENTS · 探員圖鑑"
       title="探員圖鑑"
       subtitle="認識朱雫每一位探員,點擊查看排班與 Instagram。"
-      :meta="`正職 ${fullTimeAgents.length} · 現役 ${partTimeAgents.length}`"
+      :meta="`正職 ${fullTimeAgents.length} · 現役 ${partTimeAgents.length} · 卒業 ${graduatedAgents.length}`"
     />
 
     <AgentSection
@@ -42,6 +45,14 @@ useHead({
       desc="輪班駐店探員"
       :agents="partTimeAgents"
       data-testid="agents-section-part-time"
+    />
+
+    <AgentSection
+      kanji="卒"
+      label="GRADUATED · 卒業探員"
+      desc="曾經駐店・感謝相伴"
+      :agents="graduatedAgents"
+      data-testid="agents-section-graduated"
     />
   </UContainer>
 </template>

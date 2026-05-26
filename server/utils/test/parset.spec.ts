@@ -137,10 +137,9 @@ describe('parseAgents', () => {
     ]);
   });
 
-  // 回歸測試（PR #26 L-recheck-1）：藍字換班色碼錨定真實資料。
-  // 原始 cell 取自過去班表 2025「🦖、和実、梂、音(小春)、千熊」，換班探員
-  // 「音(小春)」的 foregroundColor 為 Google Sheets API 實際回傳值，經
-  // rgbToHex 應輸出 #1155cc —— 與 colors.ts 的 SUBSTITUTE_COLOR_MAP.EXCHANGE 對齊。
+  // 藍字換班色碼錨定真實資料：原始 cell 取自過去班表「🦖、和実、梂、音(小春)、千熊」，
+  // 換班探員「音(小春)」的 foregroundColor 為 Google Sheets API 實際回傳值，
+  // 經 rgbToHex 應輸出 #1155cc —— 與 colors.ts 的 SUBSTITUTE_COLOR_MAP.EXCHANGE 對齊。
   it('應從真實換班儲存格解析出藍字 #1155cc', () => {
     const name = '🦖、和実、梂、音(小春)、千熊';
 

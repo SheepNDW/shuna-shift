@@ -84,4 +84,14 @@ describe('FilterBar', () => {
 
     expect(wrapper.find('[data-testid="filter-jump"]').exists()).toBe(false);
   });
+
+  // 卒業探員若仍出現在篩選 chip,點選後近期班表查無資料 → 使用者體感 filter 壞掉
+  it('卒業探員不應出現在篩選 chip 列表中', async () => {
+    const { wrapper } = await mountFilterBar();
+
+    const chipNames = wrapper.findAll('[data-testid="filter-chip"]').map((c) => c.text());
+    expect(chipNames).not.toContain('明里');
+    expect(chipNames).not.toContain('棠棠');
+    expect(chipNames).not.toContain('花緒');
+  });
 });

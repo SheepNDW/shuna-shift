@@ -5,8 +5,20 @@ export type Agent = {
   photos: string[];
   instagram?: string;
   isFullTime?: boolean;
+  /** 是否為卒業探員（已離開朱雫）。未設定視為在職。 */
+  isGraduated?: boolean;
   /** 班表中代表此探員的 emoji（正職探員適用），用於自動建立 emoji → 名稱查表 */
   emoji?: string;
+  /** 色彩編號：代表色，照原樣字串顯示（例如「群青 ｸﾞﾝｼﾞｮｳ」） */
+  themeColor?: string;
+  /** 生日（MM.DD 格式字串，例如 "02.20"） */
+  birthday?: string;
+  /** 特技專長 */
+  skills?: string[];
+  /** 興趣喜好 */
+  hobbies?: string[];
+  /** 個人金句 / 自我介紹短語 */
+  quote?: string;
 };
 
 /** 班表資料結構 */

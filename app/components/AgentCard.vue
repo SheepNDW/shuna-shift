@@ -31,7 +31,11 @@ const instagramHandle = computed(() => {
           v-if="agent.picture"
           :src="agent.picture"
           :alt="`${agent.name} 的照片`"
-          class="h-full w-full object-cover"
+          :class="[
+            'h-full w-full object-cover transition duration-300',
+            agent.isGraduated
+              && 'grayscale-[60%] opacity-90 motion-safe:group-hover:grayscale-0 motion-safe:group-hover:opacity-100',
+          ]"
           loading="lazy"
           data-testid="agent-card-image"
         />
@@ -44,11 +48,22 @@ const instagramHandle = computed(() => {
       </div>
       <div class="flex flex-col gap-2 p-5">
         <div class="flex items-center gap-2">
-          <span class="serif text-fs-22 text-shu" data-testid="agent-card-name">
+          <span
+            :class="[
+              'serif text-fs-22',
+              agent.isGraduated ? 'text-ink-soft' : 'text-shu',
+            ]"
+            data-testid="agent-card-name"
+          >
             {{ agent.name }}
           </span>
           <span
-            v-if="agent.isFullTime"
+            v-if="agent.isGraduated"
+            class="inline-flex items-center rounded-sm border border-ink-mute px-1.5 py-px text-[10px] tracking-stamp text-ink-mute"
+            data-testid="agent-card-graduated"
+          >卒業</span>
+          <span
+            v-else-if="agent.isFullTime"
             class="inline-flex items-center rounded-sm border border-shu px-1.5 py-px text-[10px] tracking-stamp text-shu"
             data-testid="agent-card-fulltime"
           >FULL</span>

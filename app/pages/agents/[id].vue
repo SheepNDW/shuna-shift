@@ -7,8 +7,8 @@ const agentId = computed(() => route.params.id as string);
 
 const { agentInfo, agentSchedules } = useAgent(agentId.value);
 
-// 無效 agentId 直接 404;不再用 navigateTo + 繼續跑後續 setup(useFetch / useHead
-// 仍會打 API + 把 title 短暫設成「undefined · 排班資訊」)。 review M1
+// 無效 agentId 直接 404;若改用 navigateTo + 繼續跑後續 setup,useFetch / useHead
+// 仍會打 API + 把 title 短暫設成「undefined · 排班資訊」。
 if (!agentInfo.value) {
   throw createError({
     statusCode: 404,
@@ -43,7 +43,7 @@ const {
 });
 
 // 失敗或還在 pending 時回傳 null,AgentProfile 會渲染「—」骨架;
-// 避免把「fetch 失敗 / timeout / invalid payload」偽裝成「真的零班」 review M4
+// 避免把「fetch 失敗 / timeout / invalid payload」偽裝成「真的零班」。
 const stats = computed(() => {
   if (statisticsError.value || statisticsStatus.value === 'pending') {
     return { dayCount: null, nightCount: null, total: null };

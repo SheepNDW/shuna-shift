@@ -1,18 +1,18 @@
 <script setup lang="ts">
 // 探員詳情頁的單列排班:三欄式 schedule-row(日期 / 早晚 badge / 當日全體連結)。
-// 取代舊版 UCard + ShiftItem 嵌套,以表格化呈現探員的近期排班。
 //
 // 樣式策略:layout / 間距 / 字級走 Tailwind utility;早 / 晚 badge 沿用
 // components.css 的 .shift-icon-day / .shift-icon-night class(currentColor)。
 //
-// badge 渲染策略(2026-05 review 修正):per-shift 而非單一 boolean。
+// badge 渲染策略採 per-shift 而非單一 boolean,以保留每筆班次的時段與代班語意:
 // 晚班時段以 textColor 還原(綠 15:00–19:30 / 橘 16:00–21:30 / 預設 17:30–21:30),
 // textColor 為 #ff0000 / #1155cc 時額外標出「代班 / 換班」與原班探員名字,
-// 對齊舊 ShiftItem 的語意,避免使用者看不出該日是代班或不同時段晚班。
+// 避免使用者看不出該日是代班或不同時段晚班。
 import type { AgentScheduleItem } from '~~/app/composables/useAgent';
 import {
   getNightShiftIconColor,
   getNightShiftTime,
+  isLeaveColor,
   SUBSTITUTE_COLOR_MAP,
 } from '~~/app/utils/colors';
 
@@ -26,6 +26,8 @@ interface ShiftMeta {
   displayName: string;
   originalAgent: string;
   substituteType: 'substitute' | 'exchange' | null;
+  /** 灰字＝原排班但當天臨時不出勤；badge 走中性灰並加上「今日不出勤」小標 */
+  isLeave: boolean;
 }
 
 function parseShift(
@@ -50,6 +52,8 @@ function parseShift(
         ? 'exchange'
         : null;
 
+  const isLeave = isLeaveColor(shift.textColor);
+
   if (type === 'day') {
     return {
       iconColor: '',
@@ -58,16 +62,19 @@ function parseShift(
       displayName,
       originalAgent,
       substituteType,
+      isLeave,
     };
   }
 
+  // 灰字暫離時 textColor 已非綠/橘，故時段退回預設且不套色（無從還原原時段）
   return {
-    iconColor: getNightShiftIconColor(shift.textColor),
+    iconColor: isLeave ? '' : getNightShiftIconColor(shift.textColor),
     time: getNightShiftTime(shift.textColor),
     hasBracket,
     displayName,
     originalAgent,
     substituteType,
+    isLeave,
   };
 }
 
@@ -118,8 +125,12 @@ const nightShiftMetas = computed(() =>
         class="flex flex-wrap items-center gap-2"
       >
         <span
-          class="shift-icon-day inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13"
+          :class="[
+            meta.isLeave ? 'shift-icon-leave' : 'shift-icon-day',
+            'inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13',
+          ]"
           data-testid="agent-schedule-badge-day"
+          :data-leave="meta.isLeave"
         >
           <span class="block h-3.5 w-3.5">
             <ShiftGlyph type="day" />
@@ -127,7 +138,15 @@ const nightShiftMetas = computed(() =>
           早班 {{ meta.time }}
         </span>
         <span
-          v-if="meta.substituteType"
+          v-if="meta.isLeave"
+          class="inline-flex items-center gap-1 text-fs-12 text-ink-mute"
+          data-testid="agent-schedule-leave-day"
+        >
+          <span aria-hidden="true">✕</span>
+          今日不出勤
+        </span>
+        <span
+          v-else-if="meta.substituteType"
           class="inline-flex items-center gap-1 text-fs-12"
           :style="{ color: meta.substituteType === 'substitute' ? SUBSTITUTE_COLOR : EXCHANGE_COLOR }"
           :data-substitute-type="meta.substituteType"
@@ -144,9 +163,13 @@ const nightShiftMetas = computed(() =>
         class="flex flex-wrap items-center gap-2"
       >
         <span
-          class="shift-icon-night inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13"
-          :style="meta.iconColor ? { color: meta.iconColor } : undefined"
+          :class="[
+            meta.isLeave ? 'shift-icon-leave' : 'shift-icon-night',
+            'inline-flex items-center gap-1.5 rounded-sm px-2 py-1 text-fs-13',
+          ]"
+          :style="!meta.isLeave && meta.iconColor ? { color: meta.iconColor } : undefined"
           data-testid="agent-schedule-badge-night"
+          :data-leave="meta.isLeave"
         >
           <span class="block h-3.5 w-3.5">
             <ShiftGlyph type="night" />
@@ -154,7 +177,15 @@ const nightShiftMetas = computed(() =>
           晚班 {{ meta.time }}
         </span>
         <span
-          v-if="meta.substituteType"
+          v-if="meta.isLeave"
+          class="inline-flex items-center gap-1 text-fs-12 text-ink-mute"
+          data-testid="agent-schedule-leave-night"
+        >
+          <span aria-hidden="true">✕</span>
+          今日不出勤
+        </span>
+        <span
+          v-else-if="meta.substituteType"
           class="inline-flex items-center gap-1 text-fs-12"
           :style="{ color: meta.substituteType === 'substitute' ? SUBSTITUTE_COLOR : EXCHANGE_COLOR }"
           :data-substitute-type="meta.substituteType"

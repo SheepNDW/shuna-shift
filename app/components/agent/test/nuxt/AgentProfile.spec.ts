@@ -111,6 +111,109 @@ describe('AgentProfile', () => {
     expect(wrapper.get('[data-testid="agent-profile-status"]').text()).toContain('現役探員');
   });
 
+  it('卒業探員分類 chip 顯示「卒業探員」(卒業優先於正職)且渲染 GRADUATED 章', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: {
+        agent: { ...baseAgent, isFullTime: true, isGraduated: true },
+        fileNumber: '005',
+        stats,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.get('[data-testid="agent-profile-status"]').text()).toContain('卒業探員');
+    expect(wrapper.find('[data-testid="agent-profile-graduated"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="agent-profile-graduated"]').text()).toBe('GRADUATED · 卒業');
+  });
+
+  it('非卒業探員不渲染 GRADUATED 章', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: { agent: baseAgent, fileNumber: '003', stats },
+      global: { stubs },
+    });
+
+    expect(wrapper.find('[data-testid="agent-profile-graduated"]').exists()).toBe(false);
+  });
+
+  it('機關檔案資料列:有任一欄位即渲染整塊,生日加裝飾留白', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: {
+        agent: {
+          ...baseAgent,
+          themeColor: '群青 ｸﾞﾝｼﾞｮｳ',
+          birthday: '02.20',
+          skills: ['找東西', '綁蝴蝶結'],
+          hobbies: ['去圖書館', '看小豬直播'],
+        },
+        fileNumber: '003',
+        stats,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.find('[data-testid="agent-profile-dossier"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="agent-profile-dossier-color"]').text()).toBe('群青 ｸﾞﾝｼﾞｮｳ');
+    expect(wrapper.get('[data-testid="agent-profile-dossier-birthday"]').text()).toBe('02 . 20');
+    expect(wrapper.get('[data-testid="agent-profile-dossier-skills"]').text()).toBe(
+      '找東西 · 綁蝴蝶結'
+    );
+    expect(wrapper.get('[data-testid="agent-profile-dossier-hobbies"]').text()).toBe(
+      '去圖書館 · 看小豬直播'
+    );
+  });
+
+  it('機關檔案缺欄位時對應列不渲染,其他列照舊', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: {
+        agent: { ...baseAgent, themeColor: '群青 ｸﾞﾝｼﾞｮｳ' },
+        fileNumber: '003',
+        stats,
+      },
+      global: { stubs },
+    });
+
+    expect(wrapper.find('[data-testid="agent-profile-dossier"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="agent-profile-dossier-color"]').exists()).toBe(true);
+    expect(wrapper.find('[data-testid="agent-profile-dossier-birthday"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="agent-profile-dossier-skills"]').exists()).toBe(false);
+    expect(wrapper.find('[data-testid="agent-profile-dossier-hobbies"]').exists()).toBe(false);
+  });
+
+  it('機關檔案四欄位全空時整塊不渲染', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: { agent: baseAgent, fileNumber: '003', stats },
+      global: { stubs },
+    });
+
+    expect(wrapper.find('[data-testid="agent-profile-dossier"]').exists()).toBe(false);
+  });
+
+  it('提供 quote 時渲染 quote banner 並以「」包覆,支援多行 pre-line', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: {
+        agent: { ...baseAgent, quote: '前輩\n蹲下好不好' },
+        fileNumber: '003',
+        stats,
+      },
+      global: { stubs },
+    });
+
+    const quoteBanner = wrapper.find('[data-testid="agent-profile-quote"]');
+    expect(quoteBanner.exists()).toBe(true);
+    const quoteText = wrapper.get('[data-testid="agent-profile-quote-text"]');
+    expect(quoteText.text()).toBe('「前輩\n蹲下好不好」');
+    expect(quoteText.classes()).toContain('whitespace-pre-line');
+  });
+
+  it('未提供 quote 時不渲染 quote banner', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: { agent: baseAgent, fileNumber: '003', stats },
+      global: { stubs },
+    });
+
+    expect(wrapper.find('[data-testid="agent-profile-quote"]').exists()).toBe(false);
+  });
+
   it('提供 instagram 時渲染 IG chip 並帶 handle', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: { agent: baseAgent, fileNumber: '003', stats },
@@ -166,8 +269,8 @@ describe('AgentProfile', () => {
     expect(section.findAll('[data-testid="agent-photo-image"]').length).toBe(2);
   });
 
-  // review M4:fetch 失敗時上游會把三格 stats 全傳 null,UI 必須顯示「—」
-  // 而非把錯誤偽裝成「真的零班(00 / 00 / 00)」
+  // fetch 失敗 / pending 時上游會把三格 stats 全傳 null,UI 必須顯示「—」,
+  // 不能把錯誤偽裝成「真的零班(00 / 00 / 00)」。
   it('stats 為 null 時三格統計顯示「—」骨架,不顯示 00', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: {

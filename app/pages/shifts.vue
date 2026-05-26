@@ -56,7 +56,7 @@ const route = useRoute();
 // DailyScheduleCard 的 scroll-mt-24,捲動定位的目標位移(距視窗頂 96px)。
 const SCROLL_MARGIN_TOP = 96;
 
-// 從探員頁帶 ?date=... 進來時自動捲到當日卡片(review M3)。需處理兩點:
+// 從探員頁帶 ?date=... 進來時自動捲到當日卡片。需處理兩點:
 // (1) 班表清單包在 <ClientOnly> 內,卡片掛載後才進 DOM;
 // (2) SPA 導航時 Nuxt router 會在導航結束後把頁面捲回頂端,蓋掉我們的捲動。
 // 故以 rAF 在 3 秒內持續校正:卡片未就位則等待、被 router 歸零則再捲回,

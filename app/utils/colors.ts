@@ -1,4 +1,8 @@
 // 班表「探員文字色」對照 —— 晚班時段(綠 / 橘)與代 / 換班(紅 / 藍)的色碼與判讀工具。
+//
+// `isLeaveColor` 放在 shared/ 跨 server / client 共用,此處 re-export 讓 client 端
+// 仍能從同一入口 import 色彩相關工具。
+export { isLeaveColor } from '~~/shared/utils/colors';
 
 const GREEN_SHIFT = '#93c47d';
 const ORANGE_SHIFT = '#ff9900';
@@ -67,3 +71,4 @@ export function getNightShiftIconColor(textColor: string): string {
   }
   return ''; // 一般晚班不設定顏色，使用預設的 text-gray-900
 }
+

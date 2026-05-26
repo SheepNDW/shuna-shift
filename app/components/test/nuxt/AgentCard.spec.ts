@@ -71,6 +71,27 @@ describe('AgentCard', () => {
     expect(wrapper.find('[data-testid="agent-card-fulltime"]').exists()).toBe(false);
   });
 
+  it('卒業探員顯示「卒業」章而非 FULL 章（卒業優先於正職）', async () => {
+    const wrapper = await mountSuspended(AgentCard, {
+      props: { agent: { ...baseAgent, isFullTime: true, isGraduated: true } },
+      global: { stubs },
+    });
+
+    expect(wrapper.find('[data-testid="agent-card-graduated"]').exists()).toBe(true);
+    expect(wrapper.get('[data-testid="agent-card-graduated"]').text()).toBe('卒業');
+    expect(wrapper.find('[data-testid="agent-card-fulltime"]').exists()).toBe(false);
+  });
+
+  it('卒業探員照片加灰階濾鏡 class', async () => {
+    const wrapper = await mountSuspended(AgentCard, {
+      props: { agent: { ...baseAgent, isFullTime: false, isGraduated: true } },
+      global: { stubs },
+    });
+
+    const img = wrapper.get('[data-testid="agent-card-image"]');
+    expect(img.classes()).toContain('grayscale-[60%]');
+  });
+
   it('未提供 instagram 時不顯示 handle 區塊', async () => {
     const wrapper = await mountSuspended(AgentCard, {
       props: { agent: { ...baseAgent, instagram: undefined } },

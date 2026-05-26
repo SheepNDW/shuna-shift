@@ -20,7 +20,10 @@ describe('useAgent', () => {
     it('應該回傳正確的探員資訊', () => {
       const { agentInfo } = useAgent('rin');
 
-      expect(agentInfo.value).toEqual({
+      // 用 toMatchObject 做部分匹配:本測試關注 useAgent 是否回傳正確 entry 的核心識別欄位,
+      // 不負責驗證 AGENTS 個資欄位(themeColor / birthday / skills / hobbies / quote)的內容,
+      // 那些欄位日後增刪不應 break 這個 composable 測試。
+      expect(agentInfo.value).toMatchObject({
         id: 'rin',
         name: '泠泠',
         picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',

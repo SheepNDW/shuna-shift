@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// 載入中骨架:數條紙感佔位塊 + serif 提示文字。取代舊版粉紅 spinner。
+// 載入中骨架:數條紙感佔位塊 + serif 提示文字。
 const { message = '資料載入中…' } = defineProps<{
   /** 載入提示文字 */
   message?: string;

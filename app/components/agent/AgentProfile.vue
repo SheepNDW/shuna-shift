@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // 探員詳情頁 profile band:AGENT FILE No.XXX 編號 + 雙重 ring 大頭照 + IG / 分類 chip
-// + 近三個月日 / 夜 / 總三格統計 + 可選照片牆。
+// + 機關檔案資料列(色彩編號 / 生日 / 特技 / 興趣) + 近三個月日 / 夜 / 總三格統計
+// + 可選照片牆。
 //
 // 樣式策略:整體 layout / 字級 / 間距走 Tailwind utility;雙重 ring 大頭照沿用
 // components.css 的 .agent-profile-photo class(box-shadow 多層,utility 無法表達)。
@@ -33,6 +34,32 @@ const hasPhotos = computed(() => (agent.photos ?? []).filter(Boolean).length > 0
 
 const padded = (value: number | null) =>
   value === null ? '—' : String(value).padStart(2, '0');
+
+// 分類三態:卒業 > 正職 > 現役(卒業優先,避免「卒業正職」自相矛盾)
+const statusLabel = computed(() => {
+  if (agent.isGraduated) return '卒業探員';
+  if (agent.isFullTime) return '正職探員';
+  return '現役探員';
+});
+
+// 機關檔案資料列:四列任一有值即顯示整塊
+const hasDossier = computed(
+  () =>
+    Boolean(agent.themeColor)
+    || Boolean(agent.birthday)
+    || Boolean(agent.skills?.length)
+    || Boolean(agent.hobbies?.length)
+);
+
+// 「02.20」→「02 . 20」加裝飾性留白,純視覺風格;非數字格式回退原值
+const formattedBirthday = computed(() => {
+  if (!agent.birthday) return '';
+  const match = agent.birthday.match(/^(\d{2})\.(\d{2})$/);
+  return match ? `${match[1]} . ${match[2]}` : agent.birthday;
+});
+
+const joinedSkills = computed(() => (agent.skills ?? []).join(' · '));
+const joinedHobbies = computed(() => (agent.hobbies ?? []).join(' · '));
 </script>
 
 <template>
@@ -61,9 +88,16 @@ const padded = (value: number | null) =>
     </span>
 
     <div class="flex flex-col gap-4">
-      <span class="stamp-label" data-testid="agent-profile-file-number">
-        AGENT FILE · No. {{ fileNumber }}
-      </span>
+      <div class="flex flex-wrap items-center gap-2">
+        <span class="stamp-label" data-testid="agent-profile-file-number">
+          AGENT FILE · No. {{ fileNumber }}
+        </span>
+        <span
+          v-if="agent.isGraduated"
+          class="inline-flex items-center rounded-sm border border-ink-mute px-1.5 py-px text-[10px] tracking-stamp text-ink-mute"
+          data-testid="agent-profile-graduated"
+        >GRADUATED · 卒業</span>
+      </div>
       <h1
         class="serif flex items-baseline gap-2 text-fs-48 leading-none text-shu sm:text-[56px]"
         data-testid="agent-profile-name"
@@ -82,7 +116,7 @@ const padded = (value: number | null) =>
           data-testid="agent-profile-status"
         >
           <span class="stamp-label text-ink-mute">分類</span>
-          <span class="serif">{{ agent.isFullTime ? '正職探員' : '現役探員' }}</span>
+          <span class="serif">{{ statusLabel }}</span>
         </span>
         <a
           v-if="agent.instagram"
@@ -97,6 +131,41 @@ const padded = (value: number | null) =>
           <span class="stamp-label text-ink-mute">@{{ instagramHandle }}</span>
         </a>
       </div>
+
+      <dl
+        v-if="hasDossier"
+        class="mt-2 grid grid-cols-[max-content_1fr] gap-x-4 gap-y-2.5 border-t border-rule pt-5"
+        data-testid="agent-profile-dossier"
+      >
+        <template v-if="agent.themeColor">
+          <dt class="stamp-label self-center">色彩編號</dt>
+          <dd
+            class="serif text-fs-15 text-ink"
+            data-testid="agent-profile-dossier-color"
+          >{{ agent.themeColor }}</dd>
+        </template>
+        <template v-if="agent.birthday">
+          <dt class="stamp-label self-center">生日登記</dt>
+          <dd
+            class="mono tnum text-fs-15 text-ink"
+            data-testid="agent-profile-dossier-birthday"
+          >{{ formattedBirthday }}</dd>
+        </template>
+        <template v-if="agent.skills?.length">
+          <dt class="stamp-label self-center">特技專長</dt>
+          <dd
+            class="text-fs-15 text-ink"
+            data-testid="agent-profile-dossier-skills"
+          >{{ joinedSkills }}</dd>
+        </template>
+        <template v-if="agent.hobbies?.length">
+          <dt class="stamp-label self-center">興趣喜好</dt>
+          <dd
+            class="text-fs-15 text-ink"
+            data-testid="agent-profile-dossier-hobbies"
+          >{{ joinedHobbies }}</dd>
+        </template>
+      </dl>
 
       <div
         class="mt-2 grid grid-cols-3 gap-4 border-t border-rule pt-5"
@@ -132,6 +201,21 @@ const padded = (value: number | null) =>
         </div>
         <AgentPhotoCarousel :photos="agent.photos" :agent-name="agent.name" />
       </div>
+
+      <aside
+        v-if="agent.quote"
+        class="mt-6 border-t border-rule pt-5"
+        data-testid="agent-profile-quote"
+      >
+        <div class="mb-3 flex items-center gap-2">
+          <span class="stamp-label">QUOTE · 金句</span>
+          <span class="h-px flex-1 bg-rule-2" aria-hidden="true" />
+        </div>
+        <blockquote
+          class="serif text-fs-22 leading-relaxed whitespace-pre-line text-shu"
+          data-testid="agent-profile-quote-text"
+        >「{{ agent.quote }}」</blockquote>
+      </aside>
     </div>
   </section>
 </template>

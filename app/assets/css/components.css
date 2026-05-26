@@ -192,6 +192,12 @@
     background: var(--color-night-soft);
     border: 1px solid var(--color-night);
   }
+  /* 今日不出勤（個人頁灰字班次）：中性灰 badge，視覺上對應班表頁灰名字 chip */
+  .shift-icon-leave {
+    color: var(--color-ink-mute);
+    background: var(--color-paper-2);
+    border: 1px solid var(--color-rule);
+  }
 
   /* —— EmptyState 大漢字圖章 —— */
   .empty-kanji {
