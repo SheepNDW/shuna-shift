@@ -635,6 +635,70 @@ export const AGENTS = new Map<string, Agent>([
       quote: '不要騙我，我很容易被騙ʘ̅͜ʘ̅',
     },
   ],
+  [
+    '芙理',
+    {
+      id: 'furi',
+      name: '芙理',
+      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
+      picture: '',
+      photos: [],
+      instagram: 'https://www.instagram.com/shuna.furi/',
+      themeColor: '一斥染 ｲｯｺﾝｿﾞﾒ',
+      birthday: '01.12',
+      skills: ['攪拌'],
+      hobbies: ['變裝癖aka cosplay'],
+      quote: '人生には、アザラシと冒険が必要だ。',
+    },
+  ],
+  [
+    '千佳',
+    {
+      id: 'chika',
+      name: '千佳',
+      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
+      picture: '',
+      photos: [],
+      instagram: 'https://www.instagram.com/shuna.chika/',
+      themeColor: '舛花 ﾏｽﾊﾅ',
+      birthday: '08.18',
+      skills: ['重複聽同一首歌一個月'],
+      hobbies: ['可愛動物', '狗丸透真'],
+      quote: '在哪裡跌倒就在哪裡躺一下ʕ •ᴥ•ʔ',
+    },
+  ],
+  [
+    '日和',
+    {
+      id: 'hiyori',
+      name: '日和',
+      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
+      picture: '',
+      photos: [],
+      instagram: 'https://www.instagram.com/shuna.hiyori/',
+      themeColor: '桃 ﾓﾓ',
+      birthday: '08.25',
+      skills: ['吃東西', '亂花錢', '喝一杯飲料喝一整天還沒喝完'],
+      hobbies: ['小麥粉精靈', '小八', '各種可愛的東西', '水蜜桃', '甜點', '手搖杯', '金泰亨'],
+      quote: '錢景一片大好ᔦ ° ꒳ ° ᔨ ̖́-',
+    },
+  ],
+  [
+    '香草',
+    {
+      id: 'banira',
+      name: '香草',
+      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
+      picture: '',
+      photos: [],
+      instagram: 'https://www.instagram.com/shuna.banira/',
+      themeColor: '月白 ｹﾞｯﾊﾟｸ',
+      birthday: '08.11',
+      skills: ['暴言'],
+      hobbies: ['純喫綠', '美樂蒂'],
+      quote: '不出意外的話會出意外。',
+    },
+  ],
 ]);
 
 /**
