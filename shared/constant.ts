@@ -640,9 +640,11 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'furi',
       name: '芙理',
-      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
-      picture: '',
-      photos: [],
+      picture: `${IMAGE_BASE_URL}NDE5NDNocGltYWdl/030bd21df05844c5_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}NDE5NDNocGltYWdl/030bd21df05844c5_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}NDE5NDdocGltYWdl/9a62d830aac44198_1440x1440.jpg`,
+      ],
       instagram: 'https://www.instagram.com/shuna.furi/',
       themeColor: '一斥染 ｲｯｺﾝｿﾞﾒ',
       birthday: '01.12',
@@ -656,9 +658,11 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'chika',
       name: '千佳',
-      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
-      picture: '',
-      photos: [],
+      picture: `${IMAGE_BASE_URL}NDE5NDRocGltYWdl/d75854be98e0484f_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}NDE5NDRocGltYWdl/d75854be98e0484f_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}NDE5NDhocGltYWdl/818d087385314ea3_1440x1440.jpg`,
+      ],
       instagram: 'https://www.instagram.com/shuna.chika/',
       themeColor: '舛花 ﾏｽﾊﾅ',
       birthday: '08.18',
@@ -672,9 +676,11 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'hiyori',
       name: '日和',
-      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
-      picture: '',
-      photos: [],
+      picture: `${IMAGE_BASE_URL}NDE5NDVocGltYWdl/a46a1579bc7943c4_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}NDE5NDVocGltYWdl/a46a1579bc7943c4_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}NDE5NDlocGltYWdl/f500782c7c25412d_1440x1440.jpg`,
+      ],
       instagram: 'https://www.instagram.com/shuna.hiyori/',
       themeColor: '桃 ﾓﾓ',
       birthday: '08.25',
@@ -688,9 +694,11 @@ export const AGENTS = new Map<string, Agent>([
     {
       id: 'banira',
       name: '香草',
-      // 照片待補：picture / photos 留空，三處渲染皆有 v-if 守衛不會破版
-      picture: '',
-      photos: [],
+      picture: `${IMAGE_BASE_URL}NDE5NDZocGltYWdl/c90fa55275a74feb_1440x1440.jpg`,
+      photos: [
+        `${IMAGE_BASE_URL}NDE5NDZocGltYWdl/c90fa55275a74feb_1440x1440.jpg`,
+        `${IMAGE_BASE_URL}NDE5NTBocGltYWdl/3aa3f147305a4171_1440x1440.jpg`,
+      ],
       instagram: 'https://www.instagram.com/shuna.banira/',
       themeColor: '月白 ｹﾞｯﾊﾟｸ',
       birthday: '08.11',
