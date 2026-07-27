@@ -222,6 +222,7 @@ export const AGENTS = new Map<string, Agent>([
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuBCG3upW0tLQAXzj1cFSCJk7agwsuPDWmhxqZ',
       photos: [],
       instagram: 'https://www.instagram.com/shuna.kikimi/',
+      isGraduated: true,
       themeColor: '珊瑚珠 ｻﾝｺﾞｼｭ',
       birthday: '03.04',
       skills: ['30秒畫盤'],
