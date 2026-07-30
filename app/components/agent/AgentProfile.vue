@@ -81,6 +81,8 @@ const joinedHobbies = computed(() => (agent.hobbies ?? []).join(' · '));
         v-if="agent.picture"
         :src="agent.picture"
         :alt="`${agent.name} 的照片`"
+        width="240"
+        height="240"
         class="h-full w-full object-cover"
         loading="lazy"
         data-testid="agent-profile-image"

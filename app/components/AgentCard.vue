@@ -31,6 +31,8 @@ const instagramHandle = computed(() => {
           v-if="agent.picture"
           :src="agent.picture"
           :alt="`${agent.name} 的照片`"
+          width="360"
+          height="270"
           :class="[
             'h-full w-full object-cover transition duration-300',
             agent.isGraduated

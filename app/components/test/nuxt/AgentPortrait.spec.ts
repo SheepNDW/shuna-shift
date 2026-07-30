@@ -28,6 +28,26 @@ describe('AgentPortrait', () => {
     expect(wrapper.find('img').attributes('alt')).toBe('泠泠 的照片');
   });
 
+  // 尺寸必須跟著 size 走：寫死會讓自訂 size 的呼叫端下載到錯誤解析度的圖，
+  // 完全不給則會被 @nuxt/image 退回 screens 最大值。
+  it('照片尺寸跟隨 size prop', async () => {
+    const wrapper = await mountSuspended(AgentPortrait, {
+      props: { name: '泠泠' },
+      global: { stubs: globalStubs },
+    });
+
+    expect(wrapper.get('img').attributes('width')).toBe('88');
+    expect(wrapper.get('img').attributes('height')).toBe('88');
+
+    const enlarged = await mountSuspended(AgentPortrait, {
+      props: { name: '泠泠', size: 120 },
+      global: { stubs: globalStubs },
+    });
+
+    expect(enlarged.get('img').attributes('width')).toBe('120');
+    expect(enlarged.get('img').attributes('height')).toBe('120');
+  });
+
   it('應以 --agent-color 變數帶入代表色', async () => {
     const wrapper = await mountSuspended(AgentPortrait, {
       props: { name: '泠泠', textColor: '#123456' },
