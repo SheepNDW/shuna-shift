@@ -70,6 +70,24 @@ export default defineNuxtConfig({
     quality: 80,
   },
 
+  // Vercel 對遠端圖的快取 TTL＝max(上游 Cache-Control max-age, minimumCacheTTL)，
+  // 而 @nuxt/image 的 providerSetup.vercel 把 minimumCacheTTL 寫死成 300 秒。
+  // 實測上游：uploadthing 送 max-age=86400（1 天）、houseprice 送 31536000（1 年）
+  // → 掛在 uploadthing 的 28 張每天過期一次，過期後首次請求會重新計一次
+  // image transformation（Vercel 對 MISS / STALE 都計費），Hobby 每月只有 5,000 次。
+  // 拉到 31 天（Vercel 文件建議值）讓兩個 host 的行為一致。
+  // 這裡蓋得掉模組預設，是因為 providerSetup 用 defu(nuxt.options.nitro, {...})，
+  // 使用者設定優先。
+  nitro: {
+    vercel: {
+      config: {
+        images: {
+          minimumCacheTTL: 60 * 60 * 24 * 31,
+        },
+      },
+    },
+  },
+
   runtimeConfig: {
     gsheetsKey: '',
     spreadsheetId: '',
