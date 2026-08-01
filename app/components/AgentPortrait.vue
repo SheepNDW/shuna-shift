@@ -52,6 +52,8 @@ const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {
         v-if="agentInfo.picture"
         :src="agentInfo.picture"
         :alt="`${agentInfo.displayName} 的照片`"
+        :width="size"
+        :height="size"
         class="block h-full w-full rounded-full object-cover"
         loading="lazy"
       />

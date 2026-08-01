@@ -62,6 +62,20 @@ describe('AgentProfile', () => {
     AgentPhotoCarousel: AgentPhotoCarouselStub,
   } as const;
 
+  // 缺 width 會讓圖片最佳化退回 screens 最大值，且 dev 模式直接回傳原圖、
+  // 只在正式站現形。同類守衛另見 AgentCard.spec.ts、AgentPortrait.spec.ts、
+  // AgentPhotoCarousel.spec.ts。
+  it('大頭照帶顯式尺寸', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: { agent: baseAgent, fileNumber: '003', stats },
+      global: { stubs },
+    });
+
+    const img = wrapper.get('[data-testid="agent-profile-image"]');
+    expect(img.attributes('width')).toBe('240');
+    expect(img.attributes('height')).toBe('240');
+  });
+
   it('顯示 AGENT FILE 編號與探員名字', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: { agent: baseAgent, fileNumber: '003', stats },

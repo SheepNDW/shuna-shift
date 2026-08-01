@@ -11,6 +11,7 @@ export default defineConfig({
           include: [
             'test/{e2e,unit}/**/*.{test,spec}.ts',
             'server/**/test/**/*.{test,spec}.ts',
+            'shared/**/test/**/*.{test,spec}.ts',
             'app/**/test/{e2e,unit}/**/*.{test,spec}.ts',
           ],
           environment: 'node',

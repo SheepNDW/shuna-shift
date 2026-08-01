@@ -33,6 +33,19 @@ const baseAgent: Agent = {
 };
 
 describe('AgentCard', () => {
+  // @nuxt/image 的 vercel provider 在沒有 width 時會退回 screens 的最大值（1536），
+  // 且 dev 模式直接回傳原圖 → 尺寸掉了在本機完全看不出來，只有正式站流量會爆。
+  it('照片帶顯式尺寸，避免圖片最佳化退化成最大寬度', async () => {
+    const wrapper = await mountSuspended(AgentCard, {
+      props: { agent: baseAgent },
+      global: { stubs },
+    });
+
+    const img = wrapper.get('[data-testid="agent-card-image"]');
+    expect(img.attributes('width')).toBe('360');
+    expect(img.attributes('height')).toBe('270');
+  });
+
   it('連結指向探員詳情頁', async () => {
     const wrapper = await mountSuspended(AgentCard, {
       props: { agent: baseAgent },

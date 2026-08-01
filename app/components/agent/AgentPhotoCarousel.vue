@@ -25,6 +25,8 @@ defineProps<{
         <NuxtImg
           :src="item"
           :alt="`${agentName} 照片 ${index + 1}`"
+          width="448"
+          height="448"
           class="h-full w-full object-cover"
           loading="lazy"
           data-testid="agent-photo-image"
