@@ -87,6 +87,7 @@ app/pages/                      → 頁面消費資料
 | 類型 | 路徑規則 | 執行環境 |
 |------|---------|---------|
 | unit | `server/**/test/**/*.spec.ts` | node |
+| unit | `shared/**/test/**/*.spec.ts` | node |
 | unit | `app/**/test/unit/**/*.spec.ts` | node |
 | nuxt | `app/**/test/nuxt/**/*.spec.ts` | nuxt |
 

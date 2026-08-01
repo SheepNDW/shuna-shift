@@ -39,13 +39,15 @@ describe('AgentPortrait', () => {
     expect(wrapper.get('img').attributes('width')).toBe('88');
     expect(wrapper.get('img').attributes('height')).toBe('88');
 
+    // 自訂值取 240（image.screens 已註冊的寬度）。未註冊的值雖然也驗證得了綁定，
+    // 但正式站會被向上取整成別的尺寸，等於在測試裡示範一個危險用法。
     const enlarged = await mountSuspended(AgentPortrait, {
-      props: { name: '泠泠', size: 120 },
+      props: { name: '泠泠', size: 240 },
       global: { stubs: globalStubs },
     });
 
-    expect(enlarged.get('img').attributes('width')).toBe('120');
-    expect(enlarged.get('img').attributes('height')).toBe('120');
+    expect(enlarged.get('img').attributes('width')).toBe('240');
+    expect(enlarged.get('img').attributes('height')).toBe('240');
   });
 
   it('應以 --agent-color 變數帶入代表色', async () => {

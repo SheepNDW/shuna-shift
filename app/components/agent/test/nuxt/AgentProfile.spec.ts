@@ -62,8 +62,9 @@ describe('AgentProfile', () => {
     AgentPhotoCarousel: AgentPhotoCarouselStub,
   } as const;
 
-  // 見 AgentCard.spec 同名測試：缺 width 會讓圖片最佳化退回 screens 最大值，
-  // 且只在正式站現形。
+  // 缺 width 會讓圖片最佳化退回 screens 最大值，且 dev 模式直接回傳原圖、
+  // 只在正式站現形。同類守衛另見 AgentCard.spec.ts、AgentPortrait.spec.ts、
+  // AgentPhotoCarousel.spec.ts。
   it('大頭照帶顯式尺寸', async () => {
     const wrapper = await mountSuspended(AgentProfile, {
       props: { agent: baseAgent, fileNumber: '003', stats },

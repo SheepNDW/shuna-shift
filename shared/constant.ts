@@ -3,6 +3,16 @@ import type { Agent } from './types';
 export const IMAGE_BASE_URL = 'https://image-dev.houseprice.tw/p1-hpimage/';
 
 /**
+ * 探員照片允許的 host 白名單，同時是 `nuxt.config.ts` 的 `image.domains`。
+ *
+ * @nuxt/image 只最佳化白名單內的遠端網域；不在其中的絕對 URL 會被原樣放行
+ * （原尺寸穿透，dev 與 CI 都無訊號）。兩邊共用同一份來源，並由
+ * `shared/test/constant.spec.ts` 斷言所有 picture / photos 的 host 都在清單內，
+ * 避免日後新增第三個 host 時靜默退化。
+ */
+export const IMAGE_HOSTS = ['image-dev.houseprice.tw', 'o8ilaibv5w.ufs.sh'] as const;
+
+/**
  * 探員名稱別名對照表（非 emoji 的變體寫法）。
  *
  * emoji → 正式名稱的對應改由 `AGENTS` 各 entry 的 `emoji` 欄位自動建立

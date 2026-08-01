@@ -1,4 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { IMAGE_HOSTS } from './shared/constant';
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
@@ -45,7 +47,10 @@ export default defineNuxtConfig({
     // 遠端最佳化的白名單。不在清單內的絕對 URL 會在 runtime/image.js 的 validateDomains
     // 分支被原樣放行（不經任何處理）—— 這才是原本圖片沒被壓縮的根因。
     // 同時會寫進 Vercel build output 的 images.domains。
-    domains: ['image-dev.houseprice.tw', 'o8ilaibv5w.ufs.sh'],
+    //
+    // 清單本身放在 shared/constant.ts，與 AGENTS 的照片 URL 同一個模組，並有測試
+    // 斷言所有 picture / photos 的 host 都在其中；新增第三個 host 會直接測試失敗。
+    domains: [...IMAGE_HOSTS],
 
     // vercel provider 只接受 screens 列出的寬度：給定的 width 會往上對齊到最近的值，
     // 沒給 width 則直接用最大值。預設 screens 最小是 640，但本站圖片最寬只渲染到
