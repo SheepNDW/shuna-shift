@@ -74,9 +74,15 @@ app/pages/                      → 頁面消費資料
 
 ### API 快取
 
-兩支 API 均使用 `defineCachedEventHandler`：
+兩支 API 均使用 `server/utils/cache.ts` 的 `defineCdnCachedEventHandler`（包住 nitro 的 `defineCachedEventHandler`）：
 - `/api/sheet` → 快取 3 小時
 - `/api/statistics` → 快取 6 小時
+
+之所以要包一層：直接把 opts 傳給 `defineCachedEventHandler` 時 `swr` 預設值不會生效，nitro 會吐出瀏覽器專用的 `max-age`，而 Vercel edge 對 function 回應只認 `s-maxage` → CDN 完全不會建立快取。wrapper 顯式給 `swr` / `staleMaxAge`，讓回應帶 `s-maxage=<maxAge>, stale-while-revalidate=60`（詳細推導見該檔註解）。
+
+代價是**回應不再帶 `max-age`，瀏覽器端不快取** —— nitro 的 header 分支互斥，開了 `swr` 就拿不到 `max-age`。client-side 換頁時會真的發請求，但會終止在 edge 而非 origin。
+
+`?nocache` 走 wrapper 的繞過分支：直接呼叫原 handler 並標 `cache-control: no-store`，避免繞過的回應被 CDN 用自己的 cache key 存起來。dev 環境（`import.meta.dev`）一律繞過。
 
 前端 statistics 頁面另有 2 小時的 client-side 快取（比對 `metadata.lastUpdated`）。
 

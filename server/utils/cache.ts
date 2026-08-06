@@ -1,10 +1,23 @@
 import type { H3Event } from 'h3';
 
+/**
+ * `stale-while-revalidate` 的窗口秒數。
+ *
+ * 這個指示詞只需要覆蓋「背景 revalidate 實際花的時間」——
+ * 對兩支 API 來說就是一次 Google Sheets 往返（本機實測 sub-second）。
+ * 60 秒已有兩個數量級的餘裕，足以吸收 maxAge 邊界的 thundering herd。
+ *
+ * 刻意不沿用 `maxAge`：`s-maxage=N` + `stale-while-revalidate=N` 的合併窗口是 2N，
+ * 會把最壞情況的陳舊上限推到 sheet 6h / statistics 12h。對一個「現在誰值班」的
+ * 工具來說太久，用固定 60 秒把上限壓回 maxAge + 60s。
+ */
+const STALE_WHILE_REVALIDATE_SECONDS = 60;
+
 /** `defineCdnCachedEventHandler` 的快取設定 */
 interface CdnCacheOptions {
   /** nitro cache entry 名稱 */
   name: string;
-  /** 快取秒數，同時作為 `s-maxage` 與 `stale-while-revalidate` 的值 */
+  /** 快取秒數，作為 `s-maxage` 的值 */
   maxAge: number;
 }
 
@@ -14,7 +27,7 @@ interface CdnCacheOptions {
  * sheet（3h）與 statistics（6h）的長快取在開發時容易讓人誤判修正未生效，
  * 因此 dev 環境一律繞過；正式環境則保留 `?nocache` 查詢參數作為手動繞過手段。
  */
-export function shouldBypassCache(event: H3Event): boolean {
+function shouldBypassCache(event: H3Event): boolean {
   if (import.meta.dev) return true;
   return 'nocache' in getQuery(event);
 }
@@ -31,7 +44,7 @@ export function buildCacheOptions({ name, maxAge }: CdnCacheOptions) {
     maxAge,
     // 這兩個必須顯式給，理由見 defineCdnCachedEventHandler 的註解
     swr: true,
-    staleMaxAge: maxAge,
+    staleMaxAge: STALE_WHILE_REVALIDATE_SECONDS,
   } as const;
 }
 
@@ -57,8 +70,20 @@ export function buildCacheOptions({ name, maxAge }: CdnCacheOptions) {
  *   `max-age=31536000, immutable` 第二次請求就 HIT，可見 CDN 本身是正常的。）
  *
  * 所以這裡顯式給 `swr: true` 與 `staleMaxAge`，讓 nitro 產出
- * `s-maxage=<maxAge>, stale-while-revalidate=<maxAge>`。順帶一併修掉
- * 「`swr` 是 undefined 導致 function 內部快取過期時會 blocking 重抓」的問題。
+ * `s-maxage=<maxAge>, stale-while-revalidate=<STALE_WHILE_REVALIDATE_SECONDS>`。
+ *
+ * 注意「`swr` 是 undefined」只影響 header，不影響 function 內部快取的 blocking 行為：
+ * `_opts` 只 spread 呼叫端的 opts，之後 `defineCachedFunction` 會做
+ * `{ ...defaultCacheOptions(), ...opts }` 把 `swr: true` 補回來，而真正決定
+ * 「回傳 stale entry 並背景 revalidate」的分支讀的是那份已合併的 opts。
+ * 也就是內部快取本來就是 non-blocking SWR，這裡沒有改到它。
+ *
+ * 權衡：nitro 的 header 分支是互斥的（`if (opts.swr) ... else if (opts.maxAge) ...`），
+ * 開了 `swr` 就必然拿不到 `max-age`，也就是**刻意**放棄瀏覽器端快取換取 CDN HIT。
+ * 瀏覽器不認 `s-maxage`，而 `last-modified` 是產生當下的時間、heuristic freshness ≈ 0，
+ * 因此 client-side 換頁時會真的發出請求 —— 但那些請求會終止在 edge 而非 origin，
+ * function invocation 仍然是降的。用 nitro 的 opts API 無法同時產出兩者；
+ * 真要保留瀏覽器快取得改成自己寫 header，不值得為此繞過框架。
  *
  * 刻意不採用 issue 原本提案的 `routeRules: { swr: N }`：在 nitropack 2.13.3 上
  * `swr: N` 會先被正規化成 `cache: { swr: true, maxAge: N }`，再被 vercel preset 的
@@ -82,6 +107,6 @@ export function defineCdnCachedEventHandler<T>(
       return handler(event);
     }
 
-    return cachedHandler(event) as Promise<T>;
+    return cachedHandler(event);
   });
 }
