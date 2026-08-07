@@ -1,12 +1,12 @@
 import type { ScheduleResponse } from '~~/shared/types';
 import { transformSheetDataToSchedules } from '../utils/transformer';
 import { fetchSheetRanges, sheetTitleFromRange } from '../utils/sheets';
-import { shouldBypassCache } from '../utils/cache';
+import { defineCdnCachedEventHandler } from '../utils/cache';
 
 /** 當期班表範圍：開放式結束列，多排幾天也不會被截斷 */
 const CURRENT_SHEET_RANGE = '每日班表!A5:C';
 
-export default defineCachedEventHandler(
+export default defineCdnCachedEventHandler(
   async (_event) => {
     try {
       console.log('fetch Sheets...');
@@ -32,6 +32,5 @@ export default defineCachedEventHandler(
     name: 'sheet-get',
     // Cache for 3 hours
     maxAge: 60 * 60 * 3,
-    shouldBypassCache,
   }
 );

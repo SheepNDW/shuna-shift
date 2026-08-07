@@ -1,7 +1,7 @@
 import type { StatisticsResponse } from '~~/shared/types';
 import { transformSheetDataToSchedules } from '../utils/transformer';
 import { fetchSheetRanges, fetchSheetTitles, resolveSheetTitle } from '../utils/sheets';
-import { shouldBypassCache } from '../utils/cache';
+import { defineCdnCachedEventHandler } from '../utils/cache';
 import {
   calculateAgentStatistics,
   filterRecentMonths,
@@ -20,7 +20,7 @@ const HISTORY_SHEET_PREFIX = '過去班表';
 /** 班表資料的欄位範圍（開放式結束列，不寫死列數）*/
 const SCHEDULE_COLUMNS = 'A5:C';
 
-export default defineCachedEventHandler(
+export default defineCdnCachedEventHandler(
   async (_event) => {
     try {
       console.log('fetch Sheets for statistics...');
@@ -75,6 +75,5 @@ export default defineCachedEventHandler(
     name: 'statistics-get',
     // Cache for 6 hours (maxAge is in seconds)
     maxAge: 6 * 60 * 60,
-    shouldBypassCache,
   },
 );
