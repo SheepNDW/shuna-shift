@@ -56,10 +56,10 @@ const route = useRoute();
 // DailyScheduleCard 的 scroll-mt-24,捲動定位的目標位移(距視窗頂 96px)。
 const SCROLL_MARGIN_TOP = 96;
 
-// 從探員頁帶 ?date=... 進來時自動捲到當日卡片。需處理兩點:
-// (1) 班表清單包在 <ClientOnly> 內,卡片掛載後才進 DOM;
-// (2) SPA 導航時 Nuxt router 會在導航結束後把頁面捲回頂端,蓋掉我們的捲動。
-// 故以 rAF 在 3 秒內持續校正:卡片未就位則等待、被 router 歸零則再捲回,
+// 從探員頁帶 ?date=... 進來時自動捲到當日卡片。
+// 班表清單現在會 SSR,首次載入時卡片已在 DOM 裡;但 SPA 導航時 Nuxt router 仍會
+// 在導航結束後把頁面捲回頂端,蓋掉我們的捲動,而該次導航的卡片是掛載後才進 DOM。
+// 故仍以 rAF 在 3 秒內持續校正:卡片未就位則等待、被 router 歸零則再捲回,
 // 連續對齊數幀(router 只歸零一次)後即停止;逾時則安靜放棄。
 function scrollToDateWhenReady(datetime: string): void {
   const deadline = Date.now() + 3000;
@@ -104,53 +104,47 @@ useHead({
       :meta="headerMeta"
     />
 
-    <ClientOnly>
-      <FilterBar v-model="selectedAgents" :dates="jumpDates" @jump="scrollToDate" />
+    <FilterBar v-model="selectedAgents" :dates="jumpDates" @jump="scrollToDate" />
 
-      <!-- 班表列表 -->
-      <section
-        v-if="filteredSchedules.length > 0"
-        class="flex flex-col gap-6"
-        aria-label="班表列表"
-      >
-        <DailyScheduleCard
-          v-for="schedule in filteredSchedules"
-          :id="`schedule-${schedule.date.datetime}`"
-          :key="schedule.date.datetime"
-          :schedule="schedule"
-          :highlighted-agents="hasFilter ? highlightedAgentNames : undefined"
-        />
-      </section>
-
-      <!-- 篩選無結果 -->
-      <EmptyState
-        v-else-if="hasFilter"
-        kanji="無"
-        title="找不到班表"
-        subtitle="所選探員在近期沒有排班記錄。"
-        data-testid="shifts-empty-filter"
-      >
-        <template #action>
-          <button class="btn ghost" type="button" @click="selectedAgents = []">
-            清除篩選 →
-          </button>
-        </template>
-      </EmptyState>
-
-      <!-- 無未來班表 -->
-      <EmptyState
-        v-else
-        kanji="空"
-        title="沒有未來班表"
-        subtitle="目前沒有已排定的未來班表資料。"
-        data-testid="shifts-empty"
+    <!-- 班表列表 -->
+    <section
+      v-if="filteredSchedules.length > 0"
+      class="flex flex-col gap-6"
+      aria-label="班表列表"
+    >
+      <DailyScheduleCard
+        v-for="schedule in filteredSchedules"
+        :id="`schedule-${schedule.date.datetime}`"
+        :key="schedule.date.datetime"
+        :schedule="schedule"
+        :highlighted-agents="hasFilter ? highlightedAgentNames : undefined"
       />
+    </section>
 
-      <ColorLegend v-if="filteredSchedules.length > 0" class="mt-8" />
-
-      <template #fallback>
-        <LoadingState />
+    <!-- 篩選無結果 -->
+    <EmptyState
+      v-else-if="hasFilter"
+      kanji="無"
+      title="找不到班表"
+      subtitle="所選探員在近期沒有排班記錄。"
+      data-testid="shifts-empty-filter"
+    >
+      <template #action>
+        <button class="btn ghost" type="button" @click="selectedAgents = []">
+          清除篩選 →
+        </button>
       </template>
-    </ClientOnly>
+    </EmptyState>
+
+    <!-- 無未來班表 -->
+    <EmptyState
+      v-else
+      kanji="空"
+      title="沒有未來班表"
+      subtitle="目前沒有已排定的未來班表資料。"
+      data-testid="shifts-empty"
+    />
+
+    <ColorLegend v-if="filteredSchedules.length > 0" class="mt-8" />
   </UContainer>
 </template>
