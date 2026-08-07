@@ -58,6 +58,9 @@ const route = useRoute();
 // 但 ≤920px 會切成 scroll-mt-20 (80px),寫死任一個值都會在另一個斷點差 16px,
 // 而且日後改 class 時這裡不會跟著動。
 function getScrollMarginTop(element: Element): number {
+  // `|| 0` 只在拿不到 computed style 時生效（元素未接上 document）。
+  // 這裡的元素都來自 getElementById，必然已連接，所以實務上走不到；
+  // 留一個保守預設而非讓 NaN 汙染後面的對齊判斷。
   return Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0;
 }
 
@@ -164,6 +167,6 @@ useHead({
       data-testid="shifts-empty"
     />
 
-    <ColorLegend v-if="filteredSchedules.length > 0" class="mt-8" />
+    <ColorLegend v-if="!hasError && filteredSchedules.length > 0" class="mt-8" />
   </UContainer>
 </template>

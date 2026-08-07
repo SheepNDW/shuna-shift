@@ -34,8 +34,14 @@ export const useScheduleStore = defineStore('schedule', () => {
 
     if (error.value) {
       hasError.value = true;
-      // 刻意不用 default 的空資料覆蓋既有班表：重新整理失敗時，
-      // 舊班表仍比空畫面有用，錯誤本身由 hasError 呈現。
+      // 不用 default 的空資料覆蓋既有班表。
+      //
+      // 這條路目前實際走不到：唯一的呼叫端是 app.vue 的 callOnce（首次載入，
+      // 此時本來就沒有舊資料可留），`refresh: true` 還沒有任何呼叫端。留著是為了
+      // 日後真的加上重新整理時，失敗不會把已經看得到的班表清空。
+      //
+      // 另注意兩頁現在是「有錯誤就只渲染錯誤狀態」；屆時若要顯示留下來的舊資料，
+      // 頁面那邊要一併調整（例如改以 schedules 是否為空分辨首載失敗與重整失敗）。
       return;
     }
 

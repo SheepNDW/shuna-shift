@@ -89,7 +89,7 @@ useHead({
 
     <!-- 近日のシフト -->
     <section
-      v-if="upcomingSchedules.length > 0"
+      v-if="!hasError && upcomingSchedules.length > 0"
       class="mb-12"
       aria-labelledby="home-upcoming-heading"
     >
