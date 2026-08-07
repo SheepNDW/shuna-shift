@@ -5,7 +5,13 @@ import type { H3Event } from 'h3';
  *
  * 這個指示詞只需要覆蓋「背景 revalidate 實際花的時間」——
  * 對兩支 API 來說就是一次 Google Sheets 往返（本機實測 sub-second）。
- * 60 秒已有兩個數量級的餘裕，足以吸收 maxAge 邊界的 thundering herd。
+ * 60 秒已有兩個數量級的餘裕。
+ *
+ * 但要理解它實際多常生效：窗口是從 `s-maxage` 到期那一刻起算的 60 秒，
+ * 必須有請求落在這 60 秒內，edge 才會送 stale 並在背景 revalidate；
+ * 沒有的話下一個請求就是 blocking MISS。以本站的流量，多數過期大概仍會
+ * 撞到一次 blocking 重抓 —— 那是選「新鮮度優先」本來就接受的代價。
+ * 這個常數的作用是在邊界真的有併發時，不要讓它們全部穿透到 origin。
  *
  * 刻意不沿用 `maxAge`：`s-maxage=N` + `stale-while-revalidate=N` 的合併窗口是 2N，
  * 會把最壞情況的陳舊上限推到 sheet 6h / statistics 12h。對一個「現在誰值班」的

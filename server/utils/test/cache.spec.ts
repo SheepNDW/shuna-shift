@@ -1,5 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createEvent, getResponseHeader } from 'h3';
+import {
+  createEvent,
+  defineEventHandler,
+  getQuery,
+  getResponseHeader,
+  setResponseHeader,
+} from 'h3';
 import { IncomingMessage, ServerResponse } from 'node:http';
 import { Socket } from 'node:net';
 import { buildCacheOptions, defineCdnCachedEventHandler } from '../cache';
@@ -25,11 +31,10 @@ function createTestEvent(url: string) {
 const cachedHandlerSpy = vi.fn(async () => 'from-cache');
 const defineCachedEventHandlerSpy = vi.fn(() => cachedHandlerSpy);
 
-beforeEach(async () => {
-  const h3 = await import('h3');
-  vi.stubGlobal('getQuery', h3.getQuery);
-  vi.stubGlobal('setResponseHeader', h3.setResponseHeader);
-  vi.stubGlobal('defineEventHandler', h3.defineEventHandler);
+beforeEach(() => {
+  vi.stubGlobal('getQuery', getQuery);
+  vi.stubGlobal('setResponseHeader', setResponseHeader);
+  vi.stubGlobal('defineEventHandler', defineEventHandler);
   vi.stubGlobal('defineCachedEventHandler', defineCachedEventHandlerSpy);
 });
 
