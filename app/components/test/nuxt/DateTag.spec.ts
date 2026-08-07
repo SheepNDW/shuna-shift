@@ -5,7 +5,8 @@ import DateTag from '../../DateTag.vue';
 describe('DateTag', () => {
   beforeEach(() => {
     // 固定年份，使 getWeekdayLabel 推算結果可預期
-    vi.setSystemTime(new Date(2024, 9, 12));
+    // 絕對時刻（台北正午）；本地建構式會跟著 runner 時區漂移，見 app/utils/date.ts
+    vi.setSystemTime(new Date('2024-10-12T12:00:00+08:00'));
   });
   afterEach(() => {
     vi.useRealTimers();

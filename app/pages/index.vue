@@ -3,7 +3,7 @@ import { BOOKING_URL } from '~~/shared/constant';
 import { getSpecialDateKind } from '~~/shared/date-meta';
 
 const scheduleStore = useScheduleStore();
-const { todaySchedule, schedules } = storeToRefs(scheduleStore);
+const { todaySchedule, schedules, hasError } = storeToRefs(scheduleStore);
 
 // 今日是否店休（灰底）；店休與「今日無排班」分開呈現
 const isTodayClosed = computed(
@@ -36,9 +36,19 @@ useHead({
   <UContainer class="py-8 md:py-12">
     <GreetingHeader :today="todaySchedule" />
 
+    <!-- 載入失敗：與「今日無排班」分開呈現，否則 Sheets 掛掉會被誤讀成今天沒班 -->
+    <EmptyState
+      v-if="hasError"
+      class="mb-12"
+      kanji="無"
+      title="無法載入班表"
+      subtitle="請稍後再重新整理頁面。"
+      data-testid="home-error"
+    />
+
     <!-- 今日早 / 晚班 -->
     <section
-      v-if="todaySchedule && !isTodayClosed"
+      v-else-if="todaySchedule && !isTodayClosed"
       class="mb-12"
       aria-labelledby="home-today-heading"
     >

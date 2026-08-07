@@ -44,7 +44,8 @@ const scheduleMock: ShiftSchedule = {
 describe('DailyScheduleCard', () => {
   beforeEach(() => {
     // 固定為 2024/10/12，使 10月12日 被判定為今日
-    vi.setSystemTime(new Date(2024, 9, 12));
+    // 絕對時刻（台北正午）；本地建構式會跟著 runner 時區漂移，見 app/utils/date.ts
+    vi.setSystemTime(new Date('2024-10-12T12:00:00+08:00'));
   });
   afterEach(() => {
     vi.useRealTimers();

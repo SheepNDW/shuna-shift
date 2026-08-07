@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const scheduleStore = useScheduleStore();
-const { schedules } = storeToRefs(scheduleStore);
+const { schedules, hasError } = storeToRefs(scheduleStore);
 
 // 探員篩選：選中的探員名稱（對應 AGENTS 的鍵值）
 const selectedAgents = ref<string[]>([]);
@@ -53,8 +53,13 @@ function scrollToDate(datetime: string): void {
 
 const route = useRoute();
 
-// DailyScheduleCard 的 scroll-mt-24,捲動定位的目標位移(距視窗頂 96px)。
-const SCROLL_MARGIN_TOP = 96;
+// 捲動定位的目標位移 = 卡片自己的 scroll-margin-top。
+// 直接讀 computed style 而非寫死:DailyScheduleCard 是 scroll-mt-24 (96px)、
+// 但 ≤920px 會切成 scroll-mt-20 (80px),寫死任一個值都會在另一個斷點差 16px,
+// 而且日後改 class 時這裡不會跟著動。
+function getScrollMarginTop(element: Element): number {
+  return Number.parseFloat(getComputedStyle(element).scrollMarginTop) || 0;
+}
 
 // 從探員頁帶 ?date=... 進來時自動捲到當日卡片。
 // 班表清單現在會 SSR,首次載入時卡片已在 DOM 裡;但 SPA 導航時 Nuxt router 仍會
@@ -67,7 +72,7 @@ function scrollToDateWhenReady(datetime: string): void {
   const tick = (): void => {
     const element = document.getElementById(`schedule-${datetime}`);
     if (element) {
-      const offset = element.getBoundingClientRect().top - SCROLL_MARGIN_TOP;
+      const offset = element.getBoundingClientRect().top - getScrollMarginTop(element);
       if (Math.abs(offset) <= 2) {
         if (++stableFrames >= 3) return;
       } else {
@@ -104,11 +109,25 @@ useHead({
       :meta="headerMeta"
     />
 
-    <FilterBar v-model="selectedAgents" :dates="jumpDates" @jump="scrollToDate" />
+    <FilterBar
+      v-if="!hasError"
+      v-model="selectedAgents"
+      :dates="jumpDates"
+      @jump="scrollToDate"
+    />
+
+    <!-- 載入失敗：與「沒有未來班表」分開呈現，否則 Sheets 掛掉會被誤讀成沒排班 -->
+    <EmptyState
+      v-if="hasError"
+      kanji="無"
+      title="無法載入班表"
+      subtitle="請稍後再重新整理頁面。"
+      data-testid="shifts-error"
+    />
 
     <!-- 班表列表 -->
     <section
-      v-if="filteredSchedules.length > 0"
+      v-else-if="filteredSchedules.length > 0"
       class="flex flex-col gap-6"
       aria-label="班表列表"
     >
