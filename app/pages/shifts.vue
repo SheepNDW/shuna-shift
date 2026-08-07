@@ -28,7 +28,12 @@ const jumpDates = computed(() =>
 );
 
 // 動態副標：{X} 日 · {首日} – {末日}
+// 載入失敗時回傳空字串（PageHeader 會整段不渲染）：此時 futureSchedules 必為空，
+// 照常算會變成「近期尚無排班資料 / 0 日」，就顯示在下方「無法載入班表」的正上方，
+// 等於在斷言一件我們其實不知道的事。
 const subtitle = computed(() => {
+  if (hasError.value) return '';
+
   const list = futureSchedules.value;
   if (list.length === 0) return '近期尚無排班資料';
 
@@ -39,6 +44,8 @@ const subtitle = computed(() => {
 
 // meta：未篩選顯示總天數；套篩選時明示「篩選 X / 共 Y 日」避免與副標的全範圍混淆
 const headerMeta = computed(() => {
+  if (hasError.value) return '';
+
   const total = futureSchedules.value.length;
   if (!hasFilter.value) return `${total} 日`;
   return `篩選 ${filteredSchedules.value.length} / 共 ${total} 日`;
