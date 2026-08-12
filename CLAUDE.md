@@ -120,3 +120,17 @@ app/pages/                      → 頁面消費資料
 - `vue-options-api-best-practices` — 本專案統一 `<script setup>` Composition API
 
 呼叫慣例：與其他既有 skill（`/ecc:code-review`、`/plan` 等）相同 —— 在需要時透過 `Skill` 工具呼叫，使用者直接輸入 `/<skill-name>` 也可觸發。
+
+## Agent skills
+
+### Issue tracker
+
+Issue 記錄在 GitHub Issues（`SheepNDW/shuna-shift`），透過 `gh` CLI 操作。詳見 `docs/agents/issue-tracker.md`。
+
+### Triage labels
+
+沿用五個標準 triage 標籤：`needs-triage`／`needs-info`／`ready-for-agent`／`ready-for-human`／`wontfix`。詳見 `docs/agents/triage-labels.md`。
+
+### Domain docs
+
+Single-context 佈局 —— 根目錄 `CONTEXT.md` + `docs/adr/`（皆為 lazy 建立，目前尚未存在）。詳見 `docs/agents/domain.md`。
