@@ -9,7 +9,7 @@ const highlightedAgentNames = computed(() => new Set(selectedAgents.value));
 
 // 今日與未來的班表
 const futureSchedules = computed(() =>
-  schedules.value.filter((schedule) => isTodayOrFuture(schedule.date.datetime))
+  schedules.value.filter((schedule) => isTodayOrFuture(schedule.date.iso))
 );
 
 // 套用探員篩選後的班表：只保留有選中探員值班的日期，但保留該日全體探員
@@ -24,7 +24,10 @@ const filteredSchedules = computed(() => {
 });
 
 const jumpDates = computed(() =>
-  filteredSchedules.value.map((schedule) => schedule.date.datetime)
+  filteredSchedules.value.map((schedule) => ({
+    iso: schedule.date.iso,
+    label: schedule.date.datetime,
+  }))
 );
 
 // 動態副標：{X} 日 · {首日} – {末日}
@@ -51,10 +54,12 @@ const headerMeta = computed(() => {
   return `篩選 ${filteredSchedules.value.length} / 共 ${total} 日`;
 });
 
-function scrollToDate(datetime: string): void {
+// 卡片的 DOM id 以 ISO 日期為錨（`schedule-2026-08-31`）。用「X月Y日」標籤當 id
+// 的話，歷史班表跨年累積時同一個標籤會出現兩張卡片而撞 id。
+function scrollToDate(iso: string): void {
   // 捲動屬 DOM 操作，SSR 階段無 document —— 防禦性提前略過。
   if (import.meta.server) return;
-  const element = document.getElementById(`schedule-${datetime}`);
+  const element = document.getElementById(`schedule-${iso}`);
   element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -76,11 +81,11 @@ function getScrollMarginTop(element: Element): number {
 // 在導航結束後把頁面捲回頂端,蓋掉我們的捲動,而該次導航的卡片是掛載後才進 DOM。
 // 故仍以 rAF 在 3 秒內持續校正:卡片未就位則等待、被 router 歸零則再捲回,
 // 連續對齊數幀(router 只歸零一次)後即停止;逾時則安靜放棄。
-function scrollToDateWhenReady(datetime: string): void {
+function scrollToDateWhenReady(iso: string): void {
   const deadline = Date.now() + 3000;
   let stableFrames = 0;
   const tick = (): void => {
-    const element = document.getElementById(`schedule-${datetime}`);
+    const element = document.getElementById(`schedule-${iso}`);
     if (element) {
       const offset = element.getBoundingClientRect().top - getScrollMarginTop(element);
       if (Math.abs(offset) <= 2) {
@@ -98,7 +103,9 @@ function scrollToDateWhenReady(datetime: string): void {
 // onMounted 僅在 client 執行,天然避開 SSR;每次進入 /shifts 觸發一次。
 onMounted(() => {
   const dateQuery = route.query.date;
-  if (typeof dateQuery === 'string' && dateQuery) {
+  // ?date= 帶的是 ISO 日期（由探員頁的「當日全體」連結產生）。非 ISO 的值一律忽略，
+  // 免得 rAF 迴圈為一個不存在的 id 空轉三秒。
+  if (typeof dateQuery === 'string' && isIsoDate(dateQuery)) {
     scrollToDateWhenReady(dateQuery);
   }
 });
@@ -143,8 +150,8 @@ useHead({
     >
       <DailyScheduleCard
         v-for="schedule in filteredSchedules"
-        :id="`schedule-${schedule.date.datetime}`"
-        :key="schedule.date.datetime"
+        :id="`schedule-${schedule.date.iso}`"
+        :key="schedule.date.iso"
         :schedule="schedule"
         :highlighted-agents="hasFilter ? highlightedAgentNames : undefined"
       />

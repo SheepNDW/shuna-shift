@@ -14,9 +14,10 @@ const greeting = computed(() => {
   return { ja: 'こんばんは', zh: '晚安' };
 });
 
+const todayIso = computed(() => getTodayIso());
 const todayLabel = computed(() => getTodayLabel());
 const parsedDate = computed(() => parseDateLabel(todayLabel.value));
-const weekday = computed(() => getWeekdayLabel(todayLabel.value));
+const weekday = computed(() => getWeekdayLabel(todayIso.value));
 const description = computed(() => today?.date.description ?? '');
 </script>
 

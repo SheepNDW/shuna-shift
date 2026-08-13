@@ -24,6 +24,15 @@ export type Agent = {
 /** 班表資料結構 */
 export interface ShiftSchedule {
   date: {
+    /**
+     * ISO 日期（`yyyy-mm-dd`），由 Excel 日期序號直接產生 —— 排序、範圍過濾與
+     * 「今天／未來」判斷一律以此為準。A 欄無日期序號時為空字串。
+     */
+    iso: string;
+    /**
+     * 顯示用日期標籤（`8月31日`），由 `iso` 格式化而來。
+     * 不帶年份，故不可用於比較、排序或當作 key。
+     */
     datetime: string;
     backgroundColor: string;
     description: string;

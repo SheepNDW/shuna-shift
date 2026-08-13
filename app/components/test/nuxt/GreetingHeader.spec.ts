@@ -16,7 +16,7 @@ const TAIPEI_EARLY_MORNING = new Date('2024-10-27T17:00:00Z');
 
 const todayMock: ShiftSchedule = {
   date: {
-    datetime: '10月28日',
+    iso: '2024-10-28', datetime: '10月28日',
     backgroundColor: '#d5a6bd',
     description: '生誕祭',
   },

@@ -1,15 +1,27 @@
 import { normalizeAgentName } from '~~/shared/constant';
 import type { TextFormatRun } from '~~/shared/types';
+import { toIsoDate } from '~~/shared/utils/date';
 
-export function excelSerialToDateLabel(serial: number): string {
+/**
+ * Excel 日期序號 → ISO 日期（`yyyy-mm-dd`）。
+ *
+ * A 欄的序號帶完整年月日，於此一次轉成 ISO 並一路帶到下游，年份就不會在解析
+ * 邊界被丟掉、下游也不必再從「X月Y日」反推年份。
+ *
+ * 原點取 1899-12-30 而非 1900-01-01：Excel 誤將 1900 年當閏年，序號 1 對應
+ * 1900-01-01，往前推一天即得此原點。一律以 UTC 運算，避免跑在不同時區的機器
+ * 算出前後一天。
+ */
+export function excelSerialToIsoDate(serial: number): string {
   const base = Date.UTC(1899, 11, 30);
   const millis = Math.floor(serial) * 86400000;
   const utcDate = new Date(base + millis);
 
-  const month = utcDate.getUTCMonth() + 1;
-  const day = utcDate.getUTCDate();
-
-  return `${month}月${day}日`;
+  return toIsoDate(
+    utcDate.getUTCFullYear(),
+    utcDate.getUTCMonth() + 1,
+    utcDate.getUTCDate(),
+  );
 }
 
 export function rgbToHex(color: { red?: number; green?: number; blue?: number }): string {

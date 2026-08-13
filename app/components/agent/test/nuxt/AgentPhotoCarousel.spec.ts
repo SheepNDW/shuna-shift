@@ -4,7 +4,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import AgentPhotoCarousel from '../../AgentPhotoCarousel.vue';
 
 // UCarousel 只取它「對每個 item 渲染一次 default scoped slot」的契約，
-// embla 的捲動行為不在單元測試範圍（見 #40 的 e2e 規劃）。
+// embla 的捲動行為屬於 e2e 範圍，不在單元測試裡驗。
 const UCarouselStub = defineComponent({
   props: {
     items: {

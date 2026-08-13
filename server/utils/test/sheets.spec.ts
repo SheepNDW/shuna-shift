@@ -159,7 +159,7 @@ describe('parseSheetsResponse', () => {
     const fromOrdered = parseSheetsResponse(ordered);
     const fromReversed = parseSheetsResponse(reversed);
 
-    // 不論回傳順序，依 title 取值結果一致（#3：不靠陣列索引）
+    // 不論回傳順序，依 title 取值結果一致 —— 取值靠 title 而非陣列索引
     expect(fromReversed.get('每日班表')).toHaveLength(1);
     expect(fromReversed.get('過去班表')).toHaveLength(2);
     expect(fromReversed.get('每日班表')).toEqual(fromOrdered.get('每日班表'));

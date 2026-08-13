@@ -12,9 +12,11 @@ export const useScheduleStore = defineStore('schedule', () => {
    */
   const hasError = ref(false);
 
+  // 以 ISO 日期比對而非「X月Y日」標籤：標籤不帶年份，歷史班表累積超過 12 個月時
+  // 同一個標籤會對應兩天，命中的可能是去年的同一天。
   const todaySchedule = computed(() => {
-    const todayLabel = getTodayLabel();
-    const today = schedules.value.find((schedule) => schedule.date.datetime === todayLabel);
+    const todayIso = getTodayIso();
+    const today = schedules.value.find((schedule) => schedule.date.iso === todayIso);
 
     if (!today) {
       return null;

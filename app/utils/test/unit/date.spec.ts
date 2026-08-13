@@ -151,28 +151,35 @@ describe('date utils', () => {
     it('應該正確判斷是否為今天', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isToday('10月28日')).toBe(true);
+      expect(isToday('2024-10-28')).toBe(true);
     });
 
     it('應該正確判斷不是今天', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isToday('10月27日')).toBe(false);
-      expect(isToday('10月29日')).toBe(false);
-      expect(isToday('11月28日')).toBe(false);
+      expect(isToday('2024-10-27')).toBe(false);
+      expect(isToday('2024-10-29')).toBe(false);
+      expect(isToday('2024-11-28')).toBe(false);
+    });
+
+    // 標籤只有月日，去年的同一天會誤判為今天；吃 ISO 之後年份天然參與比較。
+    it('去年的同月同日不應判為今天', () => {
+      vi.setSystemTime(TEST_DATES.NORMAL_DAY);
+
+      expect(isToday('2023-10-28')).toBe(false);
     });
 
     it('應該處理不同月份', () => {
       vi.setSystemTime(TEST_DATES.MONTH_JAN_15);
 
-      expect(isToday('1月15日')).toBe(true);
-      expect(isToday('2月15日')).toBe(false);
+      expect(isToday('2024-01-15')).toBe(true);
+      expect(isToday('2024-02-15')).toBe(false);
     });
 
-    it('應該處理格式不符的日期標籤', () => {
+    it('應該拒絕非 ISO 格式的輸入', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isToday('2024-10-28')).toBe(false);
+      expect(isToday('10月28日')).toBe(false);
       expect(isToday('October 28')).toBe(false);
       expect(isToday('')).toBe(false);
     });
@@ -180,8 +187,8 @@ describe('date utils', () => {
     it('應該處理跨年情況', () => {
       vi.setSystemTime(TEST_DATES.YEAR_END);
 
-      expect(isToday('12月31日')).toBe(true);
-      expect(isToday('1月1日')).toBe(false);
+      expect(isToday('2024-12-31')).toBe(true);
+      expect(isToday('2025-01-01')).toBe(false);
     });
   });
 
@@ -189,83 +196,90 @@ describe('date utils', () => {
     it('應該判斷今天的日期為 true', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isTodayOrFuture('10月28日')).toBe(true);
+      expect(isTodayOrFuture('2024-10-28')).toBe(true);
     });
 
     it('應該判斷未來的日期為 true', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isTodayOrFuture('10月29日')).toBe(true);
-      expect(isTodayOrFuture('10月30日')).toBe(true);
-      expect(isTodayOrFuture('11月1日')).toBe(true);
-      expect(isTodayOrFuture('12月31日')).toBe(true);
+      expect(isTodayOrFuture('2024-10-29')).toBe(true);
+      expect(isTodayOrFuture('2024-10-30')).toBe(true);
+      expect(isTodayOrFuture('2024-11-01')).toBe(true);
+      expect(isTodayOrFuture('2024-12-31')).toBe(true);
     });
 
     it('應該判斷過去的日期為 false', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isTodayOrFuture('10月27日')).toBe(false);
-      expect(isTodayOrFuture('10月1日')).toBe(false);
-      expect(isTodayOrFuture('9月30日')).toBe(false);
+      expect(isTodayOrFuture('2024-10-27')).toBe(false);
+      expect(isTodayOrFuture('2024-10-01')).toBe(false);
+      expect(isTodayOrFuture('2024-09-30')).toBe(false);
     });
 
     it('應該處理空字串', () => {
       expect(isTodayOrFuture('')).toBe(false);
     });
 
-    it('應該處理格式不符的日期標籤', () => {
+    it('應該拒絕非 ISO 格式的輸入', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isTodayOrFuture('2024-10-28')).toBe(false);
+      expect(isTodayOrFuture('10月28日')).toBe(false);
       expect(isTodayOrFuture('October 28')).toBe(false);
-      expect(isTodayOrFuture('28/10')).toBe(false);
+      expect(isTodayOrFuture('2024-10-28T00:00:00Z')).toBe(false);
     });
 
     it('應該在午夜時正確判斷', () => {
       vi.setSystemTime(TEST_DATES.MIDNIGHT);
 
-      expect(isTodayOrFuture('10月28日')).toBe(true);
-      expect(isTodayOrFuture('10月27日')).toBe(false);
+      expect(isTodayOrFuture('2024-10-28')).toBe(true);
+      expect(isTodayOrFuture('2024-10-27')).toBe(false);
     });
 
     it('應該在接近午夜時正確判斷', () => {
       vi.setSystemTime(TEST_DATES.ALMOST_MIDNIGHT);
 
-      expect(isTodayOrFuture('10月28日')).toBe(true);
-      expect(isTodayOrFuture('10月29日')).toBe(true);
-      expect(isTodayOrFuture('10月27日')).toBe(false);
+      expect(isTodayOrFuture('2024-10-28')).toBe(true);
+      expect(isTodayOrFuture('2024-10-29')).toBe(true);
+      expect(isTodayOrFuture('2024-10-27')).toBe(false);
     });
 
     it('跨年：12 月底看到的隔年 1 月應判為未來', () => {
       vi.setSystemTime(TEST_DATES.YEAR_END);
 
-      expect(isTodayOrFuture('12月31日')).toBe(true);
-      expect(isTodayOrFuture('1月1日')).toBe(true);
-      expect(isTodayOrFuture('12月30日')).toBe(false);
+      expect(isTodayOrFuture('2024-12-31')).toBe(true);
+      expect(isTodayOrFuture('2025-01-01')).toBe(true);
+      expect(isTodayOrFuture('2024-12-30')).toBe(false);
     });
 
     it('跨年：1 月初看到去年 12 月殘列應判為過去', () => {
       vi.setSystemTime(new Date('2025-01-03T12:00:00+08:00'));
 
-      expect(isTodayOrFuture('1月3日')).toBe(true);
-      expect(isTodayOrFuture('1月5日')).toBe(true);
-      expect(isTodayOrFuture('12月20日')).toBe(false);
+      expect(isTodayOrFuture('2025-01-03')).toBe(true);
+      expect(isTodayOrFuture('2025-01-05')).toBe(true);
+      expect(isTodayOrFuture('2024-12-20')).toBe(false);
+    });
+
+    // 標籤不帶年份時，一年前的同月同日只能被推成離今天最近的那一年，
+    // 於是誤判為未來；吃 ISO 後兩者天然分得開。
+    it('相隔一年的同月同日應分別判為過去與未來', () => {
+      vi.setSystemTime(new Date('2026-08-13T12:00:00+08:00'));
+
+      expect(isTodayOrFuture('2025-08-20')).toBe(false);
+      expect(isTodayOrFuture('2026-08-20')).toBe(true);
     });
 
     it('應該處理月份邊界', () => {
       vi.setSystemTime(new Date('2024-10-01T12:00:00+08:00'));
 
-      expect(isTodayOrFuture('10月1日')).toBe(true);
-      expect(isTodayOrFuture('10月2日')).toBe(true);
-      expect(isTodayOrFuture('9月30日')).toBe(false);
+      expect(isTodayOrFuture('2024-10-01')).toBe(true);
+      expect(isTodayOrFuture('2024-10-02')).toBe(true);
+      expect(isTodayOrFuture('2024-09-30')).toBe(false);
     });
   });
 
   /**
-   * issue #33 的核心：server（UTC）與 client（UTC+8）必須對「今天」有相同答案。
-   *
-   * 台灣時間 00:00–08:00 這 8 小時，UTC 還停在前一天 —— 修正前這段時間 SSR 與
-   * client 會算出不同日期，也正是首頁被整頁包進 ClientOnly 的原因。
+   * server（UTC）與 client（UTC+8）必須對「今天」有相同答案，否則首頁與班表頁
+   * 無法 SSR。台灣時間 00:00–08:00 這 8 小時，UTC 還停在前一天。
    */
   describe('時區固定於台北', () => {
     it('台北已跨日、UTC 仍在前一天時，應以台北日期為準', () => {
@@ -281,8 +295,8 @@ describe('date utils', () => {
 
       expect(getTodayLabel()).toBe('1月1日');
       expect(getCurrentYear()).toBe(2026);
-      expect(isToday('1月1日')).toBe(true);
-      expect(isTodayOrFuture('12月31日')).toBe(false);
+      expect(isToday('2026-01-01')).toBe(true);
+      expect(isTodayOrFuture('2025-12-31')).toBe(false);
     });
 
     it('台灣 00:00–07:00 的每個整點都應落在台北的同一天', () => {
@@ -292,8 +306,8 @@ describe('date utils', () => {
 
         expect(getTodayLabel()).toBe('3月10日');
         expect(getCurrentHour()).toBe(utcHour - 16);
-        expect(isToday('3月10日')).toBe(true);
-        expect(isTodayOrFuture('3月9日')).toBe(false);
+        expect(isToday('2026-03-10')).toBe(true);
+        expect(isTodayOrFuture('2026-03-09')).toBe(false);
       }
     });
 
@@ -350,38 +364,38 @@ describe('date utils', () => {
   });
 
   describe('getWeekdayLabel', () => {
-    it('應該回傳「X月Y日」對應的星期中文字', () => {
-      vi.setSystemTime(TEST_DATES.NORMAL_DAY);
-
+    it('應該回傳 ISO 日期對應的星期中文字', () => {
       // 2024/10/28 為星期一
-      expect(getWeekdayLabel('10月28日')).toBe('一');
+      expect(getWeekdayLabel('2024-10-28')).toBe('一');
+      // 2024/10/12 為星期六
+      expect(getWeekdayLabel('2024-10-12')).toBe('六');
     });
 
     it('應該對格式不符的字串回傳空字串', () => {
-      expect(getWeekdayLabel('2024-10-28')).toBe('');
+      expect(getWeekdayLabel('10月28日')).toBe('');
       expect(getWeekdayLabel('')).toBe('');
     });
 
-    it('跨年：12 月底看到的隔年 1 月應以隔年推算星期', () => {
+    it('不受系統時間影響（年份來自 ISO 本身）', () => {
       vi.setSystemTime(TEST_DATES.YEAR_END);
 
-      // 最接近今天的「1月」是隔年 → 2025/1/1 為星期三
-      expect(getWeekdayLabel('1月1日')).toBe('三');
-      // 最接近今天的「12月31日」是當年 → 2024/12/31 為星期二
-      expect(getWeekdayLabel('12月31日')).toBe('二');
-    });
+      // 2025/1/1 為星期三、2024/12/31 為星期二
+      expect(getWeekdayLabel('2025-01-01')).toBe('三');
+      expect(getWeekdayLabel('2024-12-31')).toBe('二');
 
-    it('跨年：1 月初看到去年 12 月應以去年推算星期', () => {
       vi.setSystemTime(new Date('2025-01-03T12:00:00+08:00'));
 
-      // 最接近今天的「12月」是去年 → 2024/12/20 為星期五
-      expect(getWeekdayLabel('12月20日')).toBe('五');
+      // 換了「今天」也不影響推算結果
+      expect(getWeekdayLabel('2025-01-01')).toBe('三');
+      // 2024/12/20 為星期五
+      expect(getWeekdayLabel('2024-12-20')).toBe('五');
     });
 
-    it('台北凌晨時段仍以台北日期推算星期', () => {
-      vi.setSystemTime(new Date('2024-10-27T16:30:00Z')); // 台北 2024/10/28 00:30
-
-      expect(getWeekdayLabel('10月28日')).toBe('一');
+    // 舊實作會把同一個「8月20日」推到離今天最近的那一年，兩者拿到同一個星期。
+    it('相隔一年的同月同日應推出不同的星期', () => {
+      // 2025/8/20 為星期三、2026/8/20 為星期四
+      expect(getWeekdayLabel('2025-08-20')).toBe('三');
+      expect(getWeekdayLabel('2026-08-20')).toBe('四');
     });
   });
 
@@ -389,7 +403,8 @@ describe('date utils', () => {
     it('getTodayLabel 和 isToday 應該保持一致', () => {
       vi.setSystemTime(TEST_DATES.NORMAL_DAY);
 
-      expect(isToday(getTodayLabel())).toBe(true);
+      expect(isToday('2024-10-28')).toBe(true);
+      expect(getTodayLabel()).toBe('10月28日');
     });
 
     it('getCurrentYear 應該回傳台北時區的年份', () => {

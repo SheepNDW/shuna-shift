@@ -1,11 +1,14 @@
 <script setup lang="ts">
 // 班表單日的日期標記：mono 月／日 + serif 星期 + TODAY 徽章 + 特殊日說明。
 const {
+  iso,
   datetime,
   isToday = false,
   description = '',
 } = defineProps<{
-  /** 日期標籤（格式：10月12日） */
+  /** ISO 日期（格式：2026-08-31），用於推算星期 */
+  iso: string;
+  /** 顯示用日期標籤（格式：10月12日） */
   datetime: string;
   /** 是否為今日 */
   isToday?: boolean;
@@ -14,7 +17,7 @@ const {
 }>();
 
 const parsed = computed(() => parseDateLabel(datetime));
-const weekday = computed(() => getWeekdayLabel(datetime));
+const weekday = computed(() => getWeekdayLabel(iso));
 </script>
 
 <template>

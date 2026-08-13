@@ -8,7 +8,7 @@ const { schedule } = defineProps<{
 }>();
 
 const parsedDate = computed(() => parseDateLabel(schedule.date.datetime));
-const weekday = computed(() => getWeekdayLabel(schedule.date.datetime));
+const weekday = computed(() => getWeekdayLabel(schedule.date.iso));
 const isClosed = computed(
   () => getSpecialDateKind(schedule.date.backgroundColor) === 'closed'
 );

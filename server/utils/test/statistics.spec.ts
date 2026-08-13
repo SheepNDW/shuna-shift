@@ -1,15 +1,33 @@
 import { describe, expect, it } from 'vitest';
 import type { RowData, ShiftSchedule } from '~~/shared/types';
+import { isoToDateLabel } from '~~/shared/utils/date';
 import {
   calculateAgentStatistics,
   extractAgentName,
   filterRecentMonths,
   findAgentByName,
   getDateRange,
-  getLastScheduleDate,
-  parseDateString,
+  getLastScheduleIso,
+  resolveStatisticsEndIso,
 } from '../statistics';
 import { transformSheetDataToSchedules } from '../transformer';
+
+/**
+ * 以 ISO 日期建一筆班表；顯示標籤一律由 iso 導出，fixture 不會出現
+ * 「iso 與 datetime 對不起來」這種真實資料裡不可能發生的組合。
+ */
+const scheduleAt = (
+  iso: string,
+  dayAgents: { name: string; textColor: string }[] = [],
+  nightAgents: { name: string; textColor: string }[] = [],
+): ShiftSchedule => ({
+  date: { iso, datetime: isoToDateLabel(iso), backgroundColor: '', description: '' },
+  day: dayAgents,
+  night: nightAgents,
+});
+
+/** 只關心名字、不關心 textColor 時的簡寫 */
+const named = (...names: string[]) => names.map((name) => ({ name, textColor: '' }));
 
 describe('extractAgentName', () => {
   it('應該回傳原始名稱（無括號）', () => {
@@ -65,144 +83,133 @@ describe('findAgentByName', () => {
   });
 });
 
-describe('parseDateString', () => {
-  it('應該正確解析日期字串', () => {
-    const referenceDate = new Date(2025, 11, 16);
-    const result = parseDateString('12月16日', referenceDate);
-
-    expect(result?.getFullYear()).toBe(2025);
-    expect(result?.getMonth()).toBe(11);
-    expect(result?.getDate()).toBe(16);
-  });
-
-  it('應該正確處理跨年的情況（月份大於參考日期）', () => {
-    const referenceDate = new Date(2025, 1, 15); // 2月
-    const result = parseDateString('11月15日', referenceDate);
-
-    expect(result?.getFullYear()).toBe(2024);
-    expect(result?.getMonth()).toBe(10);
-  });
-
-  it('無效日期字串應該回傳 null', () => {
-    const result = parseDateString('無效日期');
-    expect(result).toBeNull();
-  });
-});
-
-describe('getLastScheduleDate', () => {
-  const createSchedule = (datetime: string): ShiftSchedule => ({
-    date: { datetime, backgroundColor: '', description: '' },
-    day: [],
-    night: [],
-  });
-
-  it('應該回傳最後一筆資料的日期', () => {
+describe('getLastScheduleIso', () => {
+  it('應該回傳最後一筆資料的 ISO 日期', () => {
     const schedules = [
-      createSchedule('9月16日'),
-      createSchedule('10月1日'),
-      createSchedule('12月16日'),
+      scheduleAt('2025-09-16'),
+      scheduleAt('2025-10-01'),
+      scheduleAt('2025-12-16'),
     ];
 
-    const result = getLastScheduleDate(schedules);
-
-    expect(result?.getMonth()).toBe(11);
-    expect(result?.getDate()).toBe(16);
+    expect(getLastScheduleIso(schedules)).toBe('2025-12-16');
   });
 
   it('空陣列應該回傳 null', () => {
-    const result = getLastScheduleDate([]);
-    expect(result).toBeNull();
+    expect(getLastScheduleIso([])).toBeNull();
+  });
+
+  it('最後一筆沒有日期時應該回傳 null', () => {
+    expect(getLastScheduleIso([scheduleAt('2025-12-16'), scheduleAt('')])).toBeNull();
+  });
+});
+
+describe('resolveStatisticsEndIso', () => {
+  it('資料已排到未來時，應以今天為視窗右端', () => {
+    const schedules = [scheduleAt('2026-07-20'), scheduleAt('2026-08-31')];
+
+    expect(resolveStatisticsEndIso(schedules, '2026-07-30')).toBe('2026-07-30');
+  });
+
+  it('資料尚未排到今天時，應以最後一筆為視窗右端', () => {
+    const schedules = [scheduleAt('2026-05-01'), scheduleAt('2026-06-30')];
+
+    expect(resolveStatisticsEndIso(schedules, '2026-07-30')).toBe('2026-06-30');
+  });
+
+  it('最後一筆剛好是今天時，右端為今天', () => {
+    expect(resolveStatisticsEndIso([scheduleAt('2026-07-30')], '2026-07-30')).toBe('2026-07-30');
+  });
+
+  it('空資料時應回傳今天', () => {
+    expect(resolveStatisticsEndIso([], '2026-07-30')).toBe('2026-07-30');
   });
 });
 
 describe('filterRecentMonths', () => {
-  const createSchedule = (datetime: string): ShiftSchedule => ({
-    date: { datetime, backgroundColor: '', description: '' },
-    day: [],
-    night: [],
-  });
-
   it('應該回傳空陣列（當輸入為空）', () => {
-    const result = filterRecentMonths([], 3);
-    expect(result).toEqual([]);
+    expect(filterRecentMonths([], 3)).toEqual([]);
   });
 
   it('應該篩選出近 N 個月的資料（指定參考日期）', () => {
-    const referenceDate = new Date(2025, 11, 16); // 2025年12月16日
     const schedules = [
-      createSchedule('9月1日'), // 超過 3 個月
-      createSchedule('9月16日'), // 剛好 3 個月
-      createSchedule('10月1日'),
-      createSchedule('11月1日'),
-      createSchedule('12月16日'),
+      scheduleAt('2025-09-01'), // 超過 3 個月
+      scheduleAt('2025-09-16'), // 剛好 3 個月（含邊界）
+      scheduleAt('2025-10-01'),
+      scheduleAt('2025-11-01'),
+      scheduleAt('2025-12-16'),
     ];
 
-    const result = filterRecentMonths(schedules, 3, referenceDate);
+    const result = filterRecentMonths(schedules, 3, '2025-12-16');
 
-    expect(result.length).toBe(4);
-    expect(result[0]?.date.datetime).toBe('9月16日');
-    expect(result[result.length - 1]?.date.datetime).toBe('12月16日');
+    expect(result.map((s) => s.date.iso)).toEqual([
+      '2025-09-16',
+      '2025-10-01',
+      '2025-11-01',
+      '2025-12-16',
+    ]);
   });
 
   it('預設應該以資料最後一筆為參考日期', () => {
     const schedules = [
-      createSchedule('9月1日'),
-      createSchedule('9月16日'),
-      createSchedule('10月1日'),
-      createSchedule('11月1日'),
-      createSchedule('12月16日'), // 最後一筆
+      scheduleAt('2025-09-01'),
+      scheduleAt('2025-09-16'),
+      scheduleAt('2025-10-01'),
+      scheduleAt('2025-11-01'),
+      scheduleAt('2025-12-16'), // 最後一筆
     ];
 
-    // 不傳入 referenceDate，應該以最後一筆 12月16日 為基準
     const result = filterRecentMonths(schedules, 3);
 
-    expect(result.length).toBe(4);
-    expect(result[0]?.date.datetime).toBe('9月16日');
+    expect(result).toHaveLength(4);
+    expect(result[0]?.date.iso).toBe('2025-09-16');
   });
 
   it('應該排除超過參考日期的資料', () => {
-    const referenceDate = new Date(2025, 11, 10); // 12月10日
     const schedules = [
-      createSchedule('9月16日'),
-      createSchedule('10月1日'),
-      createSchedule('12月10日'),
-      createSchedule('12月16日'), // 超過參考日期
+      scheduleAt('2025-09-16'),
+      scheduleAt('2025-10-01'),
+      scheduleAt('2025-12-10'),
+      scheduleAt('2025-12-16'), // 超過參考日期
     ];
 
-    const result = filterRecentMonths(schedules, 3, referenceDate);
+    const result = filterRecentMonths(schedules, 3, '2025-12-10');
 
-    expect(result.length).toBe(3);
-    expect(result[result.length - 1]?.date.datetime).toBe('12月10日');
+    expect(result).toHaveLength(3);
+    expect(result[result.length - 1]?.date.iso).toBe('2025-12-10');
   });
 
   it('應該正確處理跨年的情況', () => {
-    const referenceDate = new Date(2025, 1, 15); // 2025年2月15日
     const schedules = [
-      createSchedule('10月1日'), // 2024年10月
-      createSchedule('11月15日'), // 剛好 3 個月
-      createSchedule('12月1日'), // 2024年12月
-      createSchedule('1月1日'), // 2025年1月
-      createSchedule('2月15日'), // 2025年2月
+      scheduleAt('2024-10-01'), // 超過 3 個月
+      scheduleAt('2024-11-15'), // 剛好 3 個月
+      scheduleAt('2024-12-01'),
+      scheduleAt('2025-01-01'),
+      scheduleAt('2025-02-15'),
     ];
 
-    const result = filterRecentMonths(schedules, 3, referenceDate);
+    const result = filterRecentMonths(schedules, 3, '2025-02-15');
 
-    expect(result.length).toBe(4);
-    expect(result[0]?.date.datetime).toBe('11月15日');
+    expect(result).toHaveLength(4);
+    expect(result[0]?.date.iso).toBe('2024-11-15');
+  });
+
+  it('沒有日期的列（iso 為空）應被濾掉', () => {
+    const schedules = [scheduleAt('2025-12-16'), scheduleAt('')];
+
+    const result = filterRecentMonths(schedules, 3, '2025-12-16');
+
+    expect(result).toHaveLength(1);
+    expect(result[0]?.date.iso).toBe('2025-12-16');
+  });
+
+  it('參考日期不是合法 ISO 時應回傳空陣列，而非放行全部資料', () => {
+    const schedules = [scheduleAt('2025-12-16')];
+
+    expect(filterRecentMonths(schedules, 3, '12月16日')).toEqual([]);
   });
 });
 
 describe('calculateAgentStatistics', () => {
-  const createSchedule = (
-    datetime: string,
-    dayAgents: string[],
-    nightAgents: string[],
-  ): ShiftSchedule => ({
-    date: { datetime, backgroundColor: '', description: '' },
-    day: dayAgents.map((name) => ({ name, textColor: '' })),
-    night: nightAgents.map((name) => ({ name, textColor: '' })),
-  });
-
   it('應該回傳空陣列（當輸入為空）', () => {
     const result = calculateAgentStatistics([]);
     expect(result).toEqual([]);
@@ -210,9 +217,9 @@ describe('calculateAgentStatistics', () => {
 
   it('應該正確統計各探員的班次', () => {
     const schedules = [
-      createSchedule('12月1日', ['泠泠', 'Luna'], ['米捲']),
-      createSchedule('12月2日', ['泠泠'], ['Luna', '米捲']),
-      createSchedule('12月3日', ['米捲'], ['泠泠']),
+      scheduleAt('2025-12-01', named('泠泠', 'Luna'), named('米捲')),
+      scheduleAt('2025-12-02', named('泠泠'), named('Luna', '米捲')),
+      scheduleAt('2025-12-03', named('米捲'), named('泠泠')),
     ];
 
     const result = calculateAgentStatistics(schedules);
@@ -235,8 +242,8 @@ describe('calculateAgentStatistics', () => {
 
   it('應該按總班次降序排列', () => {
     const schedules = [
-      createSchedule('12月1日', ['泠泠', 'Luna'], ['米捲']),
-      createSchedule('12月2日', ['泠泠'], ['米捲']),
+      scheduleAt('2025-12-01', named('泠泠', 'Luna'), named('米捲')),
+      scheduleAt('2025-12-02', named('泠泠'), named('米捲')),
     ];
 
     const result = calculateAgentStatistics(schedules);
@@ -250,8 +257,8 @@ describe('calculateAgentStatistics', () => {
     // 舊程式碼（只比 total）會維持插入序輸出 [juano, rin] 而 FAIL，
     // 唯有 tie-breaker 把日班多的泠泠提前才會 PASS。
     const schedules = [
-      createSchedule('12月1日', ['米捲', '泠泠'], []),
-      createSchedule('12月2日', ['泠泠'], ['米捲']),
+      scheduleAt('2025-12-01', named('米捲', '泠泠')),
+      scheduleAt('2025-12-02', named('泠泠'), named('米捲')),
     ];
 
     const result = calculateAgentStatistics(schedules);
@@ -260,7 +267,7 @@ describe('calculateAgentStatistics', () => {
   });
 
   it('應該處理代班名稱（括號情況）', () => {
-    const schedules = [createSchedule('12月1日', ['小楓(泠泠)'], ['音（Luna）'])];
+    const schedules = [scheduleAt('2025-12-01', named('小楓(泠泠)'), named('音（Luna）'))];
 
     const result = calculateAgentStatistics(schedules);
 
@@ -274,7 +281,7 @@ describe('calculateAgentStatistics', () => {
   });
 
   it('應該忽略找不到對應的探員', () => {
-    const schedules = [createSchedule('12月1日', ['不存在的探員'], ['泠泠'])];
+    const schedules = [scheduleAt('2025-12-01', named('不存在的探員'), named('泠泠'))];
 
     const result = calculateAgentStatistics(schedules);
 
@@ -285,27 +292,12 @@ describe('calculateAgentStatistics', () => {
   // 灰字 textColor = 班表填寫者標記的「今日不出勤」(臨時請假),
   // 不能計入實際出勤統計,否則個人頁的不出勤標記會與「近 3 個月」班次數矛盾。
   describe('灰字 textColor「今日不出勤」應排除於統計外', () => {
-    // 顯式給 textColor 的工廠(原 createSchedule 一律給 ''，無法表達灰字)
-    const createScheduleWithColors = (
-      datetime: string,
-      dayShifts: { name: string; textColor: string }[],
-      nightShifts: { name: string; textColor: string }[],
-    ): ShiftSchedule => ({
-      date: { datetime, backgroundColor: '', description: '' },
-      day: dayShifts,
-      night: nightShifts,
-    });
-
     it('早班灰字探員不應被計入 dayCount', () => {
       const schedules = [
-        createScheduleWithColors(
-          '12月1日',
-          [
-            { name: '泠泠', textColor: '' },
-            { name: '千熊', textColor: '#cccccc' }, // 灰字＝不出勤
-          ],
-          []
-        ),
+        scheduleAt('2025-12-01', [
+          { name: '泠泠', textColor: '' },
+          { name: '千熊', textColor: '#cccccc' }, // 灰字＝不出勤
+        ]),
       ];
 
       const result = calculateAgentStatistics(schedules);
@@ -320,13 +312,13 @@ describe('calculateAgentStatistics', () => {
 
     it('晚班灰字探員不應被計入 nightCount', () => {
       const schedules = [
-        createScheduleWithColors(
-          '12月1日',
+        scheduleAt(
+          '2025-12-01',
           [],
           [
             { name: 'Luna', textColor: '#93c47d' }, // 綠晚班(正常出勤)
             { name: '千熊', textColor: '#999999' }, // 灰字＝不出勤
-          ]
+          ],
         ),
       ];
 
@@ -341,9 +333,9 @@ describe('calculateAgentStatistics', () => {
 
     it('同探員多日交替(出勤 + 不出勤)只計出勤日', () => {
       const schedules = [
-        createScheduleWithColors('12月1日', [{ name: '泠泠', textColor: '' }], []),
-        createScheduleWithColors('12月2日', [{ name: '泠泠', textColor: '#b7b7b7' }], []),
-        createScheduleWithColors('12月3日', [{ name: '泠泠', textColor: '' }], []),
+        scheduleAt('2025-12-01', [{ name: '泠泠', textColor: '' }]),
+        scheduleAt('2025-12-02', [{ name: '泠泠', textColor: '#b7b7b7' }]),
+        scheduleAt('2025-12-03', [{ name: '泠泠', textColor: '' }]),
       ];
 
       const result = calculateAgentStatistics(schedules);
@@ -355,18 +347,12 @@ describe('calculateAgentStatistics', () => {
 });
 
 describe('getDateRange', () => {
-  const createSchedule = (datetime: string): ShiftSchedule => ({
-    date: { datetime, backgroundColor: '', description: '' },
-    day: [],
-    night: [],
-  });
-
   it('應該回傳實際資料的日期範圍', () => {
     const schedules = [
-      createSchedule('9月16日'),
-      createSchedule('10月1日'),
-      createSchedule('11月1日'),
-      createSchedule('12月16日'),
+      scheduleAt('2025-09-16'),
+      scheduleAt('2025-10-01'),
+      scheduleAt('2025-11-01'),
+      scheduleAt('2025-12-16'),
     ];
 
     const result = getDateRange(schedules);
@@ -377,10 +363,10 @@ describe('getDateRange', () => {
 
   it('應該正確處理跨年的情況', () => {
     const schedules = [
-      createSchedule('11月15日'),
-      createSchedule('12月1日'),
-      createSchedule('1月1日'),
-      createSchedule('2月15日'),
+      scheduleAt('2024-11-15'),
+      scheduleAt('2024-12-01'),
+      scheduleAt('2025-01-01'),
+      scheduleAt('2025-02-15'),
     ];
 
     const result = getDateRange(schedules);
@@ -397,12 +383,80 @@ describe('getDateRange', () => {
   });
 
   it('應該處理單筆資料', () => {
-    const schedules = [createSchedule('12月16日')];
-
-    const result = getDateRange(schedules);
+    const result = getDateRange([scheduleAt('2025-12-16')]);
 
     expect(result.from).toBe('12月16日');
     expect(result.to).toBe('12月16日');
+  });
+
+  it('任一端沒有日期時兩端皆回空字串', () => {
+    const result = getDateRange([scheduleAt(''), scheduleAt('2025-12-16')]);
+
+    expect(result.from).toBe('');
+    expect(result.to).toBe('');
+  });
+});
+
+/**
+ * 歷史班表 sheet 若累積超過 12 個月，同一個「1月5日」會出現兩次。只認月日的話
+ * 兩筆會落在同一天上，一年前的班次因此被算進近三個月而靜默重複計算。
+ */
+describe('跨年重複標籤', () => {
+  const schedules = [
+    scheduleAt('2026-01-05', named('泠泠')),
+    scheduleAt('2027-01-05', named('泠泠')),
+  ];
+
+  it('兩筆的顯示標籤相同，但 iso 可區分', () => {
+    expect(schedules.map((s) => s.date.datetime)).toEqual(['1月5日', '1月5日']);
+    expect(schedules.map((s) => s.date.iso)).toEqual(['2026-01-05', '2027-01-05']);
+  });
+
+  it('近三個月視窗只應納入當年那一筆', () => {
+    const recent = filterRecentMonths(schedules, 3, '2027-01-10');
+
+    expect(recent).toHaveLength(1);
+    expect(recent[0]?.date.iso).toBe('2027-01-05');
+  });
+
+  it('統計不應重複計算一年前的同標籤班次', () => {
+    const recent = filterRecentMonths(schedules, 3, '2027-01-10');
+    const result = calculateAgentStatistics(recent);
+
+    expect(result.find((s) => s.agentId === 'rin')?.total).toBe(1);
+  });
+});
+
+/**
+ * 當期班表會預先排到月底以後，若以「資料最後一筆」為視窗右端，「近三個月出勤
+ * 統計」就會含進整整一個月的未來排班，與文案不符。
+ */
+describe('未來排班不計入出勤統計', () => {
+  const TODAY_ISO = '2026-07-30';
+  const schedules = [
+    scheduleAt('2026-07-20', named('泠泠')), // 已發生
+    scheduleAt('2026-07-30', named('泠泠')), // 今天
+    scheduleAt('2026-08-15', named('泠泠')), // 未來
+    scheduleAt('2026-08-31', named('泠泠')), // 未來（資料最後一筆）
+  ];
+  const recent = filterRecentMonths(
+    schedules,
+    3,
+    resolveStatisticsEndIso(schedules, TODAY_ISO),
+  );
+
+  it('視窗只應納入今天與之前的班次', () => {
+    expect(recent.map((s) => s.date.iso)).toEqual(['2026-07-20', '2026-07-30']);
+  });
+
+  it('統計次數不應含未來班次', () => {
+    const result = calculateAgentStatistics(recent);
+
+    expect(result.find((s) => s.agentId === 'rin')?.total).toBe(2);
+  });
+
+  it('dateRange.to 不應超過今天', () => {
+    expect(getDateRange(recent).to).toBe('7月30日');
   });
 });
 

@@ -1,12 +1,10 @@
 import { AGENTS } from '~~/shared/constant';
+import type { ShiftSchedule } from '~~/shared/types';
 
 // 篩選該探員的排班資料
 export interface AgentScheduleItem {
-  date: {
-    datetime: string;
-    backgroundColor: string;
-    description: string;
-  };
+  /** 原封不動沿用班表的日期欄位（含作為事實來源的 `iso`） */
+  date: ShiftSchedule['date'];
   dayShifts: { name: string; textColor: string }[];
   nightShifts: { name: string; textColor: string }[];
 }

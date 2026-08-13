@@ -7,8 +7,8 @@ import { useScheduleStore } from '~/stores/schedule';
  * AppFooter 是 `formatDateTime` 唯一的 render 點，而且在 layout 裡全站渲染。
  *
  * 它不在 `<ClientOnly>` 內：`formatDateTime` 若讀機器本地時間，SSR（Vercel = UTC）
- * 與瀏覽器（UTC+8）會輸出不同字串 —— 這是 issue #33 一併修掉的既有 hydration
- * mismatch，因此這裡把「以台北時區呈現」釘住。
+ * 與瀏覽器（UTC+8）會輸出不同字串而 hydration mismatch，因此這裡把「以台北時區
+ * 呈現」釘住。
  *
  * store 一律在 mount 之後才改：Nuxt 測試環境有自己的 pinia，若在外面
  * `setActivePinia(createPinia())` 另建一份，元件拿到的會是不同實例。

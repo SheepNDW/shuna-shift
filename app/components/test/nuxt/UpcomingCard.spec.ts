@@ -20,7 +20,7 @@ const globalStubs = {
 
 const scheduleMock: ShiftSchedule = {
   date: {
-    datetime: '10月12日',
+    iso: '2024-10-12', datetime: '10月12日',
     backgroundColor: '#b6d7a8',
     description: '特別營業',
   },
@@ -109,7 +109,7 @@ describe('UpcomingCard', () => {
     const wrapper = await mountSuspended(UpcomingCard, {
       props: {
         schedule: {
-          date: { datetime: '10月13日', backgroundColor: '#999999', description: '' },
+          date: { iso: '2024-10-13', datetime: '10月13日', backgroundColor: '#999999', description: '' },
           day: [],
           night: [],
         },
