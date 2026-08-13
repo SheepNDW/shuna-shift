@@ -196,7 +196,7 @@ describe('isUnscheduledSchedule', () => {
     backgroundColor: string,
     description = '',
   ): ShiftSchedule => ({
-    date: { datetime: '6月1日', backgroundColor, description },
+    date: { iso: '2026-06-01', datetime: '6月1日', backgroundColor, description },
     day: [],
     night: [],
   });
@@ -215,10 +215,49 @@ describe('isUnscheduledSchedule', () => {
 
   it('有排班時，不視為尚未排班', () => {
     const schedule: ShiftSchedule = {
-      date: { datetime: '6月1日', backgroundColor: '#ffffff', description: '' },
+      date: {
+        iso: '2026-06-01',
+        datetime: '6月1日',
+        backgroundColor: '#ffffff',
+        description: '',
+      },
       day: [{ name: '🐷', textColor: '' }],
       night: [],
     };
     expect(isUnscheduledSchedule(schedule)).toBe(false);
+  });
+});
+
+describe('transformSheetDataToSchedules — ISO 日期', () => {
+  it('應由 A 欄序號產出帶年份的 iso，並以 iso 導出顯示標籤', () => {
+    const rows: RowData[] = [
+      {
+        values: [
+          { userEnteredValue: { numberValue: 46027 } },
+          { userEnteredValue: { stringValue: '早' } },
+          { userEnteredValue: { stringValue: '🐷' } },
+        ],
+      },
+    ];
+
+    const [schedule] = transformSheetDataToSchedules(rows);
+
+    expect(schedule?.date.iso).toBe('2026-01-05');
+    expect(schedule?.date.datetime).toBe('1月5日');
+  });
+
+  it('相隔一年的同月同日應產出不同的 iso（標籤相同也能區分）', () => {
+    const dayRow = (serial: number): RowData => ({
+      values: [
+        { userEnteredValue: { numberValue: serial } },
+        { userEnteredValue: { stringValue: '早' } },
+        { userEnteredValue: { stringValue: '🐷' } },
+      ],
+    });
+
+    const result = transformSheetDataToSchedules([dayRow(45662), dayRow(46027)]);
+
+    expect(result.map((s) => s.date.datetime)).toEqual(['1月5日', '1月5日']);
+    expect(result.map((s) => s.date.iso)).toEqual(['2025-01-05', '2026-01-05']);
   });
 });

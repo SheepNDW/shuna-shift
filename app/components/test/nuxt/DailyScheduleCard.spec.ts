@@ -5,6 +5,7 @@ import DailyScheduleCard from '../../DailyScheduleCard.vue';
 
 const DateTagStub = defineComponent({
   props: {
+    iso: { type: String, required: true },
     datetime: { type: String, required: true },
     isToday: { type: Boolean, default: false },
     description: { type: String, default: '' },
@@ -30,7 +31,7 @@ const globalStubs = {
 
 const scheduleMock: ShiftSchedule = {
   date: {
-    datetime: '10月12日',
+    iso: '2024-10-12', datetime: '10月12日',
     backgroundColor: '#b6d7a8',
     description: '特別營業',
   },
@@ -65,7 +66,7 @@ describe('DailyScheduleCard', () => {
   it('應渲染早班與晚班兩列 ShiftRow 並傳入對應人數', async () => {
     const wrapper = await mountSuspended(DailyScheduleCard, {
       props: {
-        schedule: { ...scheduleMock, date: { ...scheduleMock.date, datetime: '10月20日' } },
+        schedule: { ...scheduleMock, date: { ...scheduleMock.date, iso: '2024-10-20', datetime: '10月20日' } },
       },
       global: { stubs: globalStubs },
     });
@@ -92,7 +93,7 @@ describe('DailyScheduleCard', () => {
   it('日期非今日時 data-today 應為 false', async () => {
     const wrapper = await mountSuspended(DailyScheduleCard, {
       props: {
-        schedule: { ...scheduleMock, date: { ...scheduleMock.date, datetime: '10月25日' } },
+        schedule: { ...scheduleMock, date: { ...scheduleMock.date, iso: '2024-10-25', datetime: '10月25日' } },
       },
       global: { stubs: globalStubs },
     });
@@ -119,7 +120,7 @@ describe('DailyScheduleCard', () => {
     const wrapper = await mountSuspended(DailyScheduleCard, {
       props: {
         schedule: {
-          date: { datetime: '10月13日', backgroundColor: '#999999', description: '' },
+          date: { iso: '2024-10-13', datetime: '10月13日', backgroundColor: '#999999', description: '' },
           day: [],
           night: [],
         },

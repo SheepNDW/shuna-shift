@@ -5,12 +5,15 @@ import { useScheduleStore } from '~/stores/schedule';
 
 /**
  * 固定在台北的某個時刻。原本這支測試用 `new Date()` 現算今天的月日當標籤，
- * 而 store 的 todaySchedule 走 getTodayLabel()（台北時區）—— 兩者在機器本地日期
- * 與台北不同時（例如 UTC+14 的機器、或台灣凌晨時段的 UTC runner）就會對不上。
+ * 而 store 的 todaySchedule 走台北時區的「今天」—— 兩者在機器本地日期與台北不同時
+ * （例如 UTC+14 的機器、或台灣凌晨時段的 UTC runner）就會對不上。
  * 之所以一直沒紅，只是因為多數時候兩邊剛好同一天。
+ *
+ * 比對的鍵是 ISO 日期（`date.iso`）而非「X月Y日」標籤：標籤不帶年份，
+ * 歷史班表跨年累積時同一個標籤會對應兩天。
  */
 const TAIPEI_NOON = new Date('2024-10-28T12:00:00+08:00');
-const TODAY_LABEL = '10月28日';
+const TODAY_ISO = '2024-10-28';
 
 /**
  * `useFetch` 是 Nuxt auto-import，`vi.mock('#app')` 攔不到
@@ -38,8 +41,8 @@ function stubFetch({ schedules = [], lastUpdated = '', error = null }: FetchStub
   return state;
 }
 
-const scheduleAt = (datetime: string): ShiftSchedule => ({
-  date: { datetime, backgroundColor: '', description: '' },
+const scheduleAt = (iso: string): ShiftSchedule => ({
+  date: { iso, datetime: isoToDateLabel(iso), backgroundColor: '', description: '' },
   day: [{ name: '小春', textColor: '' }],
   night: [],
 });
@@ -65,43 +68,37 @@ describe('useScheduleStore', () => {
   it('應該正確計算今日班表', () => {
     const store = useScheduleStore();
 
-    store.schedules = [
-      {
-        date: {
-          datetime: TODAY_LABEL,
-          backgroundColor: '#b6d7a8',
-          description: '',
-        },
-        day: [{ name: '🐷', textColor: '' }],
-        night: [{ name: '🌙', textColor: '' }],
-      },
-      {
-        date: {
-          datetime: '1月1日',
-          backgroundColor: '',
-          description: '',
-        },
-        day: [{ name: '小春', textColor: '' }],
-        night: [],
-      },
-    ];
-
-    expect(store.todaySchedule).toEqual({
+    const todayEntry: ShiftSchedule = {
       date: {
-        datetime: TODAY_LABEL,
+        iso: TODAY_ISO,
+        datetime: '10月28日',
         backgroundColor: '#b6d7a8',
         description: '',
       },
       day: [{ name: '🐷', textColor: '' }],
       night: [{ name: '🌙', textColor: '' }],
-    });
+    };
+
+    store.schedules = [todayEntry, scheduleAt('2024-01-01')];
+
+    expect(store.todaySchedule).toEqual(todayEntry);
   });
 
   it('當沒有今日班表時應該回傳 null', () => {
     const store = useScheduleStore();
 
-    store.schedules = [scheduleAt('1月1日')];
+    store.schedules = [scheduleAt('2024-01-01')];
 
+    expect(store.todaySchedule).toBeNull();
+  });
+
+  // 標籤只有月日，去年的同一天標籤與今天完全相同；以 iso 比對才分得開。
+  it('去年的同月同日不應被當成今日班表', () => {
+    const store = useScheduleStore();
+
+    store.schedules = [scheduleAt('2023-10-28')];
+
+    expect(store.schedules[0]?.date.datetime).toBe('10月28日');
     expect(store.todaySchedule).toBeNull();
   });
 
@@ -114,7 +111,7 @@ describe('useScheduleStore', () => {
   describe('fetchSchedules', () => {
     it('成功時應該寫入班表與 lastUpdated，且 hasError 為 false', async () => {
       stubFetch({
-        schedules: [scheduleAt(TODAY_LABEL)],
+        schedules: [scheduleAt(TODAY_ISO)],
         lastUpdated: '2024-10-28T04:30:00.000Z',
       });
       const store = useScheduleStore();
@@ -137,7 +134,7 @@ describe('useScheduleStore', () => {
 
     it('失敗時不應該用空資料覆蓋既有班表', async () => {
       const state = stubFetch({
-        schedules: [scheduleAt(TODAY_LABEL)],
+        schedules: [scheduleAt(TODAY_ISO)],
         lastUpdated: '2024-10-28T04:30:00.000Z',
       });
       const store = useScheduleStore();
@@ -161,7 +158,7 @@ describe('useScheduleStore', () => {
 
       state.error.value = null;
       state.data.value = {
-        schedules: [scheduleAt(TODAY_LABEL)],
+        schedules: [scheduleAt(TODAY_ISO)],
         metadata: { lastUpdated: '2024-10-28T04:30:00.000Z' },
       };
       await store.fetchSchedules({ refresh: true });

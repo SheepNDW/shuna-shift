@@ -1,6 +1,7 @@
 export const mockSchedules: ShiftSchedule[] = [
   {
     date: {
+      iso: '2024-10-30',
       datetime: '10月30日',
       backgroundColor: '#9cc2e5',
       description: '',
@@ -60,6 +61,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-10-31',
       datetime: '10月31日',
       backgroundColor: '#b6d7a8',
       description: '萬聖',
@@ -119,6 +121,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-01',
       datetime: '11月1日',
       backgroundColor: '#9cc2e5',
       description: '',
@@ -182,6 +185,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-02',
       datetime: '11月2日',
       backgroundColor: '#9cc2e5',
       description: '',
@@ -245,6 +249,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-03',
       datetime: '11月3日',
       backgroundColor: '#999999',
       description: '',
@@ -254,6 +259,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-04',
       datetime: '11月4日',
       backgroundColor: '',
       description: '',
@@ -301,6 +307,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-05',
       datetime: '11月5日',
       backgroundColor: '',
       description: '',
@@ -340,6 +347,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-06',
       datetime: '11月6日',
       backgroundColor: '',
       description: '',
@@ -383,6 +391,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-07',
       datetime: '11月7日',
       backgroundColor: '',
       description: '',
@@ -430,6 +439,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-08',
       datetime: '11月8日',
       backgroundColor: '',
       description: '',
@@ -485,6 +495,7 @@ export const mockSchedules: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2024-11-09',
       datetime: '11月9日',
       backgroundColor: '#d5a6bd',
       description: '音',

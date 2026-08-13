@@ -14,7 +14,7 @@ const stubs = {
 } as const;
 
 const makeItem = (overrides: Partial<AgentScheduleItem> = {}): AgentScheduleItem => ({
-  date: { datetime: '10月12日', backgroundColor: '', description: '' },
+  date: { iso: '2024-10-12', datetime: '10月12日', backgroundColor: '', description: '' },
   dayShifts: [{ name: '泠泠', textColor: '' }],
   nightShifts: [],
   ...overrides,
@@ -45,7 +45,7 @@ describe('AgentScheduleCard', () => {
     const wrapper = await mountSuspended(AgentScheduleCard, {
       props: {
         schedule: makeItem({
-          date: { datetime: '11月15日', backgroundColor: '', description: '' },
+          date: { iso: '2024-11-15', datetime: '11月15日', backgroundColor: '', description: '' },
         }),
       },
       global: { stubs },
@@ -91,14 +91,14 @@ describe('AgentScheduleCard', () => {
     const wrapper = await mountSuspended(AgentScheduleCard, {
       props: {
         schedule: makeItem({
-          date: { datetime: '11月20日', backgroundColor: '', description: '' },
+          date: { iso: '2024-11-20', datetime: '11月20日', backgroundColor: '', description: '' },
         }),
       },
       global: { stubs },
     });
 
     expect(wrapper.get('[data-testid="agent-schedule-link"]').attributes('to')).toBe(
-      '/shifts?date=11月20日'
+      '/shifts?date=2024-11-20'
     );
   });
 

@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, ref } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
+import type { JumpDate } from '~~/shared/types';
 import FilterBar from '../../FilterBar.vue';
 
-const mountFilterBar = async (initialSelected: string[] = [], dates: string[] = []) => {
+const mountFilterBar = async (initialSelected: string[] = [], dates: JumpDate[] = []) => {
   const model = ref<string[]>([...initialSelected]);
   const jumped = ref<string[]>([]);
   const WrapperComponent = defineComponent({
@@ -70,14 +71,32 @@ describe('FilterBar', () => {
     expect(wrapper.find('[data-testid="filter-clear"]').exists()).toBe(false);
   });
 
-  it('提供 dates 時應渲染 jump pill 並於點擊時 emit jump', async () => {
-    const { wrapper, jumped } = await mountFilterBar([], ['10月12日', '10月13日']);
+  // pill 顯示標籤、但 emit 出去的是 ISO —— /shifts 用它定位卡片的 DOM id，
+  // 標籤不帶年份、跨年會撞 id。
+  it('提供 dates 時應渲染 jump pill 並於點擊時 emit ISO 日期', async () => {
+    const { wrapper, jumped } = await mountFilterBar([], [
+      { iso: '2024-10-12', label: '10月12日' },
+      { iso: '2024-10-13', label: '10月13日' },
+    ]);
 
     const pills = wrapper.findAll('[data-testid="jump-pill"]');
     expect(pills).toHaveLength(2);
+    expect(pills[0]?.text()).toContain('10月12日');
 
     await pills[1]!.trigger('click');
-    expect(jumped.value).toEqual(['10月13日']);
+    expect(jumped.value).toEqual(['2024-10-13']);
+  });
+
+  it('今日的 pill 應以 ISO 比對後標記為當日樣式', async () => {
+    // 系統時間釘在台北 2024/10/12
+    const { wrapper } = await mountFilterBar([], [
+      { iso: '2024-10-12', label: '10月12日' },
+      { iso: '2023-10-12', label: '10月12日' }, // 去年同一天，標籤完全相同
+    ]);
+
+    const pills = wrapper.findAll('[data-testid="jump-pill"]');
+    expect(pills[0]?.classes()).toContain('bg-ink');
+    expect(pills[1]?.classes()).not.toContain('bg-ink');
   });
 
   it('未提供 dates 時不顯示跳轉區塊', async () => {

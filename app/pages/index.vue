@@ -17,12 +17,9 @@ const todayCounts = computed(() => ({
 
 // 近日預覽：今日之後、最多 4 天
 const upcomingSchedules = computed(() => {
-  const todayLabel = getTodayLabel();
+  const todayIso = getTodayIso();
   return schedules.value
-    .filter(
-      (schedule) =>
-        schedule.date.datetime !== todayLabel && isTodayOrFuture(schedule.date.datetime)
-    )
+    .filter((schedule) => schedule.date.iso !== todayIso && isTodayOrFuture(schedule.date.iso))
     .slice(0, 4);
 });
 
@@ -101,7 +98,7 @@ useHead({
       <div class="grid gap-4 [grid-template-columns:repeat(auto-fill,minmax(240px,1fr))]">
         <UpcomingCard
           v-for="schedule in upcomingSchedules"
-          :key="schedule.date.datetime"
+          :key="schedule.date.iso"
           :schedule="schedule"
         />
       </div>

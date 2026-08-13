@@ -13,7 +13,7 @@ const {
   highlightedAgents?: Set<string>;
 }>();
 
-const today = computed(() => isToday(schedule.date.datetime));
+const today = computed(() => isToday(schedule.date.iso));
 const isClosed = computed(
   () => getSpecialDateKind(schedule.date.backgroundColor) === 'closed'
 );
@@ -30,6 +30,7 @@ const isClosed = computed(
       class="border-r border-rule-2 pr-6 max-[920px]:border-r-0 max-[920px]:border-b max-[920px]:pr-0 max-[920px]:pb-4"
     >
       <DateTag
+        :iso="schedule.date.iso"
         :datetime="schedule.date.datetime"
         :is-today="today"
         :description="schedule.date.description"

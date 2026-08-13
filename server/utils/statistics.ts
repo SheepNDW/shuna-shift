@@ -1,6 +1,7 @@
 import { AGENTS, normalizeAgentName } from '~~/shared/constant';
 import type { AgentStatistics, ShiftSchedule } from '~~/shared/types';
 import { isLeaveColor } from '~~/shared/utils/colors';
+import { addMonthsToIso, getTodayIso, isoToDateLabel } from '~~/shared/utils/date';
 
 /**
  * 從探員名稱中提取實際執行值班的探員名稱
@@ -37,64 +38,75 @@ export function findAgentByName(name: string): {
 }
 
 /**
- * 解析班表日期字串（例如 "12月16日"）為 Date 物件
- * @param dateStr - 日期字串
- * @param referenceDate - 參考日期，用於判斷年份
+ * 從班表資料中找出最後一筆的 ISO 日期
+ * @param schedules - 班表資料陣列（按日期排序）
+ * @returns ISO 日期；空陣列或該筆無日期時回傳 null
  */
-export function parseDateString(dateStr: string, referenceDate: Date = new Date()): Date | null {
-  const match = dateStr.match(/(\d+)月(\d+)日/);
-  if (!match) return null;
-
-  const month = parseInt(match[1]!, 10) - 1;
-  const day = parseInt(match[2]!, 10);
-
-  // 判斷年份：如果月份大於參考日期的月份，可能是去年的資料
-  let year = referenceDate.getFullYear();
-  if (month > referenceDate.getMonth()) {
-    year -= 1;
-  }
-
-  return new Date(year, month, day);
+export function getLastScheduleIso(schedules: ShiftSchedule[]): string | null {
+  const lastSchedule = schedules[schedules.length - 1];
+  return lastSchedule?.date.iso || null;
 }
 
 /**
- * 從班表資料中找出最後一筆的日期
- * @param schedules - 班表資料陣列
+ * 決定統計視窗的右端 —— `min(今天, 資料最後一筆)`。
+ *
+ * 不能直接拿「資料最後一筆」當基準：當期班表會預先排到月底以後，最後一筆必然
+ * 落在未來，於是尚未發生的班次會被算成出勤 —— 排得越前面，「近三個月」裡的未來
+ * 占比越高，MVP 也會因為「誰被排得比較前面」而失真。
+ * 「出勤」在中文語境是既成事實，故一律收斂到今天為止。
+ *
+ * 反向的情況（資料還沒排到今天，例如換期空窗）則以最後一筆為準，免得視窗右端
+ * 落在一段完全沒有資料的區間上。
+ *
+ * 與 `/api/statistics` 的 6 小時快取有一層交互：`endIso` 只在填快取那一刻算一次，
+ * 因此台北 23:55 填的快取，到隔天 05:55 前右端仍會停在前一天。觸發窗口是台北
+ * 00:00–06:00 —— 那段時間「今天」的班本來就還沒發生，統計數字不受影響，唯一
+ * 可見症狀是 `dateRange.to` 標籤慢一天；整包 payload 依設計本來就最多陳舊 6 小時，
+ * 故不為此在快取層另加日期維度。
+ *
+ * @param schedules - 班表資料陣列（按日期排序）
+ * @param todayIso - 台北的今天；由呼叫端傳入以免同一次判斷讀到兩個不同的「現在」
  */
-export function getLastScheduleDate(schedules: ShiftSchedule[]): Date | null {
-  if (schedules.length === 0) return null;
+export function resolveStatisticsEndIso(
+  schedules: ShiftSchedule[],
+  todayIso: string = getTodayIso(),
+): string {
+  const lastIso = getLastScheduleIso(schedules);
+  if (!lastIso) return todayIso;
 
-  const lastSchedule = schedules[schedules.length - 1]!;
-  return parseDateString(lastSchedule.date.datetime);
+  return lastIso < todayIso ? lastIso : todayIso;
 }
 
 /**
- * 截取近 N 個月的班表資料
+ * 截取近 N 個月的班表資料。
+ *
+ * ISO 日期為固定長度、零填補，字串比較即等於日期比較，不需要轉 Date 也不需要
+ * 推算年份。無日期的列（`iso` 為空字串）一律落在區間外而被濾掉。
+ *
  * @param schedules - 完整班表資料（按日期排序）
  * @param months - 月份數量
- * @param referenceDate - 參考日期（預設為資料最後一筆的日期）
+ * @param referenceIso - 視窗右端的 ISO 日期（預設為資料最後一筆）
  * @returns 截取後的班表資料
  */
 export function filterRecentMonths(
   schedules: ShiftSchedule[],
   months: number,
-  referenceDate?: Date,
+  referenceIso?: string,
 ): ShiftSchedule[] {
   if (schedules.length === 0) return [];
 
-  // 如果沒有指定參考日期，使用資料最後一筆的日期
-  const endDate = referenceDate ?? getLastScheduleDate(schedules) ?? new Date();
+  const endIso = referenceIso ?? getLastScheduleIso(schedules) ?? getTodayIso();
+  const cutoffIso = addMonthsToIso(endIso, -months);
+  // endIso 不是合法 ISO（例如呼叫端傳了顯示標籤）時寧可回傳空陣列，
+  // 也不要讓一個算不出來的界線靜默放行全部資料。
+  // 目前的呼叫端都給得出合法 ISO，真的走到這裡代表接線壞了 ——
+  // 症狀會是「全零的統計頁」，沒有 log 的話極難回推到這一行。
+  if (!cutoffIso) {
+    console.warn(`[statistics] 無法由 "${endIso}" 算出視窗左端，本次過濾回傳空陣列`);
+    return [];
+  }
 
-  // 計算 N 個月前的日期
-  const cutoffDate = new Date(endDate);
-  cutoffDate.setMonth(cutoffDate.getMonth() - months);
-
-  return schedules.filter((schedule) => {
-    const scheduleDate = parseDateString(schedule.date.datetime, endDate);
-    if (!scheduleDate) return false;
-    // 過濾在區間內的資料：cutoffDate <= scheduleDate <= endDate
-    return scheduleDate >= cutoffDate && scheduleDate <= endDate;
-  });
+  return schedules.filter(({ date }) => date.iso >= cutoffIso && date.iso <= endIso);
 }
 
 /**
@@ -183,35 +195,28 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
 }
 
 /**
- * 取得日期範圍描述（基於實際班表資料）
- * @param schedules - 班表資料陣列
- * @returns 實際資料的起始和結束日期
+ * 取得日期範圍描述（基於實際班表資料）。
+ *
+ * 回傳的是顯示用標籤 —— 這組值只餵給統計頁 PageHeader 的 meta，不參與任何比較。
+ *
+ * @param schedules - 班表資料陣列（按日期排序）
+ * @returns 實際資料的起始和結束日期標籤；任一端缺日期時兩端皆回空字串
  */
 export function getDateRange(schedules: ShiftSchedule[]): { from: string; to: string } {
-  if (schedules.length === 0) {
+  const firstSchedule = schedules[0];
+  const lastSchedule = schedules[schedules.length - 1];
+
+  if (!firstSchedule || !lastSchedule) {
     return { from: '', to: '' };
   }
 
-  const formatDate = (date: Date): string => {
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    return `${month}月${day}日`;
-  };
+  const from = isoToDateLabel(firstSchedule.date.iso);
+  const to = isoToDateLabel(lastSchedule.date.iso);
 
-  // 取得第一筆資料的日期
-  const firstSchedule = schedules[0]!;
-  const firstDate = parseDateString(firstSchedule.date.datetime);
-
-  // 取得最後一筆資料的日期
-  const lastSchedule = schedules[schedules.length - 1]!;
-  const lastDate = parseDateString(lastSchedule.date.datetime);
-
-  if (!firstDate || !lastDate) {
+  // 只有一端算得出來的話，「– 到某日」讀起來比沒有更誤導
+  if (!from || !to) {
     return { from: '', to: '' };
   }
 
-  return {
-    from: formatDate(firstDate),
-    to: formatDate(lastDate),
-  };
+  return { from, to };
 }

@@ -82,9 +82,9 @@ const { schedule } = defineProps<{
   schedule: AgentScheduleItem;
 }>();
 
-const today = computed(() => isToday(schedule.date.datetime));
+const today = computed(() => isToday(schedule.date.iso));
 const parsed = computed(() => parseDateLabel(schedule.date.datetime));
-const weekday = computed(() => getWeekdayLabel(schedule.date.datetime));
+const weekday = computed(() => getWeekdayLabel(schedule.date.iso));
 
 const dayShiftMetas = computed(() =>
   schedule.dayShifts.map((shift) => parseShift(shift, 'day'))
@@ -199,7 +199,7 @@ const nightShiftMetas = computed(() =>
     </div>
 
     <NuxtLink
-      :to="`/shifts?date=${schedule.date.datetime}`"
+      :to="`/shifts?date=${schedule.date.iso}`"
       class="text-fs-13 text-ink-soft transition-colors hover:text-shu"
       data-testid="agent-schedule-link"
     >當日全體 →</NuxtLink>

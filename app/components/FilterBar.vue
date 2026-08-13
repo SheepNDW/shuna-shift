@@ -5,16 +5,17 @@
 // 故篩選 chip 的 active 狀態統一採品牌朱色——透過 section 上的 --agent-color
 // 變數注入，由 components.css 的 .filter-chip 取用。
 import { AGENT_FILTER_PRIORITY, AGENTS } from '~~/shared/constant';
+import type { JumpDate } from '~~/shared/types';
 
 const selected = defineModel<string[]>({ required: true });
 
 const { dates } = defineProps<{
-  /** 可跳轉的日期標籤清單（格式：10月12日），依時間排序 */
-  dates: string[];
+  /** 可跳轉的日期清單，依時間排序 */
+  dates: JumpDate[];
 }>();
 
 const emit = defineEmits<{
-  jump: [datetime: string];
+  jump: [iso: string];
 }>();
 
 // 探員排序：正職優先，其次依 AGENT_FILTER_PRIORITY 的偏好順位，其餘維持原序
@@ -52,10 +53,11 @@ function clear(): void {
 }
 
 const jumpDates = computed(() =>
-  dates.map((datetime) => ({
-    datetime,
-    weekday: getWeekdayLabel(datetime),
-    isToday: isToday(datetime),
+  dates.map(({ iso, label }) => ({
+    iso,
+    label,
+    weekday: getWeekdayLabel(iso),
+    isToday: isToday(iso),
   }))
 );
 </script>
@@ -106,7 +108,7 @@ const jumpDates = computed(() =>
       <div class="flex flex-wrap gap-1.5">
         <button
           v-for="d in jumpDates"
-          :key="d.datetime"
+          :key="d.iso"
           type="button"
           class="inline-flex items-center gap-1.5 rounded-sm border px-2.5 py-1 text-fs-13 transition-colors"
           :class="
@@ -115,9 +117,9 @@ const jumpDates = computed(() =>
               : 'border-rule bg-paper text-ink-soft hover:border-ink hover:text-ink'
           "
           data-testid="jump-pill"
-          @click="emit('jump', d.datetime)"
+          @click="emit('jump', d.iso)"
         >
-          <span class="mono tnum">{{ d.datetime }}</span>
+          <span class="mono tnum">{{ d.label }}</span>
           <span
             class="text-fs-12"
             :class="d.isToday ? 'text-paper/70' : 'text-ink-mute'"

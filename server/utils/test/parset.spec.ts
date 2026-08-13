@@ -1,12 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import type { TextFormatRun } from '~~/shared/types';
 import { normalizeAgentName } from '~~/shared/constant';
-import { excelSerialToDateLabel, parseAgents, parseShiftType, rgbToHex } from '../parser';
+import { excelSerialToIsoDate, parseAgents, parseShiftType, rgbToHex } from '../parser';
 
-describe('excelSerialToDateLabel', () => {
-  it('應該將 Excel 序列號轉換為日期標籤', () => {
+describe('excelSerialToIsoDate', () => {
+  it('應該將 Excel 序列號轉換為 ISO 日期', () => {
     // Excel 序列號 45292 對應 2024年1月1日
-    expect(excelSerialToDateLabel(45292)).toBe('1月1日');
+    expect(excelSerialToIsoDate(45292)).toBe('2024-01-01');
+  });
+
+  it('應該補零為固定寬度（供字串比較用）', () => {
+    expect(excelSerialToIsoDate(45662)).toBe('2025-01-05');
+  });
+
+  // 只留月日的話，相隔一年的同月同日會壓成同一個「1月5日」而無法區分，
+  // 下游統計就會靜默重複計算。
+  it('相隔一年的同月同日應產出不同的 ISO 日期', () => {
+    expect(excelSerialToIsoDate(45662)).toBe('2025-01-05');
+    expect(excelSerialToIsoDate(46027)).toBe('2026-01-05');
   });
 });
 

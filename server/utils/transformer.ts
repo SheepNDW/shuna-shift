@@ -1,14 +1,18 @@
 import {
-  excelSerialToDateLabel,
+  excelSerialToIsoDate,
   parseAgents,
   parseShiftType,
   rgbToHex,
   type ShiftType,
 } from './parser';
 import { getSpecialDateKind, getSpecialDateLabel } from '~~/shared/date-meta';
+import { isoToDateLabel } from '~~/shared/utils/date';
 
 export interface ParsedRow {
   date: {
+    /** ISO 日期（`yyyy-mm-dd`）；A 欄無日期序號時為空字串 */
+    iso: string;
+    /** 顯示用標籤，由 `iso` 格式化而來 */
     datetime: string;
     backgroundColor: string;
     description: string;
@@ -28,11 +32,14 @@ export interface ParsedRow {
 export function transformRowToParsedData(row: RowData): ParsedRow {
   const cells = row.values ?? [];
 
+  // A 欄的日期序號是唯一的日期來源；標籤一律由 ISO 導出，兩者不會各自漂移
+  const serial = cells[0]?.userEnteredValue?.numberValue;
+  const iso = serial ? excelSerialToIsoDate(serial) : '';
+
   return {
     date: {
-      datetime: cells[0]?.userEnteredValue?.numberValue
-        ? excelSerialToDateLabel(cells[0].userEnteredValue.numberValue)
-        : '',
+      iso,
+      datetime: isoToDateLabel(iso),
       backgroundColor: cells[0]?.userEnteredFormat?.backgroundColor
         ? rgbToHex(cells[0].userEnteredFormat.backgroundColor)
         : '',
@@ -57,10 +64,11 @@ export function mergeDayAndNightShifts(parsedRows: ParsedRow[]): ShiftSchedule[]
   return parsedRows.reduce<ShiftSchedule[]>((acc, curr) => {
     const agents = parseAgents(curr.agents.name, curr.agents.textFormatRuns);
 
-    if (curr.date.datetime) {
+    if (curr.date.iso) {
       // 有日期：開啟新的一天。班別以 B 欄為準，缺漏時預設早班
       const schedule: ShiftSchedule = {
         date: {
+          iso: curr.date.iso,
           datetime: curr.date.datetime,
           backgroundColor: curr.date.backgroundColor,
           description: curr.date.description,

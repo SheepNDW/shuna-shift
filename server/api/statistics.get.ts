@@ -6,7 +6,7 @@ import {
   calculateAgentStatistics,
   filterRecentMonths,
   getDateRange,
-  getLastScheduleDate,
+  resolveStatisticsEndIso,
 } from '../utils/statistics';
 
 /** 當期班表 sheet 名稱 */
@@ -44,11 +44,12 @@ export default defineCdnCachedEventHandler(
       // 合併班表資料（歷史資料在前，當前資料在後）
       const allSchedules = [...historySchedules, ...currentSchedules];
 
-      // 取得資料最後一筆的日期作為統計基準
-      const lastDate = getLastScheduleDate(allSchedules);
+      // 統計基準取 min(今天, 資料最後一筆) —— 當期班表已排到月底以後，
+      // 直接用最後一筆會把未來班次算成出勤（見 resolveStatisticsEndIso 註解）
+      const endIso = resolveStatisticsEndIso(allSchedules);
 
-      // 截取近三個月的資料（以資料最後一筆日期為基準）
-      const recentSchedules = filterRecentMonths(allSchedules, 3, lastDate ?? undefined);
+      // 截取近三個月「已發生」的資料
+      const recentSchedules = filterRecentMonths(allSchedules, 3, endIso);
 
       // 計算統計資料
       const statistics = calculateAgentStatistics(recentSchedules);

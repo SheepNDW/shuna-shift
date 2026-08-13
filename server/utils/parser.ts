@@ -1,15 +1,28 @@
 import { normalizeAgentName } from '~~/shared/constant';
 import type { TextFormatRun } from '~~/shared/types';
+import { toIsoDate } from '~~/shared/utils/date';
 
-export function excelSerialToDateLabel(serial: number): string {
+/**
+ * Excel 日期序號 → ISO 日期（`yyyy-mm-dd`）。
+ *
+ * A 欄的序號帶完整年月日，於此一次轉成 ISO 並一路帶到下游，年份就不會在解析
+ * 邊界被丟掉、下游也不必再從「X月Y日」反推年份。
+ *
+ * 原點取 1899-12-30：Excel 誤把 1900 當閏年、序號 60 對應不存在的 1900-02-29，
+ * 多退的這一天正是用來吸收該幻影日。因此序號 61（1900-03-01）之後才與 Excel 對齊，
+ * 1-60 會早一天 —— 班表資料落在 2024 年之後，不受影響。
+ * 一律以 UTC 運算，避免跑在不同時區的機器算出前後一天。
+ */
+export function excelSerialToIsoDate(serial: number): string {
   const base = Date.UTC(1899, 11, 30);
   const millis = Math.floor(serial) * 86400000;
   const utcDate = new Date(base + millis);
 
-  const month = utcDate.getUTCMonth() + 1;
-  const day = utcDate.getUTCDate();
-
-  return `${month}月${day}日`;
+  return toIsoDate(
+    utcDate.getUTCFullYear(),
+    utcDate.getUTCMonth() + 1,
+    utcDate.getUTCDate(),
+  );
 }
 
 export function rgbToHex(color: { red?: number; green?: number; blue?: number }): string {

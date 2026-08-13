@@ -7,6 +7,7 @@ import type { ShiftSchedule } from '~~/shared/types';
 export const expectedScheduleData: ShiftSchedule[] = [
   {
     date: {
+      iso: '2025-10-22',
       datetime: '10月22日',
       backgroundColor: '',
       description: '',
@@ -54,6 +55,7 @@ export const expectedScheduleData: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2025-10-23',
       datetime: '10月23日',
       backgroundColor: '',
       description: '',
@@ -105,6 +107,7 @@ export const expectedScheduleData: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2025-10-24',
       datetime: '10月24日',
       backgroundColor: '',
       description: '',
@@ -160,6 +163,7 @@ export const expectedScheduleData: ShiftSchedule[] = [
   },
   {
     date: {
+      iso: '2025-10-25',
       datetime: '10月25日',
       backgroundColor: '#999999',
       description: '',
@@ -175,6 +179,7 @@ export const expectedScheduleData: ShiftSchedule[] = [
 export const expectedScheduleDataNewMonth: ShiftSchedule[] = [
   {
     date: {
+      iso: '2025-10-31',
       datetime: '10月31日',
       backgroundColor: '#b6d7a8',
       description: '一日限定・萬聖',
