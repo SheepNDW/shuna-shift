@@ -111,6 +111,15 @@ describe('isoToDateLabel', () => {
     expect(isoToDateLabel('')).toBe('');
     expect(isoToDateLabel('8月31日')).toBe('');
   });
+
+  // 格式合法但日曆不存在時，這裡照字面輸出，不再像舊實作那樣繞 Date：
+  // 日期溢位（02-31）舊實作會滾成「3月3日」，月份非法（13-01）舊實作會因
+  // Invalid Date 退成空字串。兩類的輸入都只來自 excelSerialToIsoDate 或
+  // getTodayIso，production 不可達；釘在這裡是因為這是 A3 唯一真的改掉的行為。
+  it('格式合法但日曆不存在時，照字面輸出而不做日曆正規化', () => {
+    expect(isoToDateLabel('2026-02-31')).toBe('2月31日');
+    expect(isoToDateLabel('2026-13-01')).toBe('13月1日');
+  });
 });
 
 describe('addMonthsToIso', () => {

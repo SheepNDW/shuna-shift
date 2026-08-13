@@ -139,7 +139,11 @@ describe('resolveStatisticsEndIso', () => {
     expect(resolveStatisticsEndIso(schedules)).toBe('2026-07-30');
   });
 
-  // 台北已跨日、UTC 仍在前一天：預設值必須讀台北，不是機器時區
+  // 台北已跨日、UTC 仍在前一天：預設值必須讀台北，不是機器時區。
+  //
+  // 這支斷言只在「跑測試的機器時區不是台北」時有鑑別力 —— 若預設值被改成讀機器
+  // 本地時區，在台北的機器上兩者答案相同，本機開發時它仍會綠給你看。
+  // CI 跑 ubuntu（UTC），該處會紅。
   it('台北 00:30 時，預設值應取台北的今天而非 UTC 的昨天', () => {
     vi.setSystemTime(new Date('2026-07-29T16:30:00Z')); // 台北 2026/07/30 00:30
     const schedules = [scheduleAt('2026-07-20'), scheduleAt('2026-08-31')];
