@@ -30,6 +30,17 @@ describe('isIsoDate', () => {
     expect(isIsoDate('2026/08/31')).toBe(false);
     expect(isIsoDate('')).toBe(false);
   });
+
+  // 刻意只驗格式：日期一律由 Excel 序號產生，不存在的日曆日進不來。
+  // 唯一的外部輸入是 /shifts 的 ?date=，那個值只當 getElementById 的 key（字面比對）。
+  // 這支測試是要讓「格式合法但日曆不存在」的後果留在明處，而不是等到有人踩到。
+  it('只驗格式，不驗該日期是否真的存在', () => {
+    expect(isIsoDate('2026-02-31')).toBe(true);
+    expect(isIsoDate('2026-13-01')).toBe(true);
+
+    // 後果：這種值會被 Date 靜默滾到隔月，而不是回 null
+    expect(isoToUtcDate('2026-02-31')?.toISOString()).toBe('2026-03-03T12:00:00.000Z');
+  });
 });
 
 describe('toIsoDate', () => {

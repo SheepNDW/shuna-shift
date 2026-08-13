@@ -385,7 +385,7 @@ describe('date utils', () => {
 
       vi.setSystemTime(new Date('2025-01-03T12:00:00+08:00'));
 
-      // 換了「今天」也不影響推算結果
+      // 星期由 ISO 自身決定，換了「今天」也不會變
       expect(getWeekdayLabel('2025-01-01')).toBe('三');
       // 2024/12/20 為星期五
       expect(getWeekdayLabel('2024-12-20')).toBe('五');

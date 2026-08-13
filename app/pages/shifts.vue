@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { JumpDate } from '~~/shared/types';
+
 const scheduleStore = useScheduleStore();
 const { schedules, hasError } = storeToRefs(scheduleStore);
 
@@ -23,7 +25,7 @@ const filteredSchedules = computed(() => {
   );
 });
 
-const jumpDates = computed(() =>
+const jumpDates = computed<JumpDate[]>(() =>
   filteredSchedules.value.map((schedule) => ({
     iso: schedule.date.iso,
     label: schedule.date.datetime,

@@ -34,7 +34,8 @@ const scheduleMock: ShiftSchedule = {
 
 describe('UpcomingCard', () => {
   beforeEach(() => {
-    // 固定年份，使 getWeekdayLabel 推算結果可預期
+    // 固定時鐘，使「今天」相關的呈現穩定；
+    // getWeekdayLabel 已改吃完整 ISO，星期本身不受「今天」影響
     // 絕對時刻（台北正午）；本地建構式會跟著 runner 時區漂移，見 app/utils/date.ts
     vi.setSystemTime(new Date('2024-10-12T12:00:00+08:00'));
   });

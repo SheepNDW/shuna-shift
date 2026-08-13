@@ -5,16 +5,9 @@
 // 故篩選 chip 的 active 狀態統一採品牌朱色——透過 section 上的 --agent-color
 // 變數注入，由 components.css 的 .filter-chip 取用。
 import { AGENT_FILTER_PRIORITY, AGENTS } from '~~/shared/constant';
+import type { JumpDate } from '~~/shared/types';
 
 const selected = defineModel<string[]>({ required: true });
-
-/** 一個可跳轉的日期：`iso` 作為識別與比較依據，`label` 僅用於顯示 */
-interface JumpDate {
-  /** ISO 日期（格式：2026-08-31） */
-  iso: string;
-  /** 顯示用日期標籤（格式：10月12日） */
-  label: string;
-}
 
 const { dates } = defineProps<{
   /** 可跳轉的日期清單，依時間排序 */

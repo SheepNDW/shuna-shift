@@ -107,20 +107,25 @@ export function isoToUtcDate(iso: string): Date | null {
 /**
  * ISO 日期 → 顯示用標籤（`'2026-08-31'` → `'8月31日'`）。
  * 月與日不補零，維持班表原本的呈現方式。格式不符時回傳空字串。
+ *
+ * 純字串處理：`isIsoDate` 已保證格式，這裡只要去掉補零，不涉及日曆運算，
+ * 不必為此繞一趟 `Date`。
  */
 export function isoToDateLabel(iso: string): string {
-  const date = isoToUtcDate(iso);
-  if (!date) return '';
+  if (!isIsoDate(iso)) return '';
 
-  return `${date.getUTCMonth() + 1}月${date.getUTCDate()}日`;
+  const [, month, day] = iso.split('-');
+  return `${Number(month)}月${Number(day)}日`;
 }
 
 /**
  * ISO 日期加減月份。格式不符時回傳空字串。
  *
- * 沿用 `Date.UTC` 的月份溢位正規化，因此月底往回推可能落到隔月
- * （5月31日 − 3 個月 → 2月31日 → 3月3日）。統計視窗只用它算左端界線，
- * 差幾天不影響「近三個月」的語意，故不特別修正。
+ * 沿用 `Date.UTC` 的月份溢位正規化，因此月底往回推會落到隔月
+ * （5月31日 − 3 個月 → 2月31日 → 3月3日）。這是刻意保留的性質，不是將就：
+ * 溢位讓視窗兩端同步位移，長度固定、cutoff 每天前進一天，昨天與今天的統計可比。
+ * 若改成 clamp 到月底（2月28日），左端會在 5/28–5/31 連續四天卡住不動，
+ * 「近三個月」在月底會悄悄長成「近三個月又三天」再跳回。
  */
 export function addMonthsToIso(iso: string, months: number): string {
   const date = isoToUtcDate(iso);

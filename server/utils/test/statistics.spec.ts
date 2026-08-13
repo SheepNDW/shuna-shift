@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { RowData, ShiftSchedule } from '~~/shared/types';
 import { isoToDateLabel } from '~~/shared/utils/date';
 import {
@@ -28,6 +28,11 @@ const scheduleAt = (
 
 /** 只關心名字、不關心 textColor 時的簡寫 */
 const named = (...names: string[]) => names.map((name) => ({ name, textColor: '' }));
+
+afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
+});
 
 describe('extractAgentName', () => {
   it('應該回傳原始名稱（無括號）', () => {
@@ -123,6 +128,24 @@ describe('resolveStatisticsEndIso', () => {
   it('空資料時應回傳今天', () => {
     expect(resolveStatisticsEndIso([], '2026-07-30')).toBe('2026-07-30');
   });
+
+  // 上面每一支都顯式傳 todayIso，但 `/api/statistics` 是靠預設值 `getTodayIso()`
+  // 拿「今天」的。預設值的接線壞掉會通過上面全部測試，卻正好讓本次修掉的
+  // 「未來排班被算成出勤」復發，故單獨釘住。
+  it('不傳 todayIso 時應以真實的台北今天為準', () => {
+    vi.setSystemTime(new Date('2026-07-30T12:00:00+08:00'));
+    const schedules = [scheduleAt('2026-07-20'), scheduleAt('2026-08-31')];
+
+    expect(resolveStatisticsEndIso(schedules)).toBe('2026-07-30');
+  });
+
+  // 台北已跨日、UTC 仍在前一天：預設值必須讀台北，不是機器時區
+  it('台北 00:30 時，預設值應取台北的今天而非 UTC 的昨天', () => {
+    vi.setSystemTime(new Date('2026-07-29T16:30:00Z')); // 台北 2026/07/30 00:30
+    const schedules = [scheduleAt('2026-07-20'), scheduleAt('2026-08-31')];
+
+    expect(resolveStatisticsEndIso(schedules)).toBe('2026-07-30');
+  });
 });
 
 describe('filterRecentMonths', () => {
@@ -203,9 +226,12 @@ describe('filterRecentMonths', () => {
   });
 
   it('參考日期不是合法 ISO 時應回傳空陣列，而非放行全部資料', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const schedules = [scheduleAt('2025-12-16')];
 
     expect(filterRecentMonths(schedules, 3, '12月16日')).toEqual([]);
+    // 全零的統計頁若連一行 log 都沒有，幾乎無法回推到這個分支
+    expect(warn).toHaveBeenCalledOnce();
   });
 });
 

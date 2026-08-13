@@ -26,7 +26,10 @@ export interface ShiftSchedule {
   date: {
     /**
      * ISO 日期（`yyyy-mm-dd`），由 Excel 日期序號直接產生 —— 排序、範圍過濾與
-     * 「今天／未來」判斷一律以此為準。A 欄無日期序號時為空字串。
+     * 「今天／未來」判斷一律以此為準。
+     *
+     * 到達此型別時保證非空：A 欄無日期序號的列在 `ParsedRow` 階段 `iso` 為空字串，
+     * 而 `mergeDayAndNightShifts` 只在 `iso` 有值時才開一筆 `ShiftSchedule`。
      */
     iso: string;
     /**
@@ -39,6 +42,17 @@ export interface ShiftSchedule {
   };
   day: { name: string; textColor: string }[];
   night: { name: string; textColor: string }[];
+}
+
+/**
+ * 一個可跳轉的日期：`iso` 作為識別與比較依據，`label` 僅用於顯示。
+ * 用於 `/shifts` 的日期快速跳轉（`shifts.vue` → `FilterBar`）。
+ */
+export interface JumpDate {
+  /** ISO 日期（格式：2026-08-31） */
+  iso: string;
+  /** 顯示用日期標籤（格式：10月12日） */
+  label: string;
 }
 
 /** API 回傳的班表資料（包含 metadata） */

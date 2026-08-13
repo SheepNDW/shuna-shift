@@ -58,6 +58,12 @@ export function getLastScheduleIso(schedules: ShiftSchedule[]): string | null {
  * 反向的情況（資料還沒排到今天，例如換期空窗）則以最後一筆為準，免得視窗右端
  * 落在一段完全沒有資料的區間上。
  *
+ * 與 `/api/statistics` 的 6 小時快取有一層交互：`endIso` 只在填快取那一刻算一次，
+ * 因此台北 23:55 填的快取，到隔天 05:55 前右端仍會停在前一天。觸發窗口是台北
+ * 00:00–06:00 —— 那段時間「今天」的班本來就還沒發生，統計數字不受影響，唯一
+ * 可見症狀是 `dateRange.to` 標籤慢一天；整包 payload 依設計本來就最多陳舊 6 小時，
+ * 故不為此在快取層另加日期維度。
+ *
  * @param schedules - 班表資料陣列（按日期排序）
  * @param todayIso - 台北的今天；由呼叫端傳入以免同一次判斷讀到兩個不同的「現在」
  */
@@ -92,8 +98,13 @@ export function filterRecentMonths(
   const endIso = referenceIso ?? getLastScheduleIso(schedules) ?? getTodayIso();
   const cutoffIso = addMonthsToIso(endIso, -months);
   // endIso 不是合法 ISO（例如呼叫端傳了顯示標籤）時寧可回傳空陣列，
-  // 也不要讓一個算不出來的界線靜默放行全部資料
-  if (!cutoffIso) return [];
+  // 也不要讓一個算不出來的界線靜默放行全部資料。
+  // 目前的呼叫端都給得出合法 ISO，真的走到這裡代表接線壞了 ——
+  // 症狀會是「全零的統計頁」，沒有 log 的話極難回推到這一行。
+  if (!cutoffIso) {
+    console.warn(`[statistics] 無法由 "${endIso}" 算出視窗左端，本次過濾回傳空陣列`);
+    return [];
+  }
 
   return schedules.filter(({ date }) => date.iso >= cutoffIso && date.iso <= endIso);
 }

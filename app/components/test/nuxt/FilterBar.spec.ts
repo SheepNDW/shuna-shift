@@ -1,12 +1,8 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { defineComponent, ref } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
+import type { JumpDate } from '~~/shared/types';
 import FilterBar from '../../FilterBar.vue';
-
-interface JumpDate {
-  iso: string;
-  label: string;
-}
 
 const mountFilterBar = async (initialSelected: string[] = [], dates: JumpDate[] = []) => {
   const model = ref<string[]>([...initialSelected]);
