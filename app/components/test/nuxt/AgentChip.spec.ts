@@ -50,4 +50,11 @@ describe('AgentChip', () => {
 
     expect(wrapper.get('[data-testid="agent-chip-name"]').text()).toBe('小楓(泠泠)');
   });
+
+  it('帶時段註記時顯示原字串，連結指向當班探員', async () => {
+    const wrapper = await mountSuspended(AgentChip, { props: { name: '亞米(~18:00)' } });
+
+    expect(wrapper.get('[data-testid="agent-chip-name"]').text()).toBe('亞米(~18:00)');
+    expect(wrapper.get('[data-testid="agent-chip"]').attributes('href')).toBe('/agents/yami');
+  });
 });

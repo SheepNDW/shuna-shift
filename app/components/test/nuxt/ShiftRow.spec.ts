@@ -81,4 +81,58 @@ describe('ShiftRow', () => {
     expect(chips[0]?.attributes('data-highlighted')).toBe('true');
     expect(chips[1]?.attributes('data-highlighted')).toBe('false');
   });
+
+  // 高亮比對走剝括號後的名稱。代班 / 時段註記在歷史班表約每週出現一次，
+  // 比對原字串時這些班次會整批漏掉，症狀是「篩選看起來壞了」。
+  // fixture 取歷史班表的真實樣本字串。
+  describe('帶括號的儲存格', () => {
+    it('選中的探員能命中其時段註記的班次', async () => {
+      const wrapper = await mountSuspended(ShiftRow, {
+        props: {
+          type: 'day',
+          agents: [
+            { name: '泠泠', textColor: '' },
+            { name: '亞米(~18:00)', textColor: '' },
+          ],
+          highlightedAgents: new Set(['亞米']),
+        },
+        global: { stubs: globalStubs },
+      });
+
+      const chips = wrapper.findAll('[data-testid="agent-chip"]');
+      expect(chips[0]?.text()).toBe('亞米(~18:00)');
+      expect(chips[0]?.attributes('data-highlighted')).toBe('true');
+      expect(chips[1]?.attributes('data-highlighted')).toBe('false');
+    });
+
+    it('括號內被代班的探員不算當班，不應高亮', async () => {
+      const wrapper = await mountSuspended(ShiftRow, {
+        props: {
+          type: 'day',
+          agents: [{ name: '和実(亞米)', textColor: '' }],
+          highlightedAgents: new Set(['亞米']),
+        },
+        global: { stubs: globalStubs },
+      });
+
+      expect(wrapper.get('[data-testid="agent-chip"]').attributes('data-highlighted')).toBe(
+        'false'
+      );
+    });
+
+    it('代班者本人被選中時應高亮', async () => {
+      const wrapper = await mountSuspended(ShiftRow, {
+        props: {
+          type: 'day',
+          agents: [{ name: '和実(亞米)', textColor: '' }],
+          highlightedAgents: new Set(['和実']),
+        },
+        global: { stubs: globalStubs },
+      });
+
+      expect(wrapper.get('[data-testid="agent-chip"]').attributes('data-highlighted')).toBe(
+        'true'
+      );
+    });
+  });
 });

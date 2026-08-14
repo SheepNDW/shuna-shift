@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { JumpDate } from '~~/shared/types';
+import { isSelectedAgentCell } from '~~/shared/utils/agent-name';
 
 const scheduleStore = useScheduleStore();
 const { schedules, hasError } = storeToRefs(scheduleStore);
@@ -18,10 +19,11 @@ const futureSchedules = computed(() =>
 const filteredSchedules = computed(() => {
   if (!hasFilter.value) return futureSchedules.value;
 
+  const isSelected = (agent: { name: string }): boolean =>
+    isSelectedAgentCell(agent.name, highlightedAgentNames.value);
+
   return futureSchedules.value.filter(
-    (schedule) =>
-      schedule.day.some((agent) => highlightedAgentNames.value.has(agent.name)) ||
-      schedule.night.some((agent) => highlightedAgentNames.value.has(agent.name))
+    (schedule) => schedule.day.some(isSelected) || schedule.night.some(isSelected)
   );
 });
 
