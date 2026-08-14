@@ -3,7 +3,6 @@ import type { RowData, ShiftSchedule } from '~~/shared/types';
 import { isoToDateLabel } from '~~/shared/utils/date';
 import {
   calculateAgentStatistics,
-  extractAgentName,
   filterRecentMonths,
   findAgentByName,
   getDateRange,
@@ -32,23 +31,6 @@ const named = (...names: string[]) => names.map((name) => ({ name, textColor: ''
 afterEach(() => {
   vi.useRealTimers();
   vi.restoreAllMocks();
-});
-
-describe('extractAgentName', () => {
-  it('應該回傳原始名稱（無括號）', () => {
-    expect(extractAgentName('泠泠')).toBe('泠泠');
-    expect(extractAgentName('Luna')).toBe('Luna');
-  });
-
-  it('應該提取括號前的名稱（代班情況）', () => {
-    expect(extractAgentName('小楓(泠泠)')).toBe('小楓');
-    expect(extractAgentName('音（Luna）')).toBe('音');
-  });
-
-  it('應該處理名稱前後有空格的情況', () => {
-    expect(extractAgentName(' 泠泠 ')).toBe('泠泠');
-    expect(extractAgentName('小楓 (泠泠)')).toBe('小楓');
-  });
 });
 
 describe('findAgentByName', () => {

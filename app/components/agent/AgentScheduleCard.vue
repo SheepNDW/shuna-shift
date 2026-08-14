@@ -15,6 +15,7 @@ import {
   isLeaveColor,
   SUBSTITUTE_COLOR_MAP,
 } from '~~/app/utils/colors';
+import { parseAgentCell } from '~~/shared/utils/agent-name';
 
 const SUBSTITUTE_COLOR = SUBSTITUTE_COLOR_MAP.SUBSTITUTE;
 const EXCHANGE_COLOR = SUBSTITUTE_COLOR_MAP.EXCHANGE;
@@ -22,8 +23,7 @@ const EXCHANGE_COLOR = SUBSTITUTE_COLOR_MAP.EXCHANGE;
 interface ShiftMeta {
   iconColor: string;
   time: string;
-  hasBracket: boolean;
-  displayName: string;
+  /** 括號內為可辨識的探員時才有值；`亞米(~18:00)` 這類時段註記留空 */
   originalAgent: string;
   substituteType: 'substitute' | 'exchange' | null;
   /** 灰字＝原排班但當天臨時不出勤；badge 走中性灰並加上「今日不出勤」小標 */
@@ -34,16 +34,8 @@ function parseShift(
   shift: { name: string; textColor: string },
   type: 'day' | 'night'
 ): ShiftMeta {
-  const hasBracket = shift.name.includes('(');
-  let displayName = shift.name;
-  let originalAgent = '';
-  if (hasBracket) {
-    const match = shift.name.match(/(.+?)\((.+?)\)/);
-    if (match) {
-      displayName = match[1]?.trim() || shift.name;
-      originalAgent = match[2]?.trim() || '';
-    }
-  }
+  const { note } = parseAgentCell(shift.name);
+  const originalAgent = note?.kind === 'original-agent' ? note.agent : '';
 
   const substituteType: ShiftMeta['substituteType'] =
     shift.textColor === SUBSTITUTE_COLOR
@@ -58,8 +50,6 @@ function parseShift(
     return {
       iconColor: '',
       time: '13:30 ~ 17:30',
-      hasBracket,
-      displayName,
       originalAgent,
       substituteType,
       isLeave,
@@ -70,8 +60,6 @@ function parseShift(
   return {
     iconColor: isLeave ? '' : getNightShiftIconColor(shift.textColor),
     time: getNightShiftTime(shift.textColor),
-    hasBracket,
-    displayName,
     originalAgent,
     substituteType,
     isLeave,

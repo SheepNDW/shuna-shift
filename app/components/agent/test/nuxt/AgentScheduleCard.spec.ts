@@ -220,6 +220,24 @@ describe('AgentScheduleCard', () => {
       expect(tag.text()).toContain('(原: Iroha)');
     });
 
+    // 括號有兩種語意：`和実(亞米)` 是原班探員，`亞米(~18:00)` 是時段註記。
+    // 一律當原班探員處理時，紅字的時段註記會被渲染成「代班（原: ~18:00）」。
+    it('時段註記不應被當成原班探員', async () => {
+      const wrapper = await mountSuspended(AgentScheduleCard, {
+        props: {
+          schedule: makeItem({
+            dayShifts: [{ name: '亞米(~18:00)', textColor: '#ff0000' }],
+            nightShifts: [],
+          }),
+        },
+        global: { stubs },
+      });
+
+      const tag = wrapper.get('[data-testid="agent-schedule-substitute"]');
+      expect(tag.text()).toContain('代班');
+      expect(tag.text()).not.toContain('原:');
+    });
+
     it('一般班次不渲染代班 / 換班標記', async () => {
       const wrapper = await mountSuspended(AgentScheduleCard, {
         props: {

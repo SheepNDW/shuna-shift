@@ -6,6 +6,7 @@
 // resolveDynamicComponent 解析（會渲染成無作用的 <nuxtlink> 元素）。
 import { NuxtLink } from '#components';
 import { AGENTS } from '~~/shared/constant';
+import { parseAgentCell } from '~~/shared/utils/agent-name';
 
 const {
   name,
@@ -21,13 +22,14 @@ const {
 }>();
 
 const agentInfo = computed(() => {
-  // 帶括號的替班記錄（小楓(泠泠)）以括號前段查表，顯示維持原字串
-  const searchName = name.includes('(') ? name.split('(')[0]?.trim() || name : name;
-  const info = AGENTS.get(searchName);
+  // 帶括號註記（代班 `小楓(泠泠)`、時段 `亞米(~18:00)`）以當班者查表，
+  // 顯示維持原字串——括號內容是使用者需要看見的當日異動
+  const { name: onDutyName, note } = parseAgentCell(name);
+  const info = AGENTS.get(onDutyName);
 
   return {
     id: info?.id ?? '',
-    displayName: name.includes('(') ? name : info?.name ?? name,
+    displayName: note ? name : info?.name ?? name,
     emoji: info?.emoji ?? '',
   };
 });

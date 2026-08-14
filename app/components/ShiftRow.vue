@@ -1,5 +1,7 @@
 <script setup lang="ts">
 // 班表單日中的單一班別列：班別標記（圖示 + 名稱 + 人數）+ 探員 chip 並列。
+import { isSelectedAgentCell } from '~~/shared/utils/agent-name';
+
 const {
   type,
   agents,
@@ -15,22 +17,19 @@ const shiftName = computed(() => (type === 'day' ? '早班' : '晚班'));
 const countLabel = computed(() => padZero(agents.length));
 const isEmpty = computed(() => agents.length === 0);
 
-// 高亮探員排序提前，便於篩選時快速辨識（不變更原陣列）
-const sortedAgents = computed(() => {
+// 高亮探員排序提前，便於篩選時快速辨識（不變更原陣列）。
+// 高亮判定要剝括號並正規化名稱，遠比 `Set.has` 貴，故每人只算一次後隨陣列帶著走，
+// 不在 comparator 與 template 裡重算。
+const displayAgents = computed(() => {
   const set = highlightedAgents;
-  if (!set || set.size === 0) return agents;
+  if (!set || set.size === 0) {
+    return agents.map((agent) => ({ ...agent, highlighted: false }));
+  }
 
-  return [...agents].sort((a, b) => {
-    const aHighlighted = set.has(a.name);
-    const bHighlighted = set.has(b.name);
-    if (aHighlighted === bHighlighted) return 0;
-    return aHighlighted ? -1 : 1;
-  });
+  return agents
+    .map((agent) => ({ ...agent, highlighted: isSelectedAgentCell(agent.name, set) }))
+    .sort((a, b) => Number(b.highlighted) - Number(a.highlighted));
 });
-
-function isHighlighted(name: string): boolean {
-  return highlightedAgents?.has(name) ?? false;
-}
 </script>
 
 <template>
@@ -67,11 +66,11 @@ function isHighlighted(name: string): boolean {
       >無排班</span>
       <template v-else>
         <AgentChip
-          v-for="agent in sortedAgents"
+          v-for="agent in displayAgents"
           :key="agent.name"
           :name="agent.name"
           :text-color="agent.textColor"
-          :highlighted="isHighlighted(agent.name)"
+          :highlighted="agent.highlighted"
         />
       </template>
     </div>

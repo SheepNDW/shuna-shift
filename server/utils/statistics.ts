@@ -1,16 +1,8 @@
 import { AGENTS, normalizeAgentName } from '~~/shared/constant';
 import type { AgentStatistics, ShiftSchedule } from '~~/shared/types';
+import { parseAgentCell } from '~~/shared/utils/agent-name';
 import { isLeaveColor } from '~~/shared/utils/colors';
 import { addMonthsToIso, getTodayIso, isoToDateLabel } from '~~/shared/utils/date';
-
-/**
- * 從探員名稱中提取實際執行值班的探員名稱
- * 處理括號內原探員名稱的情況，例如 "小楓(泠泠)" 回傳 "小楓"
- */
-export function extractAgentName(name: string): string {
-  const match = name.match(/^(.+?)\s*[(（]/);
-  return match ? match[1]!.trim() : name.trim();
-}
 
 /**
  * 從 AGENTS 常數中找到對應的 Agent 資料。
@@ -132,8 +124,7 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
       // 灰字 textColor 代表「今日不出勤」(臨時請假),不算實際出勤班次
       if (isLeaveColor(agent.textColor)) continue;
 
-      const agentName = extractAgentName(agent.name);
-      const agentData = findAgentByName(agentName);
+      const agentData = findAgentByName(parseAgentCell(agent.name).name);
 
       if (agentData) {
         const existing = statsMap.get(agentData.id);
@@ -153,8 +144,7 @@ export function calculateAgentStatistics(schedules: ShiftSchedule[]): AgentStati
     for (const agent of schedule.night) {
       if (isLeaveColor(agent.textColor)) continue;
 
-      const agentName = extractAgentName(agent.name);
-      const agentData = findAgentByName(agentName);
+      const agentData = findAgentByName(parseAgentCell(agent.name).name);
 
       if (agentData) {
         const existing = statsMap.get(agentData.id);
