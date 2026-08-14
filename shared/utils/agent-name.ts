@@ -29,17 +29,21 @@ export interface ParsedAgentCell {
   note: AgentCellNote | null;
 }
 
-/** 半形與全形的開括號 */
+/** 半形與全形的括號 */
 const OPEN_BRACKETS = ['(', '（'] as const;
+const CLOSE_BRACKETS = [')', '）'] as const;
 
-/** 時間註記的特徵符號：`~18:00`、`18:00~`、`～21:30` 等 */
-const TIME_HINT = /[:：~～]|\d/;
+/**
+ * 時間註記的形狀：波浪號，或 `18:00` 這種時分。
+ *
+ * 不能只看「有沒有數字」—— `亞米(2樓)`、`小楓(代1)` 會被歸成時間，型別上宣告的
+ * `time` 就名不符實，日後有人依 `kind === 'time'` 做時段顯示會直接踩到。
+ */
+const TIME_HINT = /[~～]|\d{1,2}\s*[:：]\s*\d{2}/;
 
-/** 取儲存格中最先出現的開括號位置；沒有括號時回傳 -1 */
-function findOpenBracket(raw: string): number {
-  const positions = OPEN_BRACKETS.map((bracket) => raw.indexOf(bracket)).filter(
-    (index) => index !== -1,
-  );
+/** 取最先出現的任一字元位置；都沒出現時回傳 -1 */
+function indexOfAny(text: string, chars: readonly string[]): number {
+  const positions = chars.map((char) => text.indexOf(char)).filter((index) => index !== -1);
   return positions.length > 0 ? Math.min(...positions) : -1;
 }
 
@@ -66,23 +70,25 @@ function classifyNote(inner: string): AgentCellNote | null {
  */
 export function parseAgentCell(raw: string): ParsedAgentCell {
   const trimmed = raw.trim();
-  const bracketIndex = findOpenBracket(trimmed);
+  const openIndex = indexOfAny(trimmed, OPEN_BRACKETS);
 
-  if (bracketIndex === -1) {
+  if (openIndex === -1) {
     return { name: normalizeAgentName(trimmed), note: null };
   }
 
-  const prefix = trimmed.slice(0, bracketIndex).trim();
+  const prefix = trimmed.slice(0, openIndex).trim();
   // 括號前沒有名字（`(泠泠)`）時無從得知當班者是誰，整格原樣留著，
   // 由呼叫端當成查不到的探員處理，而不是把括號內的人誤當成當班者。
   if (!prefix) {
     return { name: trimmed, note: null };
   }
 
-  const inner = trimmed
-    .slice(bracketIndex + 1)
-    .replace(/[)）]\s*$/, '')
-    .trim();
+  // 只取第一組括號的內容。右括號後面還跟著字（`亞米(~18:00)備註`）或第二組括號
+  // （`小楓(泠泠)(換)`）都是手填變體，多餘的部分混進來會讓內容判定不出語意。
+  // 括號未閉合時整段當註記，`亞米(~18:00` 這種漏字仍讀得出來。
+  const afterOpen = trimmed.slice(openIndex + 1);
+  const closeIndex = indexOfAny(afterOpen, CLOSE_BRACKETS);
+  const inner = (closeIndex === -1 ? afterOpen : afterOpen.slice(0, closeIndex)).trim();
 
   return { name: normalizeAgentName(prefix), note: classifyNote(inner) };
 }

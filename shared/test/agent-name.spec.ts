@@ -4,9 +4,16 @@ import { isSelectedAgentCell, parseAgentCell } from '../utils/agent-name';
 /**
  * 歷史班表（`過去班表20260101~`）的真實儲存格樣本 —— 括號的兩種語意各取幾筆，
  * 免得用手編的假字串測出「看起來對但真實資料不長這樣」的結論。
+ *
+ * 期望值一律硬編碼，不由 cell 字串推導：拿與受測程式同一套剝括號手術算期望值，
+ * 切法整體錯位時兩邊會一起錯而仍然綠燈。
  */
 const REAL_CELLS = {
-  substitute: ['和実(亞米)', '千熊(三里)', '悠莉(璐奈)'],
+  substitute: [
+    { cell: '和実(亞米)', name: '和実', original: '亞米' },
+    { cell: '千熊(三里)', name: '千熊', original: '三里' },
+    { cell: '悠莉(璐奈)', name: '悠莉', original: '璐奈' },
+  ],
   time: '亞米(~18:00)',
 } as const;
 
@@ -29,15 +36,10 @@ describe('parseAgentCell', () => {
   });
 
   describe('括號＝原班探員', () => {
-    it.each(REAL_CELLS.substitute)('%s 的當班者為括號前的探員', (cell) => {
-      const [expectedName, expectedOriginal] = cell.replace(')', '').split('(') as [
-        string,
-        string,
-      ];
-
+    it.each(REAL_CELLS.substitute)('$cell 的當班者為括號前的探員', ({ cell, name, original }) => {
       expect(parseAgentCell(cell)).toEqual({
-        name: expectedName,
-        note: { kind: 'original-agent', agent: expectedOriginal },
+        name,
+        note: { kind: 'original-agent', agent: original },
       });
     });
 
@@ -61,6 +63,13 @@ describe('parseAgentCell', () => {
         note: { kind: 'original-agent', agent: '泠泠' },
       });
     });
+
+    it('第二組括號不混進註記', () => {
+      expect(parseAgentCell('小楓(泠泠)(換)')).toEqual({
+        name: '小楓',
+        note: { kind: 'original-agent', agent: '泠泠' },
+      });
+    });
   });
 
   describe('括號＝時間註記', () => {
@@ -80,6 +89,22 @@ describe('parseAgentCell', () => {
         kind: 'time',
         text: '18:00~',
       });
+      expect(parseAgentCell('亞米(18:00)').note).toEqual({
+        kind: 'time',
+        text: '18:00',
+      });
+    });
+
+    it('右括號後還跟著字時只取括號內容', () => {
+      expect(parseAgentCell('亞米(~18:00)備註').note).toEqual({
+        kind: 'time',
+        text: '~18:00',
+      });
+    });
+
+    it('只有數字不算時間形狀', () => {
+      expect(parseAgentCell('亞米(2樓)').note).toEqual({ kind: 'unknown', text: '2樓' });
+      expect(parseAgentCell('小楓(代1)').note).toEqual({ kind: 'unknown', text: '代1' });
     });
   });
 
