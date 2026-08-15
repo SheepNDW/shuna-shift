@@ -4,7 +4,7 @@ import { AGENTS } from '~~/shared/constant';
 const route = useRoute();
 const agentId = computed(() => route.params.id as string);
 
-const { agentInfo, agentSchedules } = await useAgent(agentId.value);
+const { agentInfo, agentSchedules, hasError: hasScheduleError } = await useAgent(agentId.value);
 
 // 無效 agentId 直接 404;若改用 navigateTo + 繼續跑後續 setup,useStatistics / useHead
 // 仍會打 API + 把 title 短暫設成「undefined · 排班資訊」。
@@ -76,8 +76,19 @@ useHead({
           <span class="stamp-label">UPCOMING · {{ agentInfo.name }}</span>
         </header>
 
+        <!-- 載入失敗與「真的零班」分開呈現。兩者都渲染成「近期無排班」的話,
+             Sheets 掛掉時這頁會很有自信地宣告這位探員沒班 —— 而這頁是 SSR,
+             這句錯誤斷言會直接烘進首屏 HTML 被爬蟲收走。 -->
         <EmptyState
-          v-if="agentSchedules.length === 0"
+          v-if="hasScheduleError"
+          kanji="無"
+          title="無法載入班表"
+          subtitle="請稍後再重新整理頁面。"
+          data-testid="agent-schedule-error"
+        />
+
+        <EmptyState
+          v-else-if="agentSchedules.length === 0"
           kanji="空"
           title="近期無排班"
           subtitle="這段期間沒有安排到班次。"

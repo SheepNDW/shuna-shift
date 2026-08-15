@@ -14,6 +14,11 @@ interface DatedResponse {
   metadata?: { lastUpdated?: string };
 }
 
+/** payload 優先、static 次之。兩支策略共用的查表。 */
+function readCached<T>(key: string, source: PayloadSource): T | undefined {
+  return (source.payload.data[key] ?? source.static.data[key]) as T | undefined;
+}
+
 /**
  * 「同一份資料只抓一次」的 `getCachedData`。
  *
@@ -23,11 +28,17 @@ interface DatedResponse {
  * 與頁面各算一個）會各自再打一次 API，光靠共用 key 擋不住。改讀 `payload.data`
  * 就是「這次 render 已經拿過就直接用」。
  *
- * 沒有時效判斷：呼叫端全部卸載後 Nuxt 會自行清掉 `payload.data[key]`
- * （`purgeCachedData` 預設開啟），下次進來自然重抓。
+ * **沒有時效判斷，而且這代表「一個分頁只抓一次」。** Nuxt 的 purgeCachedData
+ * 只在「沒有自訂 getCachedData」時，才會於最後一個消費端卸載時清掉 payload
+ * —— `asyncData.js` 的 `if (purgeCachedData && !hasCustomGetCachedData)`。
+ * 傳了這支就等於永遠不清，資料在整個 SPA session 內不會重抓，要更新得整頁 reload。
+ *
+ * 這是刻意接受的：與改用 composable 之前的 Pinia store 行為一致（store 以
+ * `status !== 'idle'` 擋住重抓），而班表一天也更新不了幾次。若日後要讓長時間
+ * 開著的分頁自己更新，改用 `makeTtlCache` 並挑一個合適的 TTL。
  */
 export function reusePayloadData<T>(key: string, source: PayloadSource): T | undefined {
-  return (source.payload.data[key] ?? source.static.data[key]) as T | undefined;
+  return readCached<T>(key, source);
 }
 
 /**
@@ -38,16 +49,19 @@ export function reusePayloadData<T>(key: string, source: PayloadSource): T | und
  * `metadata.lastUpdated` 判斷資料本身有多舊 —— 而不是快取寫入的時間點，
  * 後者只代表「我什麼時候拿到」，拿到的可能本來就是 CDN 上放了很久的東西。
  *
- * `lastUpdated` 缺漏或解析不出時間一律視為過期：寧可多打一次 API，
- * 也不要把一份不知道多舊的資料當成新的。
+ * `lastUpdated` 缺漏、解析不出時間、或落在未來一律視為過期：寧可多打一次 API，
+ * 也不要把一份不知道多舊的資料當成新的。未來時間戳（伺服器時鐘偏移或值寫壞）
+ * 要特別擋，否則 `now - fetchedAt` 為負，永遠不會超過 ttl，那份資料會被當成
+ * 永遠新鮮而一直用下去。
  */
 export function makeTtlCache<T extends DatedResponse>(ttlMs: number) {
   return (key: string, source: PayloadSource): T | undefined => {
-    const cached = (source.payload.data[key] ?? source.static.data[key]) as T | undefined;
+    const cached = readCached<T>(key, source);
     if (!cached) return undefined;
 
     const fetchedAt = new Date(cached.metadata?.lastUpdated ?? '').getTime();
-    if (Number.isNaN(fetchedAt) || Date.now() - fetchedAt > ttlMs) {
+    const age = Date.now() - fetchedAt;
+    if (Number.isNaN(fetchedAt) || age < 0 || age > ttlMs) {
       return undefined;
     }
 

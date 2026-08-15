@@ -11,7 +11,9 @@ export interface AgentScheduleItem {
 }
 
 export async function useAgent(agentId: string) {
-  const { schedules } = await useSchedules();
+  // hasError 一併代理出去：探員頁只看 agentSchedules 長度的話，班表抓失敗會與
+  // 「這位探員這段期間真的沒班」渲染成同一個空狀態。
+  const { schedules, hasError } = await useSchedules();
 
   const agentInfo = computed(() => {
     const agent = Array.from(AGENTS.values()).find((a) => a.id === agentId);
@@ -47,5 +49,6 @@ export async function useAgent(agentId: string) {
   return {
     agentInfo,
     agentSchedules,
+    hasError,
   };
 }

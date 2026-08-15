@@ -15,11 +15,13 @@ const { useSchedulesMock } = vi.hoisted(() => ({ useSchedulesMock: vi.fn() }));
 mockNuxtImport('useSchedules', () => useSchedulesMock);
 
 const lastUpdated = ref('');
+const hasError = ref(false);
 
 describe('AppFooter', () => {
   beforeEach(() => {
     lastUpdated.value = '';
-    useSchedulesMock.mockResolvedValue({ lastUpdated });
+    hasError.value = false;
+    useSchedulesMock.mockResolvedValue({ lastUpdated, hasError });
   });
 
   afterEach(() => {
@@ -30,6 +32,16 @@ describe('AppFooter', () => {
     const wrapper = await mountSuspended(AppFooter);
 
     expect(wrapper.text()).toContain('同步中…');
+  });
+
+  // 這個 render 之後不會再重試，把硬失敗顯示成「同步中…」等於謊報進行中
+  it('載入失敗時應顯示同步失敗，而非同步中', async () => {
+    hasError.value = true;
+
+    const wrapper = await mountSuspended(AppFooter);
+
+    expect(wrapper.text()).toContain('同步失敗');
+    expect(wrapper.text()).not.toContain('同步中…');
   });
 
   it('應以台北時區呈現 lastUpdated，與機器時區無關', async () => {

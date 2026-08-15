@@ -12,10 +12,34 @@ import { mockSchedules } from './fixtures/mockSchedules';
 const { useSchedulesMock } = vi.hoisted(() => ({ useSchedulesMock: vi.fn() }));
 mockNuxtImport('useSchedules', () => useSchedulesMock);
 
+function stubSchedules({ schedules = mockSchedules, hasError = false } = {}) {
+  useSchedulesMock.mockResolvedValue({ schedules: ref(schedules), hasError: ref(hasError) });
+}
+
 describe('useAgent', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    useSchedulesMock.mockResolvedValue({ schedules: ref(mockSchedules) });
+    stubSchedules();
+  });
+
+  // 探員頁只看 agentSchedules 長度的話，班表抓失敗會與「真的零班」渲染成同一個
+  // 空狀態；hasError 必須一路代理到頁面才分得開。
+  describe('hasError', () => {
+    it('應該把 useSchedules 的 hasError 代理出來', async () => {
+      stubSchedules({ schedules: [], hasError: true });
+
+      const { hasError, agentSchedules } = await useAgent('rin');
+
+      expect(hasError.value).toBe(true);
+      // 失敗時排班同樣是空的 —— 正是這兩者長得一樣，才需要 hasError
+      expect(agentSchedules.value).toEqual([]);
+    });
+
+    it('正常時為 false', async () => {
+      const { hasError } = await useAgent('rin');
+
+      expect(hasError.value).toBe(false);
+    });
   });
 
   describe('agentInfo', () => {
