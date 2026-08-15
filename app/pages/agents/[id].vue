@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { AGENTS } from '~~/shared/constant';
-import type { StatisticsResponse } from '~~/shared/types';
 
 const route = useRoute();
 const agentId = computed(() => route.params.id as string);
 
-const { agentInfo, agentSchedules } = useAgent(agentId.value);
+const { agentInfo, agentSchedules } = await useAgent(agentId.value);
 
-// 無效 agentId 直接 404;若改用 navigateTo + 繼續跑後續 setup,useFetch / useHead
+// 無效 agentId 直接 404;若改用 navigateTo + 繼續跑後續 setup,useStatistics / useHead
 // 仍會打 API + 把 title 短暫設成「undefined · 排班資訊」。
+//
+// 檢查點放在 useAgent 之後:agentInfo 本身只查 AGENTS 常數,但班表是全站共用的
+// 那一份(footer 也在用),提早檢查省不下任何請求。
 if (!agentInfo.value) {
   throw createError({
     statusCode: 404,
@@ -18,37 +20,19 @@ if (!agentInfo.value) {
 }
 
 // 近三個月日 / 夜 / 總統計:從 /api/statistics 取得後 find by agentId
-const TWO_HOURS = 2 * 60 * 60 * 1000;
 const {
-  data: statisticsData,
-  error: statisticsError,
-  status: statisticsStatus,
-} = await useFetch<StatisticsResponse>('/api/statistics', {
-  key: 'agent-detail-statistics',
-  default: () => ({
-    statistics: [],
-    metadata: { lastUpdated: '', dateRange: { from: '', to: '' }, totalSchedules: 0 },
-  }),
-  getCachedData(key, nuxtApp) {
-    const cached = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
-    if (!cached) return undefined;
-
-    const fetchedAt = new Date(cached.metadata?.lastUpdated).getTime();
-    if (Number.isNaN(fetchedAt) || Date.now() - fetchedAt > TWO_HOURS) {
-      return undefined;
-    }
-
-    return cached;
-  },
-});
+  statistics,
+  hasError: hasStatisticsError,
+  isPending: isStatisticsPending,
+} = await useStatistics();
 
 // 失敗或還在 pending 時回傳 null,AgentProfile 會渲染「—」骨架;
 // 避免把「fetch 失敗 / timeout / invalid payload」偽裝成「真的零班」。
 const stats = computed(() => {
-  if (statisticsError.value || statisticsStatus.value === 'pending') {
+  if (hasStatisticsError.value || isStatisticsPending.value) {
     return { dayCount: null, nightCount: null, total: null };
   }
-  const found = statisticsData.value?.statistics.find((s) => s.agentId === agentId.value);
+  const found = statistics.value.find((s) => s.agentId === agentId.value);
   return {
     dayCount: found?.dayCount ?? 0,
     nightCount: found?.nightCount ?? 0,

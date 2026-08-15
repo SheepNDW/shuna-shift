@@ -2,8 +2,7 @@
 import { BOOKING_URL } from '~~/shared/constant';
 import { getSpecialDateKind } from '~~/shared/date-meta';
 
-const scheduleStore = useScheduleStore();
-const { todaySchedule, schedules, hasError } = storeToRefs(scheduleStore);
+const { todaySchedule, schedules, hasError } = await useSchedules();
 
 // 今日是否店休（灰底）；店休與「今日無排班」分開呈現
 const isTodayClosed = computed(

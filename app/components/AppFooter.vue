@@ -2,10 +2,10 @@
 import { BOOKING_URL, SCHEDULE_SHEET_URL } from '~~/shared/constant';
 
 const currentYear = getCurrentYear();
-const scheduleStore = useScheduleStore();
+const { lastUpdated } = await useSchedules();
 
-const lastUpdated = computed(() =>
-  scheduleStore.lastUpdated ? formatDateTime(scheduleStore.lastUpdated) : '同步中…',
+const lastUpdatedLabel = computed(() =>
+  lastUpdated.value ? formatDateTime(lastUpdated.value) : '同步中…',
 );
 
 // 重複的 utility 串集中為 const，維持 utility-first 又不逐處重貼
@@ -59,7 +59,7 @@ const footerLink =
               target="_blank"
               rel="noopener noreferrer"
             >線上訂位</a>
-            <p class="mono m-0 text-fs-13 text-ink-soft">UPDATED · {{ lastUpdated }}</p>
+            <p class="mono m-0 text-fs-13 text-ink-soft">UPDATED · {{ lastUpdatedLabel }}</p>
           </div>
         </div>
       </div>

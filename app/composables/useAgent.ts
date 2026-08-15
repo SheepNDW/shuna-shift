@@ -10,8 +10,8 @@ export interface AgentScheduleItem {
   nightShifts: { name: string; textColor: string }[];
 }
 
-export function useAgent(agentId: string) {
-  const scheduleStore = useScheduleStore();
+export async function useAgent(agentId: string) {
+  const { schedules } = await useSchedules();
 
   const agentInfo = computed(() => {
     const agent = Array.from(AGENTS.values()).find((a) => a.id === agentId);
@@ -27,7 +27,7 @@ export function useAgent(agentId: string) {
     const isThisAgent = (agent: { name: string }): boolean =>
       AGENTS.get(parseAgentCell(agent.name).name)?.id === agentId;
 
-    return scheduleStore.schedules
+    return schedules.value
       .map((schedule) => {
         const dayShifts = schedule.day.filter(isThisAgent);
         const nightShifts = schedule.night.filter(isThisAgent);
