@@ -21,7 +21,7 @@ git submodule 只在「產生」階段用到），複製後不必為了讀文件
 
 ```bash
 git clone --depth 1 https://github.com/antfu/skills.git /tmp/antfu-skills
-for s in nuxt nitro vue-best-practices vue-testing-best-practices vue-router-best-practices; do
+for s in nuxt nitro vue-best-practices vue-testing-best-practices; do
   rm -rf ".claude/skills/$s" && cp -R "/tmp/antfu-skills/skills/$s" .claude/skills/
 done
 ```
@@ -36,4 +36,14 @@ done
 | `nitro` | 由 nitro 官方文件產生 | `server/api/`、cache header、Vercel 部署行為 |
 | `vue-best-practices` | vuejs-ai/skills | Composition API + TypeScript 慣例 |
 | `vue-testing-best-practices` | vuejs-ai/skills | Vitest + Vue Test Utils + Playwright |
-| `vue-router-best-practices` | vuejs-ai/skills | **注意：內容寫的是 Vue Router 4，本專案用 5.0.6。** 主要建議（guard 用 return、不要用 `next()`）在 5 仍成立，但版本相關細節請以官方文件為準。本專案目前也沒有 middleware 或 route guard，這支的實際用處最小 |
+
+## 評估過但沒收的
+
+| Skill | 不收的理由 |
+|---|---|
+| `vue-router-best-practices` | 內容寫的是 Vue Router 4，本專案用 5.0.6；且專案沒有 middleware 或 route guard，`app/pages/` 純檔案路由。路由需求變複雜時可再收 |
+| `vueuse-functions` | 38KB、200+ function 的目錄。專案實際只用到 `useWindowScroll` / `usePreferredReducedMotion` 兩支（皆在 `app/components/BackToTop.vue`），不成比例。VueUse 用量長起來再收 |
+| `antfu`、`antfu-design`、`unocss` | UnoCSS-first 加上游自己的 ESLint config，與本專案的 `@nuxt/ui` + `@nuxt/eslint` 衝突 |
+| `pinia` | 專案沒有 Pinia |
+| `vue`、`vitest`、`vite`、`pnpm`、`web-design-guidelines` | 與收下的四支或既有 global rules 重疊 |
+| `slidev`、`vitepress`、`tsdown`、`turborepo` | 沒用到 |

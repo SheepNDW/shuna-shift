@@ -119,7 +119,6 @@ app/pages/                      → 頁面消費資料
 | `nitro` | 動 `server/api/`、cache header、Vercel 部署行為（`server/utils/cache.ts` 那套的守備範圍） |
 | `vue-best-practices` | 寫新 SFC、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
 | `vue-testing-best-practices` | 寫 `app/**/test/nuxt/*.spec.ts`，比對 `mountSuspended` + stub + `data-testid` 模式 |
-| `vue-router-best-practices` | 動 `app/pages/`、middleware、route guard。**內容寫的是 Vue Router 4，本專案用 5.0.6**，版本相關細節以官方文件為準 |
 
 已安裝的 `everything-claude-code` plugin：
 
@@ -128,7 +127,7 @@ app/pages/                      → 頁面消費資料
 | `/ecc:vue-review`（或 `ecc:vue-reviewer` agent） | 改完 `.vue` 或 composable 後的 review |
 | `ecc:nuxt4-patterns` | 與內附的 `nuxt` 重疊，需要第二種角度時再拉 |
 
-原本這裡列的是 `vue-skills-bundle` 的 `/vue-best-practices` 等 skill。2026-08-15 查證該 bundle 已不存在於任何已註冊的 marketplace（三個 marketplace 共 521 個 plugin，無 vue 相關項目）；其中三支的實際上游是 `vuejs-ai/skills`，已透過 antfu/skills 內附回來。目前仍沒有對應的是「響應性 debug」與 `create-adaptable-composable` 兩塊。
+原本這裡列的是 `vue-skills-bundle` 的 `/vue-best-practices` 等 skill。2026-08-15 查證該 bundle 已不存在於任何已註冊的 marketplace（三個 marketplace 共 521 個 plugin，無 vue 相關項目）；其中兩支的實際上游是 `vuejs-ai/skills`，已透過 antfu/skills 內附回來。仍沒有對應的是「Vue Router」「響應性 debug」與 `create-adaptable-composable` 三塊 —— 評估過但沒收的清單與理由見 `.claude/skills/README.md`。
 
 **不適用本專案**（已知，不要拉）：
 

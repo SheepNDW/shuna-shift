@@ -3,12 +3,29 @@ import { nextTick } from 'vue';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import BackToTop from '../../BackToTop.vue';
 
+/**
+ * 改動的是 `documentElement.scrollTop` 而非 `window.scrollY`：`useWindowScroll()`
+ * 對 window 取的是 `window.document.documentElement.scrollTop`（真實瀏覽器裡
+ * `window.scrollY` 也是由它衍生），只改 `scrollY` 這裡讀不到。
+ */
 function setScrollY(value: number): void {
-  Object.defineProperty(window, 'scrollY', { value, writable: true, configurable: true });
+  Object.defineProperty(document.documentElement, 'scrollTop', {
+    value,
+    writable: true,
+    configurable: true,
+  });
 }
 
+/**
+ * `usePreferredReducedMotion()` 底層是 `useMediaQuery`，會對 MediaQueryList 掛
+ * change 監聽。只回 `{ matches }` 的假物件會讓它在訂閱那步炸掉，故補齊兩個方法。
+ */
 function setReducedMotion(matches: boolean): void {
-  window.matchMedia = vi.fn().mockReturnValue({ matches }) as unknown as typeof window.matchMedia;
+  window.matchMedia = vi.fn().mockReturnValue({
+    matches,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }) as unknown as typeof window.matchMedia;
 }
 
 describe('BackToTop', () => {
