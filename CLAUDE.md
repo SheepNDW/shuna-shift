@@ -49,8 +49,9 @@ server/utils/transformer.ts     → 將 Sheets 原始 rowData 轉為 ShiftSchedu
 server/utils/parser.ts          → 解析日期序號、顏色、探員名稱及文字格式
 server/utils/statistics.ts      → 篩選近 3 個月、計算各探員日/夜班次數
     ↓
-app/stores/schedule.ts（Pinia） → 前端快取班表資料，計算今日班表
-app/composables/useAgent.ts     → 過濾特定探員的排班
+app/composables/useSchedules.ts  → 全站共用的班表資料，計算今日班表
+app/composables/useStatistics.ts → 全站共用的出勤統計（帶 2 小時 TTL 快取）
+app/composables/useAgent.ts      → 過濾特定探員的排班
     ↓
 app/pages/                      → 頁面消費資料
 ```
@@ -84,7 +85,12 @@ app/pages/                      → 頁面消費資料
 
 `?nocache` 走 wrapper 的繞過分支：直接呼叫原 handler 並標 `cache-control: no-store`，避免繞過的回應被 CDN 用自己的 cache key 存起來。dev 環境（`import.meta.dev`）一律繞過。
 
-前端 statistics 頁面另有 2 小時的 client-side 快取（比對 `metadata.lastUpdated`）。
+前端另有一層 client-side 快取，兩支 API 的策略不同（皆在 `app/utils/cache.ts`）：
+
+- 統計走 `makeTtlCache`，2 小時新鮮度上限（比對回應的 `metadata.lastUpdated`）。
+- 班表走 `reusePayloadData`，不設時效，只保證「同一次 SSR / 同一個 session 內只抓一次」。
+
+班表非得自己寫 `getCachedData` 不可：Nuxt 預設的那支在 server 端只讀 `nuxtApp.static.data`（SSR 當下是空的），於是同一次 SSR 裡 layout 的 footer 與頁面會各打一次 `/api/sheet`，光靠共用 asyncData key 擋不住。
 
 ## 測試檔案位置
 
@@ -103,21 +109,31 @@ app/pages/                      → 頁面消費資料
 
 ## 可用輔助 Skills
 
-本專案安裝了 `vue-skills-bundle`，下列 skill 與本專案技術棧匹配，**遇到對應任務時主動呼叫**：
+**遇到對應任務時主動呼叫。** 分兩批來源：
+
+專案內附（`.claude/skills/`，vendor 自 [antfu/skills](https://github.com/antfu/skills)，來源與更新方式見該目錄的 README）：
 
 | Skill | 何時用 |
 |---|---|
-| `/vue-best-practices` | 寫新 SFC 元件、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
-| `/vue-testing-best-practices` | 寫 `app/**/test/nuxt/*.spec.ts`，比對 `mountSuspended` + stub + `data-testid` 模式 |
-| `/vue-pinia-best-practices` | 修改 `app/stores/schedule.ts` 或新增 store |
-| `/vue-router-best-practices` | 動 `app/pages/`、middleware、route guard |
-| `/create-adaptable-composable` | 抽 `app/composables/` 新 composable（如未來把 `useAgent` 風格的探員查表抽出共用） |
-| `/vue-debug-guides` | 響應性失效、hydration mismatch、watch 重複觸發等 debug |
+| `nuxt` | 動 `nuxt.config.ts`、`app/` 目錄慣例、`useFetch` / `useAsyncData` 快取、rendering 模式與 route rules |
+| `nitro` | 動 `server/api/`、cache header、Vercel 部署行為（`server/utils/cache.ts` 那套的守備範圍） |
+| `vue-best-practices` | 寫新 SFC、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
+| `vue-testing-best-practices` | 寫 `app/**/test/nuxt/*.spec.ts`，比對 `mountSuspended` + stub + `data-testid` 模式 |
+
+已安裝的 `everything-claude-code` plugin：
+
+| Skill | 何時用 |
+|---|---|
+| `/ecc:vue-review`（或 `ecc:vue-reviewer` agent） | 改完 `.vue` 或 composable 後的 review |
+| `ecc:nuxt4-patterns` | 與內附的 `nuxt` 重疊，需要第二種角度時再拉 |
+
+原本這裡列的是 `vue-skills-bundle` 的 `/vue-best-practices` 等 skill。2026-08-15 查證該 bundle 已不存在於任何已註冊的 marketplace（三個 marketplace 共 521 個 plugin，無 vue 相關項目）；其中兩支的實際上游是 `vuejs-ai/skills`，已透過 antfu/skills 內附回來。仍沒有對應的是「Vue Router」「響應性 debug」與 `create-adaptable-composable` 三塊 —— 評估過但沒收的清單與理由見 `.claude/skills/README.md`。
 
 **不適用本專案**（已知，不要拉）：
 
-- `vue-jsx-best-practices` — 本專案用 SFC template，不寫 JSX
-- `vue-options-api-best-practices` — 本專案統一 `<script setup>` Composition API
+- 任何 JSX 相關 —— 本專案用 SFC template，不寫 JSX
+- 任何 Options API 相關 —— 本專案統一 `<script setup>` Composition API
+- 任何 Pinia 相關 —— 本專案沒有 Pinia。班表與統計都是純 server state，由 `useSchedules` / `useStatistics` 直接持有；若日後真的需要 client state（例如跨頁保留 `/shifts` 的探員篩選），再評估要不要引入
 
 呼叫慣例：與其他既有 skill（`/ecc:code-review`、`/plan` 等）相同 —— 在需要時透過 `Skill` 工具呼叫，使用者直接輸入 `/<skill-name>` 也可觸發。
 

@@ -1,21 +1,5 @@
 <script setup lang="ts">
-import type { StatisticsResponse } from '~~/shared/types';
-
-const TWO_HOURS = 2 * 60 * 60 * 1000;
-
-const { data, status } = await useFetch<StatisticsResponse>('/api/statistics', {
-  getCachedData(key, nuxtApp) {
-    const cached = nuxtApp.payload.data[key] || nuxtApp.static.data[key];
-    if (!cached) return undefined;
-
-    const fetchedAt = new Date(cached.metadata?.lastUpdated).getTime();
-    if (Number.isNaN(fetchedAt) || Date.now() - fetchedAt > TWO_HOURS) {
-      return undefined;
-    }
-
-    return cached;
-  },
-});
+const { statistics, dateRange, hasError, isPending } = await useStatistics();
 
 const appConfig = useAppConfig();
 useHead({
@@ -28,7 +12,6 @@ useHead({
   ],
 });
 
-const statistics = computed(() => data.value?.statistics ?? []);
 const hasStatistics = computed(() => statistics.value.length > 0);
 
 // 摘要四格數據（日總 / 夜總 / 總計 / MVP）；topAgent 另抽 computed 便於 template 收斂型別
@@ -36,7 +19,7 @@ const summary = computed(() => summarizeStatistics(statistics.value));
 const topAgent = computed(() => summary.value.topAgent);
 
 // 統計期間：以資料實際日期範圍呈現於 PageHeader meta
-const dateRangeLabel = computed(() => formatDateRange(data.value?.metadata.dateRange));
+const dateRangeLabel = computed(() => formatDateRange(dateRange.value));
 </script>
 
 <template>
@@ -50,10 +33,20 @@ const dateRangeLabel = computed(() => formatDateRange(data.value?.metadata.dateR
     />
 
     <!-- 載入中 -->
-    <LoadingState v-if="status === 'pending'" message="載入統計資料中…" />
+    <LoadingState v-if="isPending" message="載入統計資料中…" />
+
+    <!-- 錯誤狀態：改判 hasError 而非 data 是否存在 —— 現在 useStatistics 一律給空殼
+         default，data 永遠不為 null，拿它當分支條件會讓錯誤狀態永遠不顯示。 -->
+    <EmptyState
+      v-else-if="hasError"
+      kanji="無"
+      title="無法載入統計資料"
+      subtitle="請稍後再重新整理頁面。"
+      data-testid="statistics-error"
+    />
 
     <!-- 內容 -->
-    <template v-else-if="data">
+    <template v-else>
       <!-- 摘要四格：日總 / 夜總 / 總計 / MVP -->
       <section
         v-if="hasStatistics && topAgent"
@@ -94,14 +87,5 @@ const dateRangeLabel = computed(() => formatDateRange(data.value?.metadata.dateR
       <!-- 出勤排行表 -->
       <StatisticsTable :statistics="statistics" />
     </template>
-
-    <!-- 錯誤狀態 -->
-    <EmptyState
-      v-else
-      kanji="無"
-      title="無法載入統計資料"
-      subtitle="請稍後再重新整理頁面。"
-      data-testid="statistics-error"
-    />
   </UContainer>
 </template>

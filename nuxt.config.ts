@@ -16,7 +16,6 @@ export default defineNuxtConfig({
     '@nuxt/ui',
     '@nuxt/test-utils/module',
     '@nuxt/eslint',
-    '@pinia/nuxt',
     '@nuxt/image',
     '@nuxt/fonts',
     '@vercel/speed-insights',

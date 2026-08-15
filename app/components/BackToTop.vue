@@ -6,25 +6,21 @@ import { BOOKING_URL } from '~~/shared/constant';
 
 const SCROLL_THRESHOLD = 300;
 
-const isVisible = ref(false);
+// 捲動位置與 reduced-motion 都交給 VueUse:兩者都是 SSR-safe（server 端分別為
+// 0 與 'no-preference'，與首屏「不顯示」一致），監聽器隨 effect scope 自動解除，
+// 不必自己配對 onMounted / onUnmounted。
+const { y } = useWindowScroll();
+const prefersReducedMotion = usePreferredReducedMotion();
 
-function checkScroll(): void {
-  isVisible.value = window.scrollY > SCROLL_THRESHOLD;
-}
+// 唯一的來源狀態是 y,顯示與否用推導的,不另存一份 ref。
+const isVisible = computed(() => y.value > SCROLL_THRESHOLD);
 
 function scrollToTop(): void {
-  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  window.scrollTo({ top: 0, behavior: prefersReduced ? 'auto' : 'smooth' });
+  window.scrollTo({
+    top: 0,
+    behavior: prefersReducedMotion.value === 'reduce' ? 'auto' : 'smooth',
+  });
 }
-
-onMounted(() => {
-  checkScroll();
-  window.addEventListener('scroll', checkScroll, { passive: true });
-});
-
-onUnmounted(() => {
-  window.removeEventListener('scroll', checkScroll);
-});
 </script>
 
 <template>

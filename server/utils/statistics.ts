@@ -1,5 +1,5 @@
 import { AGENTS, normalizeAgentName } from '~~/shared/constant';
-import type { AgentStatistics, ShiftSchedule } from '~~/shared/types';
+import type { Agent, AgentStatistics, ShiftSchedule } from '~~/shared/types';
 import { parseAgentCell } from '~~/shared/utils/agent-name';
 import { isLeaveColor } from '~~/shared/utils/colors';
 import { addMonthsToIso, getTodayIso, isoToDateLabel } from '~~/shared/utils/date';
@@ -10,12 +10,9 @@ import { addMonthsToIso, getTodayIso, isoToDateLabel } from '~~/shared/utils/dat
  * 先以 `normalizeAgentName` 將輸入（可能為 emoji、大小寫變體或名稱別名）
  * 正規化為正式名稱，再以正式名稱查表。
  */
-export function findAgentByName(name: string): {
-  id: string;
-  name: string;
-  picture: string;
-  isFullTime?: boolean;
-} | null {
+export function findAgentByName(
+  name: string,
+): Pick<Agent, 'id' | 'name' | 'picture' | 'isFullTime'> | null {
   const agent = AGENTS.get(normalizeAgentName(name));
   if (!agent) {
     return null;

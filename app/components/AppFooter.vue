@@ -2,11 +2,14 @@
 import { BOOKING_URL, SCHEDULE_SHEET_URL } from '~~/shared/constant';
 
 const currentYear = getCurrentYear();
-const scheduleStore = useScheduleStore();
+const { lastUpdated, hasError } = await useSchedules();
 
-const lastUpdated = computed(() =>
-  scheduleStore.lastUpdated ? formatDateTime(scheduleStore.lastUpdated) : '同步中…',
-);
+// 失敗要與「還在載」分開：這個 render 之後不會再重試，一直顯示「同步中…」
+// 等於把硬失敗說成進行中。
+const lastUpdatedLabel = computed(() => {
+  if (hasError.value) return '同步失敗';
+  return lastUpdated.value ? formatDateTime(lastUpdated.value) : '同步中…';
+});
 
 // 重複的 utility 串集中為 const，維持 utility-first 又不逐處重貼
 const colHeading = 'mb-1.5 font-mono text-fs-12 uppercase tracking-stamp text-ink';
@@ -59,7 +62,7 @@ const footerLink =
               target="_blank"
               rel="noopener noreferrer"
             >線上訂位</a>
-            <p class="mono m-0 text-fs-13 text-ink-soft">UPDATED · {{ lastUpdated }}</p>
+            <p class="mono m-0 text-fs-13 text-ink-soft">UPDATED · {{ lastUpdatedLabel }}</p>
           </div>
         </div>
       </div>

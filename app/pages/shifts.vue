@@ -2,8 +2,7 @@
 import type { JumpDate } from '~~/shared/types';
 import { isSelectedAgentCell } from '~~/shared/utils/agent-name';
 
-const scheduleStore = useScheduleStore();
-const { schedules, hasError } = storeToRefs(scheduleStore);
+const { schedules, hasError } = await useSchedules();
 
 // 探員篩選：選中的探員名稱（對應 AGENTS 的鍵值）
 const selectedAgents = ref<string[]>([]);

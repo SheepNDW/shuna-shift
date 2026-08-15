@@ -10,8 +10,10 @@ export interface AgentScheduleItem {
   nightShifts: { name: string; textColor: string }[];
 }
 
-export function useAgent(agentId: string) {
-  const scheduleStore = useScheduleStore();
+export async function useAgent(agentId: string) {
+  // hasError 一併代理出去：探員頁只看 agentSchedules 長度的話，班表抓失敗會與
+  // 「這位探員這段期間真的沒班」渲染成同一個空狀態。
+  const { schedules, hasError } = await useSchedules();
 
   const agentInfo = computed(() => {
     const agent = Array.from(AGENTS.values()).find((a) => a.id === agentId);
@@ -27,7 +29,7 @@ export function useAgent(agentId: string) {
     const isThisAgent = (agent: { name: string }): boolean =>
       AGENTS.get(parseAgentCell(agent.name).name)?.id === agentId;
 
-    return scheduleStore.schedules
+    return schedules.value
       .map((schedule) => {
         const dayShifts = schedule.day.filter(isThisAgent);
         const nightShifts = schedule.night.filter(isThisAgent);
@@ -47,5 +49,6 @@ export function useAgent(agentId: string) {
   return {
     agentInfo,
     agentSchedules,
+    hasError,
   };
 }

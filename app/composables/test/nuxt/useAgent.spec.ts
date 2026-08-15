@@ -1,24 +1,50 @@
-import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { useAgent } from '~/composables/useAgent';
 import { IMAGE_BASE_URL } from '~~/shared/constant';
 import { mockSchedules } from './fixtures/mockSchedules';
 
-vi.mock('~/stores/schedule', () => ({
-  useScheduleStore: vi.fn(() => ({
-    schedules: mockSchedules,
-  })),
-}));
+/**
+ * useAgent 現在吃全站共用的 `useSchedules()`，不再讀 Pinia store。
+ * 它是 Nuxt auto-import，`vi.mock` 攔不到（useAgent 用的是 auto-import，
+ * 不是具名匯入），必須用 mockNuxtImport。
+ */
+const { useSchedulesMock } = vi.hoisted(() => ({ useSchedulesMock: vi.fn() }));
+mockNuxtImport('useSchedules', () => useSchedulesMock);
+
+function stubSchedules({ schedules = mockSchedules, hasError = false } = {}) {
+  useSchedulesMock.mockResolvedValue({ schedules: ref(schedules), hasError: ref(hasError) });
+}
 
 describe('useAgent', () => {
   beforeEach(() => {
-    setActivePinia(createPinia());
     vi.clearAllMocks();
+    stubSchedules();
+  });
+
+  // 探員頁只看 agentSchedules 長度的話，班表抓失敗會與「真的零班」渲染成同一個
+  // 空狀態；hasError 必須一路代理到頁面才分得開。
+  describe('hasError', () => {
+    it('應該把 useSchedules 的 hasError 代理出來', async () => {
+      stubSchedules({ schedules: [], hasError: true });
+
+      const { hasError, agentSchedules } = await useAgent('rin');
+
+      expect(hasError.value).toBe(true);
+      // 失敗時排班同樣是空的 —— 正是這兩者長得一樣，才需要 hasError
+      expect(agentSchedules.value).toEqual([]);
+    });
+
+    it('正常時為 false', async () => {
+      const { hasError } = await useAgent('rin');
+
+      expect(hasError.value).toBe(false);
+    });
   });
 
   describe('agentInfo', () => {
-    it('應該回傳正確的探員資訊', () => {
-      const { agentInfo } = useAgent('rin');
+    it('應該回傳正確的探員資訊', async () => {
+      const { agentInfo } = await useAgent('rin');
 
       // 用 toMatchObject 做部分匹配:本測試關注 useAgent 是否回傳正確 entry 的核心識別欄位,
       // 不負責驗證 AGENTS 個資欄位(themeColor / birthday / skills / hobbies / quote)的內容,
@@ -37,15 +63,15 @@ describe('useAgent', () => {
       });
     });
 
-    it('當探員 ID 不存在時應該回傳 null', () => {
-      const { agentInfo } = useAgent('nonexistent');
+    it('當探員 ID 不存在時應該回傳 null', async () => {
+      const { agentInfo } = await useAgent('nonexistent');
 
       expect(agentInfo.value).toBeNull();
     });
 
-    it('應該能正確找到不同的探員', () => {
-      const { agentInfo: lunaInfo } = useAgent('luna');
-      const { agentInfo: juanoInfo } = useAgent('juano');
+    it('應該能正確找到不同的探員', async () => {
+      const { agentInfo: lunaInfo } = await useAgent('luna');
+      const { agentInfo: juanoInfo } = await useAgent('juano');
 
       expect(lunaInfo.value?.name).toBe('Luna');
       expect(juanoInfo.value?.name).toBe('米捲');
@@ -53,14 +79,14 @@ describe('useAgent', () => {
   });
 
   describe('agentSchedules', () => {
-    it('當探員不存在時應該回傳空陣列', () => {
-      const { agentSchedules } = useAgent('nonexistent');
+    it('當探員不存在時應該回傳空陣列', async () => {
+      const { agentSchedules } = await useAgent('nonexistent');
 
       expect(agentSchedules.value).toEqual([]);
     });
 
-    it('應該篩選出該探員的日班和夜班排班資料', () => {
-      const { agentSchedules } = useAgent('rin');
+    it('應該篩選出該探員的日班和夜班排班資料', async () => {
+      const { agentSchedules } = await useAgent('rin');
 
       // 泠泠 在 10月30日有日班和夜班
       expect(agentSchedules.value).toHaveLength(1);
@@ -77,8 +103,8 @@ describe('useAgent', () => {
       }
     });
 
-    it('應該篩選出該探員在多個日期的排班', () => {
-      const { agentSchedules } = useAgent('luna');
+    it('應該篩選出該探員在多個日期的排班', async () => {
+      const { agentSchedules } = await useAgent('luna');
 
       // Luna 在多個日期都有班
       expect(agentSchedules.value.length).toBeGreaterThan(1);
@@ -90,8 +116,8 @@ describe('useAgent', () => {
       expect(dates).toContain('11月1日');
     });
 
-    it('應該處理探員名稱包含括號的情況', () => {
-      const { agentSchedules } = useAgent('akari');
+    it('應該處理探員名稱包含括號的情況', async () => {
+      const { agentSchedules } = await useAgent('akari');
 
       // 明里在 10月30日（夜班，名字有括號）和 11月7日（日班，名字無括號）都有班
       expect(agentSchedules.value).toHaveLength(2);
@@ -107,8 +133,8 @@ describe('useAgent', () => {
       }
     });
 
-    it('應該過濾掉沒有該探員的日期', () => {
-      const { agentSchedules } = useAgent('rin');
+    it('應該過濾掉沒有該探員的日期', async () => {
+      const { agentSchedules } = await useAgent('rin');
 
       // 泠泠 只在 10月30日 有班，不應該出現其他日期
       expect(agentSchedules.value).toHaveLength(1);
@@ -117,16 +143,16 @@ describe('useAgent', () => {
       expect(dates).not.toContain('11月1日');
     });
 
-    it('應該過濾掉公休日', () => {
-      const { agentSchedules } = useAgent('luna');
+    it('應該過濾掉公休日', async () => {
+      const { agentSchedules } = await useAgent('luna');
 
       // 不應該包含 11月3日（公休）
       const dates = agentSchedules.value.map((s) => s.date.datetime);
       expect(dates).not.toContain('11月3日');
     });
 
-    it('應該正確處理有特殊背景色的日期', () => {
-      const { agentSchedules } = useAgent('non');
+    it('應該正確處理有特殊背景色的日期', async () => {
+      const { agentSchedules } = await useAgent('non');
 
       // 音 在 11月9日（音的生日）有班
       const schedule = agentSchedules.value.find((s) => s.date.datetime === '11月9日');
@@ -137,8 +163,8 @@ describe('useAgent', () => {
       }
     });
 
-    it('應該處理探員在夜班有特殊文字顏色的情況', () => {
-      const { agentSchedules } = useAgent('ino');
+    it('應該處理探員在夜班有特殊文字顏色的情況', async () => {
+      const { agentSchedules } = await useAgent('ino');
 
       // 井野 在 11月1日 夜班有特殊顏色
       const schedule = agentSchedules.value.find((s) => s.date.datetime === '11月1日');
@@ -151,8 +177,8 @@ describe('useAgent', () => {
       }
     });
 
-    it('應該正確篩選出探員在多個日期的排班', () => {
-      const { agentSchedules } = useAgent('juano');
+    it('應該正確篩選出探員在多個日期的排班', async () => {
+      const { agentSchedules } = await useAgent('juano');
 
       // 米捲 在多個日期都有班
       expect(agentSchedules.value.length).toBeGreaterThan(5);
