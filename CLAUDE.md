@@ -109,21 +109,22 @@ app/pages/                      → 頁面消費資料
 
 ## 可用輔助 Skills
 
-本專案安裝了 `vue-skills-bundle`，下列 skill 與本專案技術棧匹配，**遇到對應任務時主動呼叫**：
+下列 skill 來自已安裝的 `everything-claude-code` plugin，與本專案技術棧匹配，**遇到對應任務時主動呼叫**：
 
 | Skill | 何時用 |
 |---|---|
-| `/vue-best-practices` | 寫新 SFC 元件、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
-| `/vue-testing-best-practices` | 寫 `app/**/test/nuxt/*.spec.ts`，比對 `mountSuspended` + stub + `data-testid` 模式 |
-| `/vue-router-best-practices` | 動 `app/pages/`、middleware、route guard |
-| `/create-adaptable-composable` | 抽 `app/composables/` 新 composable |
-| `/vue-debug-guides` | 響應性失效、hydration mismatch、watch 重複觸發等 debug |
+| `ecc:nuxt4-patterns` | 動 `nuxt.config.ts`、`server/api/`、routing / rendering 模式、auto-import 行為 |
+| `ecc:vue-patterns` | 寫新 SFC 元件、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
+| `/ecc:vue-review`（或 `ecc:vue-reviewer` agent） | 改完 `.vue` 或 composable 後的 review |
+| `ecc:vite-patterns` | 需要動到 Nuxt 底下的 Vite 設定時（少用，Nuxt 平常會蓋掉） |
+
+原本這裡列的是 `vue-skills-bundle` 的 `/vue-best-practices` 等 skill。2026-08-15 查證該 bundle 已不存在於任何已註冊的 marketplace（三個 marketplace 共 521 個 plugin，無 vue 相關項目），故改列 ECC 的等價品。目前沒有直接對應的是「Vue 測試慣例」「Vue Router」「響應性 debug」三塊 —— 需要時直接查 Vue / Nuxt 官方文件。
 
 **不適用本專案**（已知，不要拉）：
 
-- `vue-jsx-best-practices` — 本專案用 SFC template，不寫 JSX
-- `vue-options-api-best-practices` — 本專案統一 `<script setup>` Composition API
-- `vue-pinia-best-practices` — 本專案沒有 Pinia。班表與統計都是純 server state，由 `useSchedules` / `useStatistics` 直接持有；若日後真的需要 client state（例如跨頁保留 `/shifts` 的探員篩選），再評估要不要引入
+- 任何 JSX 相關 —— 本專案用 SFC template，不寫 JSX
+- 任何 Options API 相關 —— 本專案統一 `<script setup>` Composition API
+- 任何 Pinia 相關 —— 本專案沒有 Pinia。班表與統計都是純 server state，由 `useSchedules` / `useStatistics` 直接持有；若日後真的需要 client state（例如跨頁保留 `/shifts` 的探員篩選），再評估要不要引入
 
 呼叫慣例：與其他既有 skill（`/ecc:code-review`、`/plan` 等）相同 —— 在需要時透過 `Skill` 工具呼叫，使用者直接輸入 `/<skill-name>` 也可觸發。
 
