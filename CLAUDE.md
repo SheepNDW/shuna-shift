@@ -109,16 +109,26 @@ app/pages/                      → 頁面消費資料
 
 ## 可用輔助 Skills
 
-下列 skill 來自已安裝的 `everything-claude-code` plugin，與本專案技術棧匹配，**遇到對應任務時主動呼叫**：
+**遇到對應任務時主動呼叫。** 分兩批來源：
+
+專案內附（`.claude/skills/`，vendor 自 [antfu/skills](https://github.com/antfu/skills)，來源與更新方式見該目錄的 README）：
 
 | Skill | 何時用 |
 |---|---|
-| `ecc:nuxt4-patterns` | 動 `nuxt.config.ts`、`server/api/`、routing / rendering 模式、auto-import 行為 |
-| `ecc:vue-patterns` | 寫新 SFC 元件、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
-| `/ecc:vue-review`（或 `ecc:vue-reviewer` agent） | 改完 `.vue` 或 composable 後的 review |
-| `ecc:vite-patterns` | 需要動到 Nuxt 底下的 Vite 設定時（少用，Nuxt 平常會蓋掉） |
+| `nuxt` | 動 `nuxt.config.ts`、`app/` 目錄慣例、`useFetch` / `useAsyncData` 快取、rendering 模式與 route rules |
+| `nitro` | 動 `server/api/`、cache header、Vercel 部署行為（`server/utils/cache.ts` 那套的守備範圍） |
+| `vue-best-practices` | 寫新 SFC、refactor 既有 `<script setup>`、判斷 props/emit/composable 切分 |
+| `vue-testing-best-practices` | 寫 `app/**/test/nuxt/*.spec.ts`，比對 `mountSuspended` + stub + `data-testid` 模式 |
+| `vue-router-best-practices` | 動 `app/pages/`、middleware、route guard。**內容寫的是 Vue Router 4，本專案用 5.0.6**，版本相關細節以官方文件為準 |
 
-原本這裡列的是 `vue-skills-bundle` 的 `/vue-best-practices` 等 skill。2026-08-15 查證該 bundle 已不存在於任何已註冊的 marketplace（三個 marketplace 共 521 個 plugin，無 vue 相關項目），故改列 ECC 的等價品。目前沒有直接對應的是「Vue 測試慣例」「Vue Router」「響應性 debug」三塊 —— 需要時直接查 Vue / Nuxt 官方文件。
+已安裝的 `everything-claude-code` plugin：
+
+| Skill | 何時用 |
+|---|---|
+| `/ecc:vue-review`（或 `ecc:vue-reviewer` agent） | 改完 `.vue` 或 composable 後的 review |
+| `ecc:nuxt4-patterns` | 與內附的 `nuxt` 重疊，需要第二種角度時再拉 |
+
+原本這裡列的是 `vue-skills-bundle` 的 `/vue-best-practices` 等 skill。2026-08-15 查證該 bundle 已不存在於任何已註冊的 marketplace（三個 marketplace 共 521 個 plugin，無 vue 相關項目）；其中三支的實際上游是 `vuejs-ai/skills`，已透過 antfu/skills 內附回來。目前仍沒有對應的是「響應性 debug」與 `create-adaptable-composable` 兩塊。
 
 **不適用本專案**（已知，不要拉）：
 
