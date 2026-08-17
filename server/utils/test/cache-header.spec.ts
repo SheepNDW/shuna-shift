@@ -35,10 +35,18 @@ import { buildCacheOptions } from '../cache';
 
 const require = createRequire(import.meta.url);
 
-/** 抽取失敗時的共用文案，避免散在多處各寫一版而漂移 */
-const CANARY_BROKEN =
-  'nitropack 的 cache.mjs 與預期不符 —— nitro 很可能改寫了組 cache-control 的那段實作。' +
-  '請回頭確認 server/utils/cache.ts 的 s-maxage 推論是否還成立（issue #44）。';
+/** 兩種失敗路徑共用的收尾，抽出來避免各寫一版而漂移 */
+const CANARY_TAIL = '請回頭確認 server/utils/cache.ts 的 s-maxage 推論是否還成立（issue #44）。';
+
+/** 檔案讀得到、但抽不出預期的那段 */
+const CANARY_BROKEN = `nitropack 的 cache.mjs 與預期不符 —— nitro 很可能改寫了組 cache-control 的那段實作。${CANARY_TAIL}`;
+
+/**
+ * 連檔案都拿不到。刻意與 `CANARY_BROKEN` 分開：這條路徑除了「nitro 改了 dist 結構」，
+ * 也涵蓋「`.npmrc` 的 shamefully-hoist 被移除 → `require.resolve` 丟 MODULE_NOT_FOUND」，
+ * 用同一句「nitro 改寫了實作」會把人指往錯的方向。
+ */
+const CANARY_UNREADABLE = `讀不到 nitropack 的 cache.mjs —— 可能是 nitro 改了 dist 結構，或 .npmrc 的 shamefully-hoist 被移除。${CANARY_TAIL}`;
 
 /**
  * nitro 組 cache-control 的那一段（`nitropack/dist/runtime/internal/cache.mjs`）。
@@ -58,7 +66,7 @@ function readNitroCacheSource(): string {
     );
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`${CANARY_BROKEN}（連檔案都讀不到：${reason}）`);
+    throw new Error(`${CANARY_UNREADABLE}（${reason}）`);
   }
 }
 
