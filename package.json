@@ -19,6 +19,11 @@
   "engines": {
     "node": ">=24"
   },
+  "pnpm": {
+    "overrides": {
+      "nitropack": "2.13.3"
+    }
+  },
   "dependencies": {
     "@nuxt/eslint": "1.15.2",
     "@nuxt/fonts": "^0.14.0",

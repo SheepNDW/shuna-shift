@@ -83,6 +83,10 @@ app/pages/                      → 頁面消費資料
 
 代價是**回應不再帶 `max-age`，瀏覽器端不快取** —— nitro 的 header 分支互斥，開了 `swr` 就拿不到 `max-age`。client-side 換頁時會真的發請求，但會終止在 edge 而非 origin。
 
+因為這套推論建立在 nitropack 的**內部實作**上，`package.json` 用 `pnpm.overrides` 把 nitropack 釘在 exact `2.13.3`：升版必須是明確動作，不能被一次 `pnpm update` 無聲帶走。要升版時連同 `server/utils/test/cache-header.spec.ts` 一起看 —— 那支 canary 會把 nitro 組 cache-control 的原始碼原文抽出來實際跑一次，nitro 改寫那段時會轉紅並指出該確認什麼。（#44）
+
+**升 `nuxt` 本身也要回頭確認這個 pin。** pnpm 的 override 無條件覆寫整棵樹，不檢查是否滿足任何 dependent 宣告的 semver range：`pnpm update nuxt` 把 `@nuxt/nitro-server` 升到需要 `^2.14.0` 的版本、但沒人動 override 時，整棵樹會被靜默壓在沒測過的 2.13.3，而 `pnpm install` 依然 exit 0、零警告。canary 對這種情況也無感 —— 它讀的是安裝後的 `cache.mjs`，那個檔案根本沒變。（#50 追蹤把這條檢查自動化）
+
 `?nocache` 走 wrapper 的繞過分支：直接呼叫原 handler 並標 `cache-control: no-store`，避免繞過的回應被 CDN 用自己的 cache key 存起來。dev 環境（`import.meta.dev`）一律繞過。
 
 前端另有一層 client-side 快取，兩支 API 的策略不同（皆在 `app/utils/cache.ts`）：
