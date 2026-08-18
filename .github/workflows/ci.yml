@@ -3,8 +3,10 @@ name: CI
 on:
   push:
     branches: [main]
+  # 刻意不限制 base 分支。原本是 `branches: [main]`，於是 base 不是 main 的
+  # stacked PR（例如 #39 拆成的三層）整個不觸發 CI —— PR 頁面上只剩 Vercel 的
+  # 建置勾勾，看起來像通過了，實際上 lint / typecheck / test 一次都沒跑。
   pull_request:
-    branches: [main]
 
 jobs:
   ci:
