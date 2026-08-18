@@ -66,7 +66,7 @@ function readNitroCacheSource(): string {
     );
   } catch (error) {
     const reason = error instanceof Error ? error.message : String(error);
-    throw new Error(`${CANARY_UNREADABLE}（${reason}）`);
+    throw new Error(`${CANARY_UNREADABLE}（${reason}）`, { cause: error });
   }
 }
 

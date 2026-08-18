@@ -21,31 +21,31 @@
   },
   "pnpm": {
     "overrides": {
-      "nitropack": "2.13.3"
+      "nitropack": "2.13.4"
     }
   },
   "dependencies": {
     "@nuxt/fonts": "^0.14.0",
-    "@nuxt/image": "^2.0.0",
-    "@nuxt/ui": "^4.7.0",
+    "@nuxt/image": "^2.1.0",
+    "@nuxt/ui": "^4.10.0",
     "@vercel/speed-insights": "^2.0.0",
-    "@vueuse/core": "^14.2.1",
-    "@vueuse/nuxt": "^14.2.1",
-    "nuxt": "^4.4.2",
-    "vue": "^3.5.33",
-    "vue-router": "^5.0.6",
-    "zod": "^4.1.12"
+    "@vueuse/core": "^14.4.0",
+    "@vueuse/nuxt": "^14.4.0",
+    "nuxt": "^4.5.2",
+    "vue": "^3.5.41",
+    "vue-router": "^5.2.0",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
-    "@nuxt/eslint": "^1.15.2",
-    "@nuxt/test-utils": "^4.0.2",
-    "@vue/test-utils": "^2.4.8",
-    "eslint": "^10.2.1",
-    "happy-dom": "^20.9.0",
+    "@nuxt/eslint": "^1.17.0",
+    "@nuxt/test-utils": "^4.1.0",
+    "@vue/test-utils": "^2.4.11",
+    "eslint": "^10.8.1",
+    "happy-dom": "^20.11.2",
     "husky": "^9.1.7",
-    "playwright-core": "^1.59.1",
+    "playwright-core": "^1.62.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.5",
-    "vue-tsc": "^3.2.7"
+    "vitest": "^4.1.10",
+    "vue-tsc": "^3.3.10"
   }
 }
