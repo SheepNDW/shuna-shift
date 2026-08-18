@@ -9,7 +9,6 @@ const CURRENT_SHEET_RANGE = '每日班表!A5:C';
 export default defineCdnCachedEventHandler(
   async (_event) => {
     try {
-      console.log('fetch Sheets...');
       const sheetData = await fetchSheetRanges([CURRENT_SHEET_RANGE]);
       const rows = sheetData.get(sheetTitleFromRange(CURRENT_SHEET_RANGE)) ?? [];
 

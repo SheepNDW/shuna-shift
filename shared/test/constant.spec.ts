@@ -61,3 +61,42 @@ describe('探員照片 host 白名單', () => {
     }
   });
 });
+
+/**
+ * `fileNo` 是探員頁「AGENT FILE · No. XXX」章顯示的編號，寫死在每一筆 entry 上。
+ *
+ * 寫死換來的是穩定（插入新探員不會讓其他人的編號位移），代價是複製既有 entry
+ * 時很容易忘了改號碼 —— 而重複的編號在畫面上完全看不出異常，兩位探員各自的頁面
+ * 都只顯示自己那一個。這幾條就是在補那個缺口。
+ */
+describe('探員 fileNo', () => {
+  const agents = [...new Set(AGENTS.values())];
+
+  it('有實際收集到探員（防止下列斷言變成套套邏輯）', () => {
+    expect(agents.length).toBeGreaterThan(0);
+  });
+
+  it('每位探員都有 fileNo', () => {
+    const offenders = agents
+      .filter((agent) => !Number.isInteger(agent.fileNo) || agent.fileNo < 1)
+      .map((agent) => `${agent.name} → ${agent.fileNo}`);
+
+    expect(offenders).toEqual([]);
+  });
+
+  it('fileNo 不重複', () => {
+    const seen = new Map<number, string>();
+    const duplicates: string[] = [];
+
+    for (const agent of agents) {
+      const owner = seen.get(agent.fileNo);
+      if (owner) {
+        duplicates.push(`No.${agent.fileNo} → ${owner} / ${agent.name}`);
+      } else {
+        seen.set(agent.fileNo, agent.name);
+      }
+    }
+
+    expect(duplicates).toEqual([]);
+  });
+});

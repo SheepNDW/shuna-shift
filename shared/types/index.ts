@@ -1,6 +1,15 @@
 export type Agent = {
   id: string;
   name: string;
+  /**
+   * AGENT FILE 編號，探員頁的檔案章會顯示它（`No. 003`）。
+   *
+   * 刻意寫死而非由 `AGENTS` 的插入順序推導：那樣在中間插入一位探員，
+   * 其後所有人的編號都會跟著位移 —— 而這個欄位在畫面上被呈現成「檔案編號」，
+   * 讀起來是身分的一部分，不該因為別人加入而改變。
+   * 新增探員時取目前最大值 +1，不要重用離開者的號碼。
+   */
+  fileNo: number;
   picture: string;
   photos: string[];
   instagram?: string;

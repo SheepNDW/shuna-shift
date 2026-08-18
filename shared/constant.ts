@@ -69,6 +69,7 @@ export const AGENTS = new Map<string, Agent>([
     '泠泠',
     {
       id: 'rin',
+      fileNo: 1,
       name: '泠泠',
       emoji: '🐷',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuLy1qse9mYTlDH32ZF0nMIWydusApvaojBGEb',
@@ -89,6 +90,7 @@ export const AGENTS = new Map<string, Agent>([
     '米捲',
     {
       id: 'juano',
+      fileNo: 2,
       name: '米捲',
       emoji: '🥨',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu7J0xbXvvpE8xoHPWJ9UdMK4hqGBQZDu0XmAN',
@@ -109,6 +111,7 @@ export const AGENTS = new Map<string, Agent>([
     'Luna',
     {
       id: 'luna',
+      fileNo: 3,
       name: 'Luna',
       emoji: '🌙',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuzacqGE5HmVSe98IXu62QYspBgGU51Owt0P3c',
@@ -129,6 +132,7 @@ export const AGENTS = new Map<string, Agent>([
     'Ruby',
     {
       id: 'ruby',
+      fileNo: 4,
       name: 'Ruby',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuCBHoQf34YAXeLkv6NxtVOjMJsu01RWdITqoB',
       photos: [
@@ -147,6 +151,7 @@ export const AGENTS = new Map<string, Agent>([
     '梂',
     {
       id: 'chu',
+      fileNo: 5,
       name: '梂',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWEfQoDpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
       photos: [
@@ -165,6 +170,7 @@ export const AGENTS = new Map<string, Agent>([
     '百夜',
     {
       id: 'hyakuya',
+      fileNo: 6,
       name: '百夜',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuNo5lFU88pmAd1J73OGKcWTRwZxlv4CI9kyLg',
       photos: [
@@ -192,6 +198,7 @@ export const AGENTS = new Map<string, Agent>([
     '千熊',
     {
       id: 'senku',
+      fileNo: 7,
       name: '千熊',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu6KxRdxfJAvDsOl9UNkiP7qSKXjIuRWradT06',
       photos: [
@@ -210,6 +217,7 @@ export const AGENTS = new Map<string, Agent>([
     '熊子',
     {
       id: 'kumako',
+      fileNo: 8,
       name: '熊子',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuBNj0lPVW0tLQAXzj1cFSCJk7agwsuPDWmhxq',
       photos: [
@@ -228,6 +236,7 @@ export const AGENTS = new Map<string, Agent>([
     'Kikimi',
     {
       id: 'kikimi',
+      fileNo: 9,
       name: 'Kikimi',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuBCG3upW0tLQAXzj1cFSCJk7agwsuPDWmhxqZ',
       photos: [],
@@ -244,6 +253,7 @@ export const AGENTS = new Map<string, Agent>([
     '小楓',
     {
       id: 'mepuru',
+      fileNo: 10,
       name: '小楓',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuZ8qdjuaceCOgjTpr60Y3f8w4unidbFXvkB9l',
       photos: [
@@ -262,6 +272,7 @@ export const AGENTS = new Map<string, Agent>([
     '音',
     {
       id: 'non',
+      fileNo: 11,
       name: '音',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuuK2cuXClhNn8bH5me2PWRkg9GVoL1q6viOCw',
       photos: [
@@ -280,6 +291,7 @@ export const AGENTS = new Map<string, Agent>([
     '花緒',
     {
       id: 'kao',
+      fileNo: 12,
       name: '花緒',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuQfQDiPtpzcu0lMI5wN6vjb9iD3GyHLY1anXJ',
       photos: [
@@ -299,6 +311,7 @@ export const AGENTS = new Map<string, Agent>([
     '三里',
     {
       id: 'miri',
+      fileNo: 13,
       name: '三里',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu81F7gUUMnaK4tR7Jbfz0B9DuAdOjWgeEI5lc',
       photos: [
@@ -317,6 +330,7 @@ export const AGENTS = new Map<string, Agent>([
     '井野',
     {
       id: 'ino',
+      fileNo: 14,
       name: '井野',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuUpzp9PkBHCabipIoGJADkslqFegBjxv6QEnc',
       photos: [
@@ -335,6 +349,7 @@ export const AGENTS = new Map<string, Agent>([
     '小春',
     {
       id: 'koharu',
+      fileNo: 15,
       name: '小春',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu1QJxdNFQhXuDmRLFk4l9Zyps5I7ztcgBGf6N',
       photos: [
@@ -353,6 +368,7 @@ export const AGENTS = new Map<string, Agent>([
     '綾音',
     {
       id: 'ayane',
+      fileNo: 16,
       name: '綾音',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcu0SpbxJyn8Sp9RqhgC4y0juW5saEdQbxvM7NI',
       photos: [
@@ -371,6 +387,7 @@ export const AGENTS = new Map<string, Agent>([
     '棠棠',
     {
       id: 'tang',
+      fileNo: 17,
       name: '棠棠',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuWE8nrzpc4b0vXsr7VhFqM9ZnLipjyfu2mIAN',
       photos: [
@@ -390,6 +407,7 @@ export const AGENTS = new Map<string, Agent>([
     '明里',
     {
       id: 'akari',
+      fileNo: 18,
       name: '明里',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuTrvkSAdA95N1PDLEqaCVyK37J0cOZt8mQXIn',
       photos: [
@@ -409,6 +427,7 @@ export const AGENTS = new Map<string, Agent>([
     '酒玖',
     {
       id: 'nine',
+      fileNo: 19,
       name: '酒玖',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuiLiBp1xAFjVWdv9lIeQuasrSZ3bRhx80gimC',
       photos: [
@@ -427,6 +446,7 @@ export const AGENTS = new Map<string, Agent>([
     '璐奈',
     {
       id: 'runai',
+      fileNo: 20,
       name: '璐奈',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuchDyYcnjQYKVGoj2PySknsNLbWCRdxtmHIq8',
       photos: [
@@ -445,6 +465,7 @@ export const AGENTS = new Map<string, Agent>([
     '景子',
     {
       id: 'keiko',
+      fileNo: 21,
       name: '景子',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcumoIWb52jqZfLa4Yz1d2UTnO3AV6G7cpgyiHw',
       photos: [
@@ -463,6 +484,7 @@ export const AGENTS = new Map<string, Agent>([
     '莉央',
     {
       id: 'rio',
+      fileNo: 22,
       name: '莉央',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcudNlWqsY9QEtrNiWVku3w0MsvybnKR6aXFlOe',
       photos: [
@@ -481,6 +503,7 @@ export const AGENTS = new Map<string, Agent>([
     '和実',
     {
       id: 'nagomi',
+      fileNo: 23,
       name: '和実',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuKhFBIKgXkOU7gfRyl8YI1w4WhNSZedJjCHbc',
       photos: [
@@ -499,6 +522,7 @@ export const AGENTS = new Map<string, Agent>([
     '子子',
     {
       id: 'smilyzi',
+      fileNo: 24,
       name: '子子',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcumUzNLq2jqZfLa4Yz1d2UTnO3AV6G7cpgyiHw',
       photos: [
@@ -517,6 +541,7 @@ export const AGENTS = new Map<string, Agent>([
     '芽',
     {
       id: 'yia',
+      fileNo: 25,
       name: '芽',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuddvu6lY9QEtrNiWVku3w0MsvybnKR6aXFlOe',
       photos: [
@@ -539,6 +564,7 @@ export const AGENTS = new Map<string, Agent>([
     '亞米',
     {
       id: 'yami',
+      fileNo: 26,
       name: '亞米',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcunmcVNlm1zw2bvJEWMYq7dnLm0r3cflgZeSRs',
       photos: [
@@ -557,6 +583,7 @@ export const AGENTS = new Map<string, Agent>([
     '七尾',
     {
       id: 'nanao',
+      fileNo: 27,
       name: '七尾',
       picture: 'https://o8ilaibv5w.ufs.sh/f/Q681AB1tpzcuCUMTJa34YAXeLkv6NxtVOjMJsu01RWdITqoB',
       photos: [
@@ -575,6 +602,7 @@ export const AGENTS = new Map<string, Agent>([
     '蜜柑',
     {
       id: 'mikan',
+      fileNo: 28,
       name: '蜜柑',
       emoji: '🍊',
       picture: `${IMAGE_BASE_URL}MzgxNzNocGltYWdl/96c92060c9b34fe2_1440x1440.jpg`,
@@ -595,6 +623,7 @@ export const AGENTS = new Map<string, Agent>([
     '悠莉',
     {
       id: 'yuri',
+      fileNo: 29,
       name: '悠莉',
       picture: `${IMAGE_BASE_URL}MzgzMzZocGltYWdl/b1831cc8181e46b6_1440x1440.jpg`,
       photos: [
@@ -613,6 +642,7 @@ export const AGENTS = new Map<string, Agent>([
     '律',
     {
       id: 'ritsu',
+      fileNo: 30,
       name: '律',
       picture: `${IMAGE_BASE_URL}MzgzMzhocGltYWdl/339c463fcc414b36_1440x1440.jpg`,
       photos: [
@@ -631,6 +661,7 @@ export const AGENTS = new Map<string, Agent>([
     'Iroha',
     {
       id: 'iroha',
+      fileNo: 31,
       name: 'Iroha',
       picture: `${IMAGE_BASE_URL}MzgzNTFocGltYWdl/9a829da0bef14b6f_1440x1440.jpg`,
       photos: [
@@ -649,6 +680,7 @@ export const AGENTS = new Map<string, Agent>([
     '芙理',
     {
       id: 'furi',
+      fileNo: 32,
       name: '芙理',
       picture: `${IMAGE_BASE_URL}NDE5NDNocGltYWdl/030bd21df05844c5_1440x1440.jpg`,
       photos: [
@@ -667,6 +699,7 @@ export const AGENTS = new Map<string, Agent>([
     '千佳',
     {
       id: 'chika',
+      fileNo: 33,
       name: '千佳',
       picture: `${IMAGE_BASE_URL}NDE5NDRocGltYWdl/d75854be98e0484f_1440x1440.jpg`,
       photos: [
@@ -685,6 +718,7 @@ export const AGENTS = new Map<string, Agent>([
     '日和',
     {
       id: 'hiyori',
+      fileNo: 34,
       name: '日和',
       picture: `${IMAGE_BASE_URL}NDE5NDVocGltYWdl/a46a1579bc7943c4_1440x1440.jpg`,
       photos: [
@@ -703,6 +737,7 @@ export const AGENTS = new Map<string, Agent>([
     '香草',
     {
       id: 'banira',
+      fileNo: 35,
       name: '香草',
       picture: `${IMAGE_BASE_URL}NDE5NDZocGltYWdl/c90fa55275a74feb_1440x1440.jpg`,
       photos: [

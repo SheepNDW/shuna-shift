@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { AGENTS } from '~~/shared/constant';
-
 const route = useRoute();
 const agentId = computed(() => route.params.id as string);
 
@@ -44,12 +42,9 @@ const stats = computed(() => {
   };
 });
 
-// AGENT FILE 編號:依 AGENTS Map 插入順序為基準,從 001 起算
-const fileNumber = computed(() => {
-  const values = Array.from(AGENTS.values());
-  const index = values.findIndex((agent) => agent.id === agentId.value);
-  return String(index >= 0 ? index + 1 : 0).padStart(3, '0');
-});
+// AGENT FILE 編號:讀 Agent 的固定欄位再補零。原本是拿 AGENTS Map 的插入順序算的,
+// 中間插一位探員就會讓其後所有人的編號位移(理由見 Agent.fileNo 的註解)。
+const fileNumber = computed(() => String(agentInfo.value?.fileNo ?? 0).padStart(3, '0'));
 
 const backBarStamp = computed(() =>
   agentInfo.value?.isFullTime ? 'FULL-TIME · 正職' : 'ACTIVE · 現役'

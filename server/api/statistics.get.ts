@@ -23,11 +23,8 @@ const SCHEDULE_COLUMNS = 'A5:C';
 export default defineCdnCachedEventHandler(
   async (_event) => {
     try {
-      console.log('fetch Sheets for statistics...');
-
       // 先以輕量 metadata request 動態解析歷史 sheet 的實際名稱
       const titles = await fetchSheetTitles();
-      console.log('sheet titles:', titles);
       const historyTitle = resolveSheetTitle(titles, HISTORY_SHEET_PREFIX);
 
       const sheetData = await fetchSheetRanges([
