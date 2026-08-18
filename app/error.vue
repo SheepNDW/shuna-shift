@@ -29,7 +29,7 @@ const title = computed(() => (isNotFound.value ? '找不到這一頁' : '系統�
 const userMessage = computed(() => {
   const { data } = error;
   if (data && typeof data === 'object' && 'userMessage' in data) {
-    const message = (data as { userMessage: unknown }).userMessage;
+    const message = (data as Partial<UserFacingErrorData>).userMessage;
     if (typeof message === 'string' && message) return message;
   }
   return '';
@@ -49,7 +49,8 @@ function backToHome() {
 }
 
 useHead({
-  title: `${title.value} · 朱雫查班工具`,
+  // getter 而非字串:`error` 是 prop,同一個實例被換上另一個 error 時 title 才跟著走
+  title: () => `${title.value} · 朱雫查班工具`,
   // 錯誤頁不該被索引，否則搜尋結果會長出指向 404 的條目
   meta: [{ name: 'robots', content: 'noindex' }],
 });
@@ -65,7 +66,8 @@ useHead({
           <span class="stamp-label" data-testid="error-stamp">{{ stamp }}</span>
         </div>
 
-        <EmptyState :kanji="kanji" :title="title" :subtitle="subtitle">
+        <!-- heading-level 1:本頁不包 layout、也沒有 PageHeader,這個標題就是頁面主標 -->
+        <EmptyState :kanji="kanji" :title="title" :subtitle="subtitle" :heading-level="1">
           <template #action>
             <div class="flex flex-wrap items-center justify-center gap-3">
               <button type="button" class="btn shu" @click="backToHome">回今日班表</button>

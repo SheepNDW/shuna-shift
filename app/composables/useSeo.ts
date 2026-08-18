@@ -25,6 +25,13 @@ interface SeoOptions {
  *
  * 站台網址走 `runtimeConfig.public.siteUrl`（可用 `NUXT_PUBLIC_SITE_URL` 覆蓋），
  * 因為 og:url 與 canonical 必須是絕對網址，相對路徑會被 LINE / Facebook 直接忽略。
+ *
+ * 參數收純值而非 ref / getter 是可以的：`<NuxtPage>` 的預設 key 走
+ * `generateRouteKey` → `interpolatePath`，會把 `:id` 換成實際的 `route.params.id`
+ * （見 `nuxt/dist/pages/runtime/utils.js`），所以 `/agents/rin` 與 `/agents/luna`
+ * 的 key 不同、元件會重建、`setup()` 重跑。實測 client-side 導覽這兩頁，`<title>`、
+ * `og:title` 與 canonical 都正確更新。日後若有人給 `/agents/[id]` 加上
+ * `definePageMeta({ key: ... })` 把 key 固定住，這個前提才會失效。
  */
 export function useSeo({ title, description }: SeoOptions) {
   const appConfig = useAppConfig();
@@ -33,9 +40,10 @@ export function useSeo({ title, description }: SeoOptions) {
 
   const fullTitle = `${appConfig.title} - ${title}`;
 
-  // 一律取 `route.path` 而非 `fullPath`：`/shifts?date=` 與 `/agents?filter=` 的 query
-  // 只影響捲動位置與前端篩選，內容是同一份。帶進 canonical 會讓同一頁被當成好幾個
-  // URL，分享出去的卡片也會因為 query 不同而各自被快取一次。
+  // 一律取 `route.path` 而非 `fullPath`：目前唯一會出現的 query 是 `/shifts?date=`
+  // （由探員頁的「當日全體」連結產生），它只影響捲動位置，內容是同一份。帶進
+  // canonical 會讓同一頁被當成好幾個 URL，分享出去的卡片也會因為 query 不同而
+  // 各自被快取一次。
   const url = new URL(route.path, siteUrl).href;
   const image = new URL(OG_IMAGE_PATH, siteUrl).href;
 

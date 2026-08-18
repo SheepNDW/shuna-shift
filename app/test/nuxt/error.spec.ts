@@ -86,6 +86,18 @@ describe('error.vue', () => {
     expect(wrapper.get('[data-testid="empty-state-title"]').text()).toBe('系統暫時無法回應');
   });
 
+  /**
+   * 這頁刻意不包 layout,也沒有 PageHeader —— 標題若維持 EmptyState 預設的 `<h2>`,
+   * 這會是全站唯一沒有 `<h1>` 的頁面,螢幕閱讀器按標題導覽時找不到頁面主標。
+   */
+  it('頁面主標渲染為 h1', async () => {
+    const wrapper = await mountError({ statusCode: 404 });
+
+    const heading = wrapper.get('[data-testid="empty-state-title"]');
+    expect(heading.element.tagName).toBe('H1');
+    expect(wrapper.findAll('h1')).toHaveLength(1);
+  });
+
   it('圖章標出實際狀態碼', async () => {
     const wrapper = await mountError({ statusCode: 503 });
 
