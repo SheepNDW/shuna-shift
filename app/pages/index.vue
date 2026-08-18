@@ -22,9 +22,9 @@ const upcomingSchedules = computed(() => {
     .slice(0, 4);
 });
 
-const appConfig = useAppConfig();
-useHead({
-  title: `${appConfig.title} - 今日班表`,
+useSeo({
+  title: '今日班表',
+  description: '查看喫茶 朱雫 Maid Café 今日的當班探員與早晚班時段。',
 });
 </script>
 

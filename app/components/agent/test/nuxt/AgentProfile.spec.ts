@@ -299,4 +299,26 @@ describe('AgentProfile', () => {
     expect(wrapper.get('[data-testid="agent-profile-stat-night"]').text()).toBe('—');
     expect(wrapper.get('[data-testid="agent-profile-stat-total"]').text()).toBe('—');
   });
+
+  // 大頭照掛在外部 host,不可用時原本會留下一個空白的雙 ring 方框
+  it('大頭照載入失敗時改渲染首字', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: { agent: baseAgent, fileNumber: '003', stats },
+      global: { stubs },
+    });
+
+    await wrapper.get('[data-testid="agent-profile-image"]').trigger('error');
+
+    expect(wrapper.find('[data-testid="agent-profile-image"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="agent-profile-image-fallback"]').text()).toBe('泠');
+  });
+
+  it('沒有大頭照時同樣渲染首字替代,而非留空框', async () => {
+    const wrapper = await mountSuspended(AgentProfile, {
+      props: { agent: { ...baseAgent, picture: '' }, fileNumber: '003', stats },
+      global: { stubs },
+    });
+
+    expect(wrapper.get('[data-testid="agent-profile-image-fallback"]').text()).toBe('泠');
+  });
 });

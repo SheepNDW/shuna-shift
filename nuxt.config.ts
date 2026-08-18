@@ -5,6 +5,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   css: ['~/assets/css/main.css'],
+
+  app: {
+    head: {
+      // 全站唯一一處設 <html lang> 的地方 —— 少了它，螢幕閱讀器讀不出正確語音，
+      // 瀏覽器也可能拿日文或簡中字型渲染 CJK（同一個漢字的字形會不一樣）。
+      // 用 zh-Hant-TW 而非 zh-TW：前者明確標出「正體字 + 台灣」，後者只有地區。
+      htmlAttrs: { lang: 'zh-Hant-TW' },
+    },
+  },
   ui: {
     colorMode: false,
   },
@@ -95,5 +104,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     gsheetsKey: '',
     spreadsheetId: '',
+    public: {
+      // canonical 與 og:url 必須是絕對網址（相對路徑會被 LINE / Facebook 直接忽略），
+      // 而站台自己不知道對外的網域是哪一個。預設值指向目前的 Vercel production URL，
+      // 日後換自訂網域時只要設 NUXT_PUBLIC_SITE_URL，不必動程式碼。
+      siteUrl: 'https://shuna-shift.vercel.app',
+    },
   },
 });

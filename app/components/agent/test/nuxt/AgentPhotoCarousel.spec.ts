@@ -78,4 +78,22 @@ describe('AgentPhotoCarousel', () => {
 
     expect(wrapper.findAll('[data-testid="agent-photo-image"]')).toHaveLength(0);
   });
+
+  /**
+   * 照片牆的圖全在外部 host（其中 77 張在別家公司的 dev 環境 CDN）。
+   * 失敗的那一張換成說明文字，其餘照常顯示 —— 整片消失會讓人以為探員沒有照片。
+   */
+  it('單張載入失敗只換掉那一格，其餘照片不受影響', async () => {
+    const wrapper = await mountSuspended(AgentPhotoCarousel, {
+      props: { photos, agentName: '泠泠' },
+      global: { stubs },
+    });
+
+    await wrapper.findAll('[data-testid="agent-photo-image"]')[0]!.trigger('error');
+
+    const remaining = wrapper.findAll('[data-testid="agent-photo-image"]');
+    expect(remaining).toHaveLength(1);
+    expect(remaining[0]?.attributes('src')).toBe(photos[1]);
+    expect(wrapper.findAll('[data-testid="agent-photo-fallback"]')).toHaveLength(1);
+  });
 });

@@ -113,9 +113,9 @@ onMounted(() => {
   }
 });
 
-const appConfig = useAppConfig();
-useHead({
-  title: `${appConfig.title} - 完整班表`,
+useSeo({
+  title: '完整班表',
+  description: '喫茶 朱雫 Maid Café 的完整排班表，可依探員或日期查詢班次。',
 });
 </script>
 

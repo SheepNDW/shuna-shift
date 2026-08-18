@@ -1,15 +1,9 @@
 <script setup lang="ts">
 const { statistics, dateRange, hasError, isPending } = await useStatistics();
 
-const appConfig = useAppConfig();
-useHead({
-  title: `${appConfig.title} - 值班統計`,
-  meta: [
-    {
-      name: 'description',
-      content: '查看喫茶 朱雫 Maid Café 探員近期的值班統計資料',
-    },
-  ],
+useSeo({
+  title: '值班統計',
+  description: '查看喫茶 朱雫 Maid Café 探員近期的值班統計資料。',
 });
 
 const hasStatistics = computed(() => statistics.value.length > 0);

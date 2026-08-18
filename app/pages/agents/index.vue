@@ -9,15 +9,9 @@ const activeAgents = agents.filter((agent) => !agent.isGraduated);
 const fullTimeAgents = activeAgents.filter((agent): agent is Agent => agent.isFullTime === true);
 const partTimeAgents = activeAgents.filter((agent) => !agent.isFullTime);
 
-const appConfig = useAppConfig();
-useHead({
-  title: `${appConfig.title} - 探員圖鑑`,
-  meta: [
-    {
-      name: 'description',
-      content: '探索喫茶 朱雫 Maid Café 正職、現役與卒業探員。',
-    },
-  ],
+useSeo({
+  title: '探員圖鑑',
+  description: '探索喫茶 朱雫 Maid Café 正職、現役與卒業探員。',
 });
 </script>
 

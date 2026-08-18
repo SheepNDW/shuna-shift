@@ -90,4 +90,20 @@ describe('AgentPortrait', () => {
     expect(wrapper.get('[data-testid="agent-portrait"]').element.tagName).toBe('DIV');
     expect(wrapper.get('[data-testid="agent-name"]').text()).toBe('查無此人');
   });
+
+  /**
+   * 照片掛在外部 host（其中 77 張在別家公司的 dev 環境 CDN），host 隨時可能不可用。
+   * 首頁的今日班表整排都是這個元件，沒有 fallback 就會整排塌成破圖框。
+   */
+  it('照片載入失敗時退回首字，與「查無照片」走同一條 fallback', async () => {
+    const wrapper = await mountSuspended(AgentPortrait, {
+      props: { name: '泠泠', textColor: '' },
+      global: { stubs: globalStubs },
+    });
+
+    await wrapper.get('img').trigger('error');
+
+    expect(wrapper.find('img').exists()).toBe(false);
+    expect(wrapper.text()).toContain('泠');
+  });
 });

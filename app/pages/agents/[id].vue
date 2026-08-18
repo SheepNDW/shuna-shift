@@ -15,6 +15,8 @@ if (!agentInfo.value) {
   throw createError({
     statusCode: 404,
     statusMessage: '找不到該探員',
+    // 錯誤頁只會呈現 data.userMessage,不讀 statusMessage(理由見 app/error.vue)
+    data: { userMessage: '找不到這位探員，網址中的代號可能打錯了。' },
     fatal: true,
   });
 }
@@ -51,14 +53,9 @@ const backBarStamp = computed(() =>
   agentInfo.value?.isFullTime ? 'FULL-TIME · 正職' : 'ACTIVE · 現役'
 );
 
-useHead({
+useSeo({
   title: `${agentInfo.value?.name} · 排班資訊`,
-  meta: [
-    {
-      name: 'description',
-      content: `查看探員 ${agentInfo.value?.name} 的詳細資訊與排班記錄`,
-    },
-  ],
+  description: `查看探員 ${agentInfo.value?.name} 的詳細資訊與排班記錄。`,
 });
 </script>
 

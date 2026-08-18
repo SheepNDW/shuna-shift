@@ -3,6 +3,8 @@ defineProps<{
   photos: string[];
   agentName: string;
 }>();
+
+const { hasFailed, onImageError } = useImageFallback();
 </script>
 
 <template>
@@ -23,6 +25,7 @@ defineProps<{
         class="aspect-square w-full overflow-hidden rounded-lg border border-rule bg-paper-2"
       >
         <NuxtImg
+          v-if="!hasFailed(item)"
           :src="item"
           :alt="`${agentName} 照片 ${index + 1}`"
           width="448"
@@ -30,7 +33,13 @@ defineProps<{
           class="h-full w-full object-cover"
           loading="lazy"
           data-testid="agent-photo-image"
+          @error="onImageError(item)"
         />
+        <span
+          v-else
+          class="flex h-full w-full items-center justify-center text-fs-14 text-ink-mute"
+          data-testid="agent-photo-fallback"
+        >照片暫時無法載入</span>
       </div>
     </div>
   </UCarousel>
