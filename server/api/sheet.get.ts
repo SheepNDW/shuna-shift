@@ -35,7 +35,11 @@ export default defineCdnCachedEventHandler(
       // statusMessage 同時寫進 JSON body 的 `statusMessage` / `message` 與 HTTP
       // status line 的 reason phrase —— 上游只要正在故障，任何人打這支端點都拿得到
       // 我們的 API key。診斷資訊已經在上面那行 console.error 裡。
-      // 也刻意維持 ASCII：statusMessage 會進 status line，非 ASCII 會被以 latin1 寫出。
+      // 也刻意維持 ASCII。h3 送出前會過 `sanitizeStatusMessage`，其
+      // `DISALLOWED_STATUS_CHARS = /[^\u0009\u0020-\u007E]/g` 會把非 ASCII 字元刪掉 ——
+      // 整句中文會被刪成空字串，status line 於是退回 Node 的預設 `Internal Server Error`，
+      // 順帶每次失敗多印一行 h3 的 statusMessage 警告。實測過：body 那側的中文其實正常，
+      // 不是亂碼，但 status line 上「是哪一支掛了」這個一眼可辨的訊號就沒了。
       throw createError({
         statusCode: 500,
         statusMessage: 'Failed to fetch sheets',
