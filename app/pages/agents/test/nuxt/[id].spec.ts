@@ -46,6 +46,25 @@ describe('/agents/[id]', () => {
     stubPage();
   });
 
+  /**
+   * 把 `fileNo` 的渲染路徑整條串起來：`AGENTS` 的欄位 → 本頁的 computed（`padStart`）
+   * → `AgentProfile` 的檔案章。
+   *
+   * 兩側既有的測試都碰不到中間這段：`shared/test/constant.spec.ts` 只驗資料本身，
+   * `AgentProfile.spec.ts` 拿的是寫死的 `fileNumber` prop。讀錯欄位、`padStart`
+   * 掉了、prop 沒接上，兩邊都會照樣綠燈。
+   */
+  it('AGENT FILE 編號取自 Agent.fileNo 並補零到三位', async () => {
+    // 前提：這條驗的是「1 → 001」這段轉換，資料本身變了要先改這裡
+    expect(rin?.fileNo).toBe(1);
+
+    const wrapper = await mountSuspended(AgentDetailPage);
+
+    expect(wrapper.get('[data-testid="agent-profile-file-number"]').text()).toBe(
+      'AGENT FILE · No. 001'
+    );
+  });
+
   it('有排班時顯示班次清單', async () => {
     stubPage({ schedules: [scheduleItem()] });
 

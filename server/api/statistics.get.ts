@@ -2,6 +2,7 @@ import type { StatisticsResponse } from '~~/shared/types';
 import { transformSheetDataToSchedules } from '../utils/transformer';
 import { fetchSheetRanges, fetchSheetTitles, resolveSheetTitle } from '../utils/sheets';
 import { defineCdnCachedEventHandler } from '../utils/cache';
+import { formatErrorForLog } from '../utils/log';
 import {
   calculateAgentStatistics,
   filterRecentMonths,
@@ -63,6 +64,14 @@ export default defineCdnCachedEventHandler(
         },
       } satisfies StatisticsResponse;
     } catch (error) {
+      // 理由同 `sheet.get.ts` 的同一段：`createError()` 走不到 nitro 的 console.error 分支，
+      // 不自己印就等於整條失敗路徑無聲。這支多一段動態解析歷史 sheet 名稱的流程，
+      // 把前綴一併帶上，才分得出是解析不到 sheet 還是取資料失敗。
+      console.error(
+        `[api/statistics] 讀取失敗（當期 ${CURRENT_SHEET_TITLE}、歷史前綴 ${HISTORY_SHEET_PREFIX}）`,
+        formatErrorForLog(error),
+      );
+
       throw createError({
         statusCode: 500,
         statusMessage: error instanceof Error ? error.message : 'Failed to fetch statistics',
