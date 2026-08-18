@@ -109,8 +109,13 @@ describe.each(['sheet', 'statistics'] as const)('/api/%s 的錯誤回應', (path
   });
 
   /**
-   * statusMessage 會被寫進 HTTP status line 的 reason phrase，非 ASCII 會以 latin1
-   * 寫出而變成亂碼。診斷資訊本來就該走 log，不該走這裡。
+   * statusMessage 會被寫進 HTTP status line 的 reason phrase，而 h3 送出前會過
+   * `sanitizeStatusMessage`（`DISALLOWED_STATUS_CHARS = /[^\u0009\u0020-\u007E]/g`）。
+   * 一整句中文會被刪成空字串，status line 因此退回 Node 預設的
+   * `Internal Server Error` —— 實測確認：body 那側的中文正常，不是亂碼，
+   * 消失的是 status line 上「是哪一支掛了」的訊號，外加每次失敗一行 h3 警告。
+   *
+   * 長度上限則是因為 reason phrase 本來就不該放長字串；診斷資訊走 log。
    */
   it('statusMessage 是短的 ASCII 字串', async () => {
     const error = await catchError(path);
