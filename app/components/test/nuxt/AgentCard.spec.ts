@@ -113,4 +113,29 @@ describe('AgentCard', () => {
 
     expect(wrapper.find('[data-testid="agent-card-handle"]').exists()).toBe(false);
   });
+
+  /**
+   * 照片掛在外部 host（其中 77 張在別家公司的 dev 環境 CDN）。host 一旦被清掉，
+   * 沒有 fallback 的話整片圖鑑會塌成破圖框。
+   */
+  it('照片載入失敗時改渲染首字，不留破圖', async () => {
+    const wrapper = await mountSuspended(AgentCard, {
+      props: { agent: baseAgent },
+      global: { stubs },
+    });
+
+    await wrapper.get('[data-testid="agent-card-image"]').trigger('error');
+
+    expect(wrapper.find('[data-testid="agent-card-image"]').exists()).toBe(false);
+    expect(wrapper.get('[data-testid="agent-card-image-fallback"]').text()).toBe('泠');
+  });
+
+  it('沒有照片時同樣渲染首字替代', async () => {
+    const wrapper = await mountSuspended(AgentCard, {
+      props: { agent: { ...baseAgent, picture: '' } },
+      global: { stubs },
+    });
+
+    expect(wrapper.get('[data-testid="agent-card-image-fallback"]').text()).toBe('泠');
+  });
 });

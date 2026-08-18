@@ -60,6 +60,8 @@ const formattedBirthday = computed(() => {
 
 const joinedSkills = computed(() => (agent.skills ?? []).join(' · '));
 const joinedHobbies = computed(() => (agent.hobbies ?? []).join(' · '));
+
+const { hasFailed, onImageError } = useImageFallback();
 </script>
 
 <template>
@@ -78,7 +80,7 @@ const joinedHobbies = computed(() => (agent.hobbies ?? []).join(' · '));
       class="agent-profile-photo block w-full max-w-[240px] place-self-center sm:place-self-start"
     >
       <NuxtImg
-        v-if="agent.picture"
+        v-if="agent.picture && !hasFailed(agent.picture)"
         :src="agent.picture"
         :alt="`${agent.name} 的照片`"
         width="240"
@@ -86,7 +88,14 @@ const joinedHobbies = computed(() => (agent.hobbies ?? []).join(' · '));
         class="h-full w-full object-cover"
         loading="lazy"
         data-testid="agent-profile-image"
+        @error="onImageError(agent.picture)"
       />
+      <span
+        v-else
+        class="serif flex aspect-square w-full items-center justify-center bg-paper-2 text-[64px] text-ink-mute"
+        aria-hidden="true"
+        data-testid="agent-profile-image-fallback"
+      >{{ agent.name.charAt(0) }}</span>
     </span>
 
     <div class="flex flex-col gap-4">

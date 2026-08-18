@@ -36,6 +36,8 @@ const agentInfo = computed(() => {
 
 // 僅在有代表色時設定 --agent-color，否則交由 CSS fallback
 const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {}));
+
+const { hasFailed, onImageError } = useImageFallback();
 </script>
 
 <template>
@@ -51,13 +53,14 @@ const ringStyle = computed(() => (textColor ? { '--agent-color': textColor } : {
       :style="{ width: `${size}px`, height: `${size}px` }"
     >
       <NuxtImg
-        v-if="agentInfo.picture"
+        v-if="agentInfo.picture && !hasFailed(agentInfo.picture)"
         :src="agentInfo.picture"
         :alt="`${agentInfo.displayName} 的照片`"
         :width="size"
         :height="size"
         class="block h-full w-full rounded-full object-cover"
         loading="lazy"
+        @error="onImageError(agentInfo.picture)"
       />
       <span
         v-else

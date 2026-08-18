@@ -37,6 +37,26 @@ describe('EmptyState', () => {
     expect(wrapper.get('.empty-kanji').attributes('aria-hidden')).toBe('true');
   });
 
+  /**
+   * 預設 `<h2>`:一般頁面的 `<h1>` 來自 PageHeader / GreetingHeader / AgentProfile。
+   * `error.vue` 例外 —— 它不包 layout,標題階層若從 h2 起跳,整頁就沒有頂層標題。
+   */
+  it('預設渲染 h2', async () => {
+    const wrapper = await mountSuspended(EmptyState, {
+      props: { title: '沒有資料' },
+    });
+
+    expect(wrapper.get('[data-testid="empty-state-title"]').element.tagName).toBe('H2');
+  });
+
+  it('headingLevel 為 1 時渲染 h1', async () => {
+    const wrapper = await mountSuspended(EmptyState, {
+      props: { title: '找不到這一頁', headingLevel: 1 },
+    });
+
+    expect(wrapper.get('[data-testid="empty-state-title"]').element.tagName).toBe('H1');
+  });
+
   it('提供 action slot 時渲染,未提供時不渲染', async () => {
     const without = await mountSuspended(EmptyState, {
       props: { title: '沒有資料' },

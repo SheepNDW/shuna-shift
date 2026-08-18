@@ -17,6 +17,8 @@ const instagramHandle = computed(() => {
   const segments = agent.instagram.split('/').filter(Boolean);
   return segments[segments.length - 1] ?? '';
 });
+
+const { hasFailed, onImageError } = useImageFallback();
 </script>
 
 <template>
@@ -28,7 +30,7 @@ const instagramHandle = computed(() => {
     <div class="flex flex-col">
       <div class="relative aspect-[4/3] bg-paper-2">
         <NuxtImg
-          v-if="agent.picture"
+          v-if="agent.picture && !hasFailed(agent.picture)"
           :src="agent.picture"
           :alt="`${agent.name} 的照片`"
           width="360"
@@ -40,7 +42,14 @@ const instagramHandle = computed(() => {
           ]"
           loading="lazy"
           data-testid="agent-card-image"
+          @error="onImageError(agent.picture)"
         />
+        <span
+          v-else
+          class="serif flex h-full w-full items-center justify-center text-fs-48 text-ink-mute"
+          aria-hidden="true"
+          data-testid="agent-card-image-fallback"
+        >{{ agent.name.charAt(0) }}</span>
         <span
           v-if="agent.emoji"
           class="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-rule bg-paper text-fs-16"

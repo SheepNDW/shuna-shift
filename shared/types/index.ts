@@ -21,6 +21,22 @@ export type Agent = {
   quote?: string;
 };
 
+/**
+ * `createError` 的 `data` 中，唯一會被 `app/error.vue` 呈現給使用者的欄位。
+ *
+ * 有型別而不只是註解，是因為這個契約的失效方式是靜默的：欄位名打成 `usermessage`
+ * 或 `message`，TypeScript 從物件字面值推導 `DataT`、沒有目標形狀可比對，編譯照過，
+ * 錯誤頁只是安靜地退回泛用文案。呼叫端寫成 `createError<UserFacingErrorData>({...})`
+ * 就把它變成編譯期錯誤。
+ *
+ * 錯誤頁那側仍要做 runtime narrowing —— 錯誤物件會經過 SSR 序列化，也可能來自
+ * 沒帶這個欄位的地方（Nuxt router 的 404、上游 fetch 失敗）。
+ */
+export interface UserFacingErrorData {
+  /** 給使用者看的說明文字 */
+  userMessage: string;
+}
+
 /** 班表資料結構 */
 export interface ShiftSchedule {
   date: {

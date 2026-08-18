@@ -12,9 +12,13 @@ const { agentInfo, agentSchedules, hasError: hasScheduleError } = await useAgent
 // 檢查點放在 useAgent 之後:agentInfo 本身只查 AGENTS 常數,但班表是全站共用的
 // 那一份(footer 也在用),提早檢查省不下任何請求。
 if (!agentInfo.value) {
-  throw createError({
+  // 型別參數把 data 的形狀釘住:欄位名打錯時錯誤頁只會安靜退回泛用文案,
+  // 有 UserFacingErrorData 才會在編譯期擋下(理由見該型別的註解)
+  throw createError<UserFacingErrorData>({
     statusCode: 404,
     statusMessage: '找不到該探員',
+    // 錯誤頁只會呈現 data.userMessage,不讀 statusMessage(理由見 app/error.vue)
+    data: { userMessage: '找不到這位探員，網址中的代號可能打錯了。' },
     fatal: true,
   });
 }
@@ -51,14 +55,9 @@ const backBarStamp = computed(() =>
   agentInfo.value?.isFullTime ? 'FULL-TIME · 正職' : 'ACTIVE · 現役'
 );
 
-useHead({
+useSeo({
   title: `${agentInfo.value?.name} · 排班資訊`,
-  meta: [
-    {
-      name: 'description',
-      content: `查看探員 ${agentInfo.value?.name} 的詳細資訊與排班記錄`,
-    },
-  ],
+  description: `查看探員 ${agentInfo.value?.name} 的詳細資訊與排班記錄。`,
 });
 </script>
 
