@@ -25,6 +25,7 @@ const stubs = {
 const makeAgent = (overrides: Partial<Agent> = {}): Agent => ({
   id: 'rin',
   name: '泠泠',
+  fileNo: 1,
   picture: 'https://example.com/rin.jpg',
   photos: [],
   ...overrides,

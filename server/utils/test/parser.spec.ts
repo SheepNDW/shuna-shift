@@ -47,7 +47,7 @@ describe('rgbToHex', () => {
 });
 
 describe('parseAgents', () => {
-  it('應該解析帶有顏色格式的探員名單', () => {
+  it('應該解析 emoji 與中文混排的名單，並把顏色對到正確的探員', () => {
     const name = '🐷、🌙、小春、七尾、紅、百夜';
 
     const runs: TextFormatRun[] = [
@@ -92,7 +92,7 @@ describe('parseAgents', () => {
     ]);
   });
 
-  it('應該解析帶有顏色格式的探員名單', () => {
+  it('應該解析含括號替班記錄的名單，並把顏色對到正確的探員', () => {
     const name = '🐷、🥨、七尾、三里、亞米(和実)、棠棠';
 
     const runs: TextFormatRun[] = [
@@ -204,6 +204,47 @@ describe('parseAgents', () => {
       { name: '蜜柑', textColor: '' },
       { name: '蜜柑', textColor: '' },
     ]);
+  });
+
+  /**
+   * `textFormatRuns` 的 `startIndex` 是原始字串的字元位置，空段仍佔位置。
+   *
+   * 這是靜默錯誤：名字全部正確、也不會拋錯，只有顏色悄悄對到別人身上，
+   * 而顏色在這個站上承載「晚班時段 / 代班」的語意。
+   */
+  describe('連續頓號（空段）', () => {
+    it('空段不產生探員', () => {
+      const result = parseAgents('七尾、、小春');
+
+      expect(result).toEqual([
+        { name: '七尾', textColor: '' },
+        { name: '小春', textColor: '' },
+      ]);
+    });
+
+    it('空段之後的顏色仍對到正確的探員', () => {
+      // '七尾、、小春' → 索引 0 起是「七尾」，索引 4 起才是「小春」
+      const runs: TextFormatRun[] = [
+        { startIndex: 4, format: { foregroundColor: { red: 1 } } },
+      ];
+
+      const result = parseAgents('七尾、、小春', runs);
+
+      expect(result).toEqual([
+        { name: '七尾', textColor: '' },
+        { name: '小春', textColor: '#ff0000' },
+      ]);
+    });
+
+    it('開頭的空段同樣佔索引', () => {
+      const runs: TextFormatRun[] = [
+        { startIndex: 1, format: { foregroundColor: { red: 1 } } },
+      ];
+
+      const result = parseAgents('、七尾', runs);
+
+      expect(result).toEqual([{ name: '七尾', textColor: '#ff0000' }]);
+    });
   });
 });
 

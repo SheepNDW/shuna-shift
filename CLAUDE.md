@@ -23,7 +23,7 @@ pnpm test:nuxt         # 只跑 nuxt 元件測試（nuxt 環境）
 
 執行單一測試檔：
 ```bash
-pnpm vitest run server/utils/test/parset.spec.ts
+pnpm vitest run server/utils/test/parser.spec.ts
 pnpm vitest run --project=nuxt app/components/test/nuxt/ShiftCard.spec.ts
 ```
 
@@ -33,6 +33,7 @@ pnpm vitest run --project=nuxt app/components/test/nuxt/ShiftCard.spec.ts
 ```
 NUXT_GSHEETS_KEY=       # Google Sheets API Key
 NUXT_SPREADSHEET_ID=    # Google Spreadsheet ID
+NUXT_PUBLIC_SITE_URL=   # 選填。canonical / og:url 的站台網址，未設時用 nuxt.config 的預設值
 ```
 
 ## 程式架構
@@ -71,7 +72,7 @@ app/pages/                      → 頁面消費資料
 - 帶括號的替班記錄，例如 `小楓(泠泠)` → 統計時只計算 `小楓`
 - 名稱別名（`NAME_ALIASES`），例如 `いろは → Iroha`
 
-新增探員：在 `shared/constant.ts` 的 `AGENTS` Map 新增一筆，同時更新 `NAME_ALIASES`（若有別名）。
+新增探員：在 `shared/constant.ts` 的 `AGENTS` Map 新增一筆，同時更新 `NAME_ALIASES`（若有別名）。`fileNo` 取目前最大值 +1，不要重用離開者的號碼 —— 那個欄位在探員頁被呈現成「AGENT FILE · No. XXX」，是身分的一部分，不該因為別人加入或離開而位移（`shared/test/constant.spec.ts` 會擋重複值）。
 
 ### API 快取
 
@@ -95,6 +96,25 @@ app/pages/                      → 頁面消費資料
 - 班表走 `reusePayloadData`，不設時效，只保證「同一次 SSR / 同一個 session 內只抓一次」。
 
 班表非得自己寫 `getCachedData` 不可：Nuxt 預設的那支在 server 端只讀 `nuxtApp.static.data`（SSR 當下是空的），於是同一次 SSR 裡 layout 的 footer 與頁面會各打一次 `/api/sheet`，光靠共用 asyncData key 擋不住。
+
+### API 錯誤處理
+
+**錯誤訊息含 API key —— log 與回應兩側都要遮。** ofetch 的 `FetchError` 會把整個請求 URL 塞進 `message`，其中含 `key=<NUXT_GSHEETS_KEY>`。兩條路徑都會把它送出去，且都不會有任何警示：
+
+- **log 側** —— `console.error(msg, error)` 直接把 key 印進 Vercel runtime log。改用 `server/utils/log.ts` 的 `formatErrorForLog(error)`：保留 stack 與其餘 query 參數，只把 key 的值換成 `[REDACTED]`。
+- **回應側** —— `createError({ statusMessage: error.message })` 會讓 nitro 把它同時寫進 JSON body 的 `statusMessage` / `message` 與 HTTP status line 的 reason phrase。這兩支是公開端點，上游只要正在故障（key 過期／配額用盡／Google 5xx），任何人打一下就拿得到 key。`statusMessage` 一律給固定字串，診斷資訊走 log。
+
+固定字串要是 **ASCII**：h3 送出前會過 `sanitizeStatusMessage`（`DISALLOWED_STATUS_CHARS = /[^\u0009\u0020-\u007E]/g`），一整句中文會被刪成空字串，status line 於是退回 Node 預設的 `Internal Server Error`，「是哪一支掛了」的訊號就沒了，還會每次多印一行 h3 警告。（body 那側的中文其實正常，不是亂碼 —— 這點實測過。）
+
+`server/api/test/error-response.spec.ts` 對兩支既有 handler 把上述兩件事都釘住了。**新增 API handler 時兩側都要照做，並把它加進那支測試的 `describe.each`。**（#39）
+
+## 依賴版本策略
+
+`dependencies` / `devDependencies` **一律 caret**。可重現性來自 committed 的 `pnpm-lock.yaml` 加上 CI 的 `pnpm install --frozen-lockfile`，而不是 package.json 裡的範圍字串；把範圍寫死只會讓每個 patch 版都要開一次 PR，換不到額外保證。（`@nuxt/ui` / `@nuxt/image` / `@nuxt/test-utils` / `@nuxt/eslint` 一度是精確版本，查 git 歷史確認那是 `nuxi module add` 的預設行為而非刻意鎖版，已於 #39 統一。）
+
+**唯一刻意鎖死的是 `pnpm.overrides` 的 `nitropack`**，理由見上面的〈API 快取〉。之所以用 override 而非在 `dependencies` 補一筆：nitropack 是 transitive dependency，寫在 `dependencies` 只約束得了我們自己那一條邊，樹裡其他 dependent 仍可能各自解析出別的版本；override 才是覆蓋整棵樹的那個機制。
+
+新增刻意鎖版時，把理由寫在這裡 —— 一個沒有理由的 exact 版本，日後沒人敢動也沒人知道能不能動。
 
 ## 測試檔案位置
 

@@ -56,9 +56,29 @@ export function parseShiftType(value: string | undefined): ShiftType {
   }
 }
 
-export function parseAgents(name: string, runs: TextFormatRun[] = []) {
-  const names = name.split('、').filter((n) => n.trim());
+/**
+ * 取 `startIndex` 落在該位置的顏色；沒有對應的 run 或該 run 沒設前景色時回空字串。
+ */
+function colorAt(formatMap: Map<number, TextFormatRun>, index: number): string {
+  const foregroundColor = formatMap.get(index)?.format?.foregroundColor;
 
+  if (!foregroundColor || Object.keys(foregroundColor).length === 0) {
+    return '';
+  }
+
+  return rgbToHex(foregroundColor);
+}
+
+/**
+ * 解析 C 欄的當班探員字串，並把 `textFormatRuns` 的顏色對回各個名字。
+ *
+ * `textFormatRuns` 的 `startIndex` 是**原始字串**的字元位置，所以索引必須走完
+ * 每一個切段（含空白段）才不會偏移。原本的寫法先 `.filter()` 掉空段再累加索引，
+ * 於是 `A、、B` 這種輸入會讓 `B` 的索引少算一段 —— `B` 拿到的是別人的顏色，
+ * 而且不會報錯：解析照樣成功、名字照樣正確，只有顏色悄悄對錯人。
+ * 實測目前資料沒有連續頓號，這裡是防禦。
+ */
+export function parseAgents(name: string, runs: TextFormatRun[] = []) {
   const formatMap = new Map<number, TextFormatRun>();
   runs.forEach((run) => {
     if (run.startIndex !== undefined) {
@@ -69,23 +89,17 @@ export function parseAgents(name: string, runs: TextFormatRun[] = []) {
   const result: { name: string; textColor: string }[] = [];
   let currentIndex = 0;
 
-  for (let i = 0; i < names.length; i++) {
-    const agentName = names[i]!;
-
-    // 只檢查名字開始位置的格式
-    let textColor = '';
-
-    if (formatMap.has(currentIndex)) {
-      const run = formatMap.get(currentIndex);
-      if (run?.format?.foregroundColor && Object.keys(run.format.foregroundColor).length > 0) {
-        textColor = rgbToHex(run.format.foregroundColor);
-      }
+  for (const segment of name.split('、')) {
+    // 空段不產生探員，但仍要把它佔的位置算進索引
+    if (segment.trim()) {
+      result.push({
+        name: normalizeAgentName(segment),
+        textColor: colorAt(formatMap, currentIndex),
+      });
     }
 
-    result.push({ name: normalizeAgentName(agentName), textColor });
-
-    // 更新索引：名字長度 + 頓號（1個字符）
-    currentIndex += agentName.length + 1;
+    // 名字長度 + 頓號（1 個字元）
+    currentIndex += segment.length + 1;
   }
 
   return result;
