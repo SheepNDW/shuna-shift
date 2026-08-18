@@ -47,7 +47,7 @@ describe('rgbToHex', () => {
 });
 
 describe('parseAgents', () => {
-  it('應該解析帶有顏色格式的探員名單', () => {
+  it('應該解析 emoji 與中文混排的名單，並把顏色對到正確的探員', () => {
     const name = '🐷、🌙、小春、七尾、紅、百夜';
 
     const runs: TextFormatRun[] = [
@@ -92,7 +92,7 @@ describe('parseAgents', () => {
     ]);
   });
 
-  it('應該解析帶有顏色格式的探員名單', () => {
+  it('應該解析含括號替班記錄的名單，並把顏色對到正確的探員', () => {
     const name = '🐷、🥨、七尾、三里、亞米(和実)、棠棠';
 
     const runs: TextFormatRun[] = [
