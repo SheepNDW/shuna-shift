@@ -30,9 +30,15 @@ export default defineCdnCachedEventHandler(
       // 塞進 message，其中含 `key=<NUXT_GSHEETS_KEY>`（見該函式的註解）。
       console.error(`[api/sheet] 讀取 ${CURRENT_SHEET_RANGE} 失敗`, formatErrorForLog(error));
 
+      // statusMessage 是固定字串，**不可**帶入 `error.message`：那是同一個含
+      // `key=<NUXT_GSHEETS_KEY>` 的字串，而 nitro 的預設 error handler 會把
+      // statusMessage 同時寫進 JSON body 的 `statusMessage` / `message` 與 HTTP
+      // status line 的 reason phrase —— 上游只要正在故障，任何人打這支端點都拿得到
+      // 我們的 API key。診斷資訊已經在上面那行 console.error 裡。
+      // 也刻意維持 ASCII：statusMessage 會進 status line，非 ASCII 會被以 latin1 寫出。
       throw createError({
         statusCode: 500,
-        statusMessage: error instanceof Error ? error.message : 'Failed to fetch sheets',
+        statusMessage: 'Failed to fetch sheets',
       });
     }
   },

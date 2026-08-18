@@ -72,9 +72,11 @@ export default defineCdnCachedEventHandler(
         formatErrorForLog(error),
       );
 
+      // 固定字串，理由同 `sheet.get.ts` 的同一段：帶入 `error.message` 會讓 API key
+      // 從 JSON body 與 HTTP status line 公開洩漏。
       throw createError({
         statusCode: 500,
-        statusMessage: error instanceof Error ? error.message : 'Failed to fetch statistics',
+        statusMessage: 'Failed to fetch statistics',
       });
     }
   },
