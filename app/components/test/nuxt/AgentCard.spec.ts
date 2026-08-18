@@ -25,6 +25,7 @@ const stubs = {
 const baseAgent: Agent = {
   id: 'rin',
   name: '泠泠',
+  fileNo: 1,
   picture: 'https://example.com/rin.jpg',
   photos: [],
   instagram: 'https://www.instagram.com/shuna.rin_/',

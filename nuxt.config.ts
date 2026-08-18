@@ -18,7 +18,10 @@ export default defineNuxtConfig({
     colorMode: false,
   },
   typescript: {
-    typeCheck: true,
+    // 關閉的是「dev 與 build 期間跑 vue-tsc」，不是型別檢查本身：CI
+    // （.github/workflows/ci.yml）與 husky pre-commit 都已獨立跑 `pnpm typecheck`，
+    // 開著等於每次啟動 dev server 都重跑一次同樣的檢查。
+    typeCheck: false,
   },
 
   modules: [
