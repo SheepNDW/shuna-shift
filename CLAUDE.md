@@ -186,4 +186,4 @@ Issue 記錄在 GitHub Issues（`SheepNDW/shuna-shift`），透過 `gh` CLI 操�
 
 ### Domain docs
 
-Single-context 佈局 —— 根目錄 `CONTEXT.md` + `docs/adr/`（皆為 lazy 建立，目前尚未存在）。詳見 `docs/agents/domain.md`。
+Single-context 佈局 —— 根目錄 `GLOSSARY.md` + `docs/adr/`（皆為 lazy 建立，目前尚未存在）。詳見 `docs/agents/domain.md`。
