@@ -86,15 +86,33 @@ function extractCacheControlBlock(): string {
   return matches[0]!;
 }
 
-/** 把 nitro 那段原文餵一份 opts 進去實際跑一次 */
-function runNitroCacheControl(opts: Record<string, unknown>): string | undefined {
+/**
+ * 把 nitro 那段原文餵一份 opts 進去實際跑一次。
+ *
+ * nitropack 2.13.6 起，那段開頭多了一道 `isCacheableResponse(headers, variableHeaderNames)`
+ * 門：回應帶 `set-cookie`、`cache-control` 含 private / no-store / no-cache、或 `vary`
+ * 列了非預期的 header 時，整段直接跳過、不下 cache-control。那個 helper 定義在同檔別處，
+ * 抽出來的片段裡沒有，所以這裡以 stub 補上；`cacheable` 讓測試能從門的兩側各跑一次。
+ * 本專案兩支 API 的回應是純 JSON、不帶上述 header，production 走的是 `true` 那側。
+ */
+function runNitroCacheControl(
+  opts: Record<string, unknown>,
+  { cacheable = true }: { cacheable?: boolean } = {},
+): string | undefined {
   // 刻意執行 nitro 的原文 —— 跑的是它的程式碼而非我們的複刻，這正是本 canary 的目的
   const build = new Function(
     'opts',
-    `const headers = {};\n${extractCacheControlBlock()}\nreturn headers["cache-control"];`,
-  ) as (opts: Record<string, unknown>) => string | undefined;
+    'cacheable',
+    [
+      'const headers = {};',
+      'const variableHeaderNames = [];',
+      'const isCacheableResponse = () => cacheable;',
+      extractCacheControlBlock(),
+      'return headers["cache-control"];',
+    ].join('\n'),
+  ) as (opts: Record<string, unknown>, cacheable: boolean) => string | undefined;
 
-  return build(opts);
+  return build(opts, cacheable);
 }
 
 /** `max-age=` 但前面不接 `s-`（`s-maxage` 沒有連字號，不會誤中） */
@@ -133,6 +151,19 @@ describe('nitro cache-control canary', () => {
     expect(cacheControl).toBeDefined();
     expect(String(cacheControl)).toMatch(BARE_MAX_AGE);
     expect(String(cacheControl)).not.toContain('s-maxage');
+  });
+
+  /**
+   * nitro 2.13.6 新增的那道門：被判定不可快取時整段跳過。釘住它是為了讓「門被拿掉」
+   * 有訊號；門的**條件**本身在 helper 裡、不在抽出的片段內，這支看不到，條件變了要靠
+   * 升 pin 時回頭對 cache.mjs。
+   */
+  it('回應被判定不可快取時不應該下任何 cache-control（nitro 2.13.6 新增的門）', () => {
+    const cacheControl = runNitroCacheControl(buildCacheOptions({ name: 'sheet-get', maxAge }), {
+      cacheable: false,
+    });
+
+    expect(cacheControl).toBeUndefined();
   });
 
   /**
