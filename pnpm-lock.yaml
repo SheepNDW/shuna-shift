@@ -48,6 +48,9 @@ importers:
       '@nuxt/test-utils':
         specifier: ^4.3.4
         version: 4.3.4(701caa2a48e4560b527e55072d10d505)
+      '@types/semver':
+        specifier: ^7.8.0
+        version: 7.8.0
       '@vue/test-utils':
         specifier: ^2.5.1
         version: 2.5.1(@vue/compiler-dom@3.5.44)(@vue/server-renderer@3.5.44)(vue@3.5.44(typescript@6.0.3))
@@ -63,6 +66,9 @@ importers:
       playwright-core:
         specifier: ^1.64.1
         version: 1.64.1
+      semver:
+        specifier: ^7.8.6
+        version: 7.8.6
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
@@ -1930,6 +1936,9 @@ packages:
 
   '@types/resolve@1.20.2':
     resolution: {integrity: sha512-60BCwRFOZCQhDncwQdxxeOEEkbc5dIMccYLwbxsS4TUNeVECQ/pBJ0j09mrHOl/JJvpRPGwO9SvE4nR2Nb/a4Q==}
+
+  '@types/semver@7.8.0':
+    resolution: {integrity: sha512-1mAINjtQCXXeLkJ9ehXkwOcBpqtLxiVtKhpUf83DdRNdQKV0iXZpaHYqRr7nj+wvxuJzoAmAwXI+sCNMv1CzLQ==}
 
   '@types/web-bluetooth@0.0.20':
     resolution: {integrity: sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==}
@@ -7370,6 +7379,8 @@ snapshots:
       undici-types: 8.9.0
 
   '@types/resolve@1.20.2': {}
+
+  '@types/semver@7.8.0': {}
 
   '@types/web-bluetooth@0.0.20': {}
 
