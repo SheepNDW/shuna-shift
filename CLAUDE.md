@@ -80,7 +80,7 @@ app/pages/                      → 頁面消費資料
 - `/api/sheet` → 快取 3 小時
 - `/api/statistics` → 快取 6 小時
 
-之所以要包一層：直接把 opts 傳給 `defineCachedEventHandler` 時 `swr` 預設值不會生效，nitro 會吐出瀏覽器專用的 `max-age`，而 Vercel edge 對 function 回應只認 `s-maxage` → CDN 完全不會建立快取。wrapper 顯式給 `swr` / `staleMaxAge`，讓回應帶 `s-maxage=<maxAge>, stale-while-revalidate=60`（詳細推導見該檔註解）。
+之所以要包一層：直接把 opts 傳給 `defineCachedEventHandler` 時 `swr` 預設值不會生效，nitro 會吐出瀏覽器專用的 `max-age`，而 Vercel edge 對 function 回應只認 `s-maxage` → CDN 完全不會建立快取。wrapper 顯式給 `swr` / `staleMaxAge`，讓回應帶 `s-maxage=<maxAge>, stale-while-revalidate=60`（詳細推導見該檔註解）。這是 nitro 交給 Vercel 的 header；只設 `Cache-Control` 時，Vercel 的 proxy 會把 `s-maxage` 與 `stale-while-revalidate` 消化掉，瀏覽器或 `curl` 看到的是 `public, max-age=0, must-revalidate`，看起來像沒設快取。要確認 CDN 有沒有接手，看連打兩次的第二次 `x-vercel-cache` 是不是 `HIT`，不要看 `cache-control`。
 
 代價是**回應不再帶 `max-age`，瀏覽器端不快取** —— nitro 的 header 分支互斥，開了 `swr` 就拿不到 `max-age`。client-side 換頁時會真的發請求，但會終止在 edge 而非 origin。
 
@@ -99,7 +99,7 @@ console.log(range, actual, require('semver').satisfies(actual, range));
 "
 ```
 
-不滿足時把 override 提到滿足的最低版本，然後**跑一次 canary**，那才是升 pin 唯一的驗證。（2.13.3 → 2.13.4 實測 `cache.mjs` 位元組完全相同，canary 綠燈。2.13.4 → 2.13.6 則真的改了：那段開頭多了一道 `isCacheableResponse` 門，回應帶 `set-cookie`／`no-store`／非預期 `vary` 時整段跳過；`s-maxage` 分支本身一字未動。canary 以 stub 補上那個 helper 並多釘一條「門存在」的測試，細節見該檔註解。）
+不滿足時把 override 提到滿足的最低版本，然後**跑一次 canary**，那才是升 pin 唯一的驗證。（2.13.3 → 2.13.4 實測 `cache.mjs` 位元組完全相同，canary 綠燈。2.13.4 → 2.13.6 則真的改了：那段開頭多了一道 `isCacheableResponse` 門，回應帶 `set-cookie`、`cache-control` 含 `private`／`no-store`／`no-cache`、或 `vary` 列了非預期 header 時整段跳過（條件以 `cache.mjs` 的 `isCacheableResponse` 為準）；`s-maxage` 分支本身一字未動。canary 以 stub 補上那個 helper 並多釘一條「門存在」的測試，細節見該檔註解。）
 
 `?nocache` 走 wrapper 的繞過分支：直接呼叫原 handler 並標 `cache-control: no-store`，避免繞過的回應被 CDN 用自己的 cache key 存起來。dev 環境（`import.meta.dev`）一律繞過。
 
