@@ -84,11 +84,11 @@ app/pages/                      → 頁面消費資料
 
 代價是**回應不再帶 `max-age`，瀏覽器端不快取** —— nitro 的 header 分支互斥，開了 `swr` 就拿不到 `max-age`。client-side 換頁時會真的發請求，但會終止在 edge 而非 origin。
 
-因為這套推論建立在 nitropack 的**內部實作**上，`package.json` 用 `pnpm.overrides` 把 nitropack 釘在 exact `2.13.4`：升版必須是明確動作，不能被一次 `pnpm update` 無聲帶走。要升版時連同 `server/utils/test/cache-header.spec.ts` 一起看 —— 那支 canary 會把 nitro 組 cache-control 的原始碼原文抽出來實際跑一次，nitro 改寫那段時會轉紅並指出該確認什麼。（#44）
+因為這套推論建立在 nitropack 的**內部實作**上，`package.json` 用 `pnpm.overrides` 把 nitropack 釘在 exact `2.13.6`：升版必須是明確動作，不能被一次 `pnpm update` 無聲帶走。要升版時連同 `server/utils/test/cache-header.spec.ts` 一起看 —— 那支 canary 會把 nitro 組 cache-control 的原始碼原文抽出來實際跑一次，nitro 改寫那段時會轉紅並指出該確認什麼。（#44）
 
-**升 `nuxt` 本身也要回頭確認這個 pin。** pnpm 的 override 無條件覆寫整棵樹，不檢查是否滿足任何 dependent 宣告的 semver range。**這條在 #39 的升級批次實際踩到了**：`nuxt` 4.4.2 → 4.5.2 讓 `@nuxt/nitro-server` 改宣告 `nitropack@^2.13.4`，但 override 仍是 2.13.3 —— 整棵樹被靜默壓在不滿足宣告的版本上，而 `pnpm install` 依然 exit 0、零警告。canary 對這種情況也無感：它讀的是安裝後的 `cache.mjs`，那個檔案根本沒變。（#50 追蹤把這條檢查自動化）
+**升 `nuxt` 本身也要回頭確認這個 pin。** pnpm 的 override 無條件覆寫整棵樹，不檢查是否滿足任何 dependent 宣告的 semver range。**這條在 #39 的升級批次實際踩到了**：`nuxt` 4.4.2 → 4.5.2 讓 `@nuxt/nitro-server` 改宣告 `nitropack@^2.13.4`，但 override 仍是 2.13.3 —— 整棵樹被靜默壓在不滿足宣告的版本上，而 `pnpm install` 依然 exit 0、零警告。canary 對這種情況也無感：它讀的是安裝後的 `cache.mjs`，那個檔案根本沒變。
 
-手動檢查方式：
+這條現在由 `server/utils/test/dependency-pins.spec.ts` 擋：override 不滿足 `@nuxt/nitro-server` 宣告的 range、或 `node_modules` 裝的版本與 override 不同，`pnpm test:unit` 就紅，訊息會指回這一節。想手動看目前的值：
 
 ```bash
 node -e "
@@ -99,7 +99,7 @@ console.log(range, actual, require('semver').satisfies(actual, range));
 "
 ```
 
-不滿足時把 override 提到滿足的最低版本，然後**跑一次 canary**，那才是升 pin 唯一的驗證。（2.13.3 → 2.13.4 實測 `cache.mjs` 位元組完全相同，canary 綠燈。）
+不滿足時把 override 提到滿足的最低版本，然後**跑一次 canary**，那才是升 pin 唯一的驗證。（2.13.3 → 2.13.4 實測 `cache.mjs` 位元組完全相同，canary 綠燈。2.13.4 → 2.13.6 則真的改了：那段開頭多了一道 `isCacheableResponse` 門，回應帶 `set-cookie`／`no-store`／非預期 `vary` 時整段跳過；`s-maxage` 分支本身一字未動。canary 以 stub 補上那個 helper 並多釘一條「門存在」的測試，細節見該檔註解。）
 
 `?nocache` 走 wrapper 的繞過分支：直接呼叫原 handler 並標 `cache-control: no-store`，避免繞過的回應被 CDN 用自己的 cache key 存起來。dev 環境（`import.meta.dev`）一律繞過。
 
@@ -125,7 +125,11 @@ console.log(range, actual, require('semver').satisfies(actual, range));
 
 `dependencies` / `devDependencies` **一律 caret**。可重現性來自 committed 的 `pnpm-lock.yaml` 加上 CI 的 `pnpm install --frozen-lockfile`，而不是 package.json 裡的範圍字串；把範圍寫死只會讓每個 patch 版都要開一次 PR，換不到額外保證。（`@nuxt/ui` / `@nuxt/image` / `@nuxt/test-utils` / `@nuxt/eslint` 一度是精確版本，查 git 歷史確認那是 `nuxi module add` 的預設行為而非刻意鎖版，已於 #39 統一。）
 
-**唯一刻意鎖死的是 `pnpm.overrides` 的 `nitropack`**，理由見上面的〈API 快取〉。之所以用 override 而非在 `dependencies` 補一筆：nitropack 是 transitive dependency，寫在 `dependencies` 只約束得了我們自己那一條邊，樹裡其他 dependent 仍可能各自解析出別的版本；override 才是覆蓋整棵樹的那個機制。
+刻意鎖死的有兩處。一是 **`pnpm.overrides` 的 `nitropack`**，理由見上面的〈API 快取〉。之所以用 override 而非在 `dependencies` 補一筆：nitropack 是 transitive dependency，寫在 `dependencies` 只約束得了我們自己那一條邊，樹裡其他 dependent 仍可能各自解析出別的版本；override 才是覆蓋整棵樹的那個機制。
+
+二是 **`engines.node` 的 `24.x`**（而非 `>=24`）。Vercel 把這個欄位解析成「允許的最高 major」：Node 26 在 Vercel 上線後，`>=24` 會讓下一次部署無聲地跳到 26，而 `.nvmrc`（CI 也讀它）還停在 24，三個環境就此分岔。要換 Node major 時 `.nvmrc` 與 `engines.node` 一起改；patch 版只需改 `.nvmrc`，Vercel 在 major 內會自動套 patch。同一支 `dependency-pins.spec.ts` 也擋這條：`.nvmrc` 要落在 `engines.node` 範圍內，且 `engines.node` 只能含一個 major。
+
+升級批次的做法：改完 `package.json` 後把 `node_modules` 與 `pnpm-lock.yaml` 一起清掉重裝，再 `pnpm audit --prod` 確認。沿用舊 lockfile 跑 `pnpm update`，或只刪 lockfile 但留 `node_modules`（pnpm 會拿 `node_modules/.pnpm/lock.yaml` 當解析偏好），都實際把 `@tiptap/core` 留在有漏洞的 3.22.4 而且零警告。
 
 新增刻意鎖版時，把理由寫在這裡 —— 一個沒有理由的 exact 版本，日後沒人敢動也沒人知道能不能動。
 
