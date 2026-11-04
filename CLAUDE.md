@@ -86,9 +86,9 @@ app/pages/                      → 頁面消費資料
 
 因為這套推論建立在 nitropack 的**內部實作**上，`package.json` 用 `pnpm.overrides` 把 nitropack 釘在 exact `2.13.6`：升版必須是明確動作，不能被一次 `pnpm update` 無聲帶走。要升版時連同 `server/utils/test/cache-header.spec.ts` 一起看 —— 那支 canary 會把 nitro 組 cache-control 的原始碼原文抽出來實際跑一次，nitro 改寫那段時會轉紅並指出該確認什麼。（#44）
 
-**升 `nuxt` 本身也要回頭確認這個 pin。** pnpm 的 override 無條件覆寫整棵樹，不檢查是否滿足任何 dependent 宣告的 semver range。**這條在 #39 的升級批次實際踩到了**：`nuxt` 4.4.2 → 4.5.2 讓 `@nuxt/nitro-server` 改宣告 `nitropack@^2.13.4`，但 override 仍是 2.13.3 —— 整棵樹被靜默壓在不滿足宣告的版本上，而 `pnpm install` 依然 exit 0、零警告。canary 對這種情況也無感：它讀的是安裝後的 `cache.mjs`，那個檔案根本沒變。（#50 追蹤把這條檢查自動化）
+**升 `nuxt` 本身也要回頭確認這個 pin。** pnpm 的 override 無條件覆寫整棵樹，不檢查是否滿足任何 dependent 宣告的 semver range。**這條在 #39 的升級批次實際踩到了**：`nuxt` 4.4.2 → 4.5.2 讓 `@nuxt/nitro-server` 改宣告 `nitropack@^2.13.4`，但 override 仍是 2.13.3 —— 整棵樹被靜默壓在不滿足宣告的版本上，而 `pnpm install` 依然 exit 0、零警告。canary 對這種情況也無感：它讀的是安裝後的 `cache.mjs`，那個檔案根本沒變。
 
-手動檢查方式：
+這條現在由 `server/utils/test/dependency-pins.spec.ts` 擋：override 不滿足 `@nuxt/nitro-server` 宣告的 range、或 `node_modules` 裝的版本與 override 不同，`pnpm test:unit` 就紅，訊息會指回這一節。想手動看目前的值：
 
 ```bash
 node -e "
@@ -127,7 +127,7 @@ console.log(range, actual, require('semver').satisfies(actual, range));
 
 刻意鎖死的有兩處。一是 **`pnpm.overrides` 的 `nitropack`**，理由見上面的〈API 快取〉。之所以用 override 而非在 `dependencies` 補一筆：nitropack 是 transitive dependency，寫在 `dependencies` 只約束得了我們自己那一條邊，樹裡其他 dependent 仍可能各自解析出別的版本；override 才是覆蓋整棵樹的那個機制。
 
-二是 **`engines.node` 的 `24.x`**（而非 `>=24`）。Vercel 把這個欄位解析成「允許的最高 major」：Node 26 在 Vercel 上線後，`>=24` 會讓下一次部署無聲地跳到 26，而 `.nvmrc`（CI 也讀它）還停在 24，三個環境就此分岔。要換 Node major 時 `.nvmrc` 與 `engines.node` 一起改；patch 版只需改 `.nvmrc`，Vercel 在 major 內會自動套 patch。
+二是 **`engines.node` 的 `24.x`**（而非 `>=24`）。Vercel 把這個欄位解析成「允許的最高 major」：Node 26 在 Vercel 上線後，`>=24` 會讓下一次部署無聲地跳到 26，而 `.nvmrc`（CI 也讀它）還停在 24，三個環境就此分岔。要換 Node major 時 `.nvmrc` 與 `engines.node` 一起改；patch 版只需改 `.nvmrc`，Vercel 在 major 內會自動套 patch。同一支 `dependency-pins.spec.ts` 也擋這條：`.nvmrc` 要落在 `engines.node` 範圍內，且 `engines.node` 只能含一個 major。
 
 升級批次的做法：改完 `package.json` 後把 `node_modules` 與 `pnpm-lock.yaml` 一起清掉重裝，再 `pnpm audit --prod` 確認。沿用舊 lockfile 跑 `pnpm update`，或只刪 lockfile 但留 `node_modules`（pnpm 會拿 `node_modules/.pnpm/lock.yaml` 當解析偏好），都實際把 `@tiptap/core` 留在有漏洞的 3.22.4 而且零警告。
 
