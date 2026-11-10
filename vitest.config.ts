@@ -1,6 +1,8 @@
 import { defineConfig } from 'vitest/config';
 import { defineVitestProject } from '@nuxt/test-utils/config';
+import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { H3_CHAIN, resolvePackageJsonAlongChain } from './server/utils/test/resolve-along-chain.ts';
 
 export default defineConfig({
   test: {
@@ -20,6 +22,12 @@ export default defineConfig({
           alias: {
             '~~/': fileURLToPath(new URL('./', import.meta.url)),
             '~~': fileURLToPath(new URL('./', import.meta.url)),
+            /**
+             * server 端的測試直接 import h3，但 h3 是 nitro 帶進來的 transitive dependency，
+             * 沒有 hoist 到根 `node_modules`。這裡比照 Nuxt 產生的 tsconfig paths：指向 nitro
+             * 實際使用的那一份，而不是另外宣告一個版本 —— 兩份一旦分岔，測的就不是線上那份 h3。
+             */
+            h3: dirname(resolvePackageJsonAlongChain(H3_CHAIN)),
           },
         },
       },
