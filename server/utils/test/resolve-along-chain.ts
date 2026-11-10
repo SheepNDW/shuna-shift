@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 /** 專案根目錄的 package.json，依賴鏈的起點 */
-const ROOT_PACKAGE_JSON = fileURLToPath(new URL('../../../package.json', import.meta.url));
+export const ROOT_PACKAGE_JSON = fileURLToPath(new URL('../../../package.json', import.meta.url));
 
 /** app 載入 nitro 的實際路徑：nuxt 是直接依賴，後兩層都是 transitive */
 export const NITRO_SERVER_CHAIN = ['nuxt', '@nuxt/nitro-server'] as const;

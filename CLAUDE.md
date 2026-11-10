@@ -149,7 +149,7 @@ pnpm 11 起專案設定只從 `pnpm-workspace.yaml` 讀：`package.json` 的 `pn
 
 - **不 hoist。** 根 `node_modules` 只有直接依賴。需要摸 transitive dependency 的地方（nitropack canary、`dependency-pins.spec.ts`、unit 測試 import 的 `h3`）一律沿 app 實際的依賴鏈解析（`server/utils/test/resolve-along-chain.ts`；`h3` 在 `vitest.config.ts` 用同一支 helper 設 alias，比照 Nuxt 產生的 tsconfig paths），讀到的就是 app 執行時用的那一份。不要為了讓某個 import 過關而加 hoist 或補一筆 dependency：前者讓測試摸到「剛好被攤平」的那一份，後者讓版本與 nitro 實際用的分岔，兩種都會讓測試在錯的版本上變綠。
 - **`allowBuilds` 預設 false。** 只有「不跑 build script 就會壞」的套件才設 true，理由寫在 `pnpm-workspace.yaml` 該項旁邊。新進來的套件帶 build script 時，install 會以 `ERR_PNPM_IGNORED_BUILDS` 失敗：先查它的 script 在做什麼，再決定 true 或 false。
-- **`minimumReleaseAge: 1440`（24 小時）。** 發布未滿 24 小時的版本不解析；frozen install 也會逐筆檢查 lockfile，CI 與 Vercel 同樣受保護。pnpm 預設本來就是 1440，刻意寫出來是為了讓 `minimumReleaseAgeStrict` 變成 true：範圍內有夠舊的版本時退回那一版，找不到時 install 直接失敗，而不是悄悄裝進太新的版本（strict 為 false 時就會這樣裝）。
+- **`minimumReleaseAge: 1440`（24 小時）。** 發布未滿 24 小時的版本不解析；frozen install 也會逐筆檢查 lockfile，CI 與 Vercel 同樣受保護。pnpm 預設本來就是 1440，刻意寫出來是為了讓 `minimumReleaseAgeStrict` 變成 true：範圍內有夠舊的版本時退回那一版，找不到時 install 直接失敗，而不是悄悄裝進太新的版本（strict 為 false 時就會這樣裝）。`dependency-pins.spec.ts` 擋這條：這行被刪掉、值低於 1440、或有人寫了 `minimumReleaseAgeStrict: false`，都會紅。
   - **急件 patch**（例如當天發布的安全修正）：把錯誤訊息列出的 `套件@版本` 加進 `minimumReleaseAgeExclude`，跟 patch 放在同一個 PR，讓 diff 看得到這次為了誰破例。要寫到版本（`pkg@1.2.3`）—— 只寫套件名等於對那個套件永久關掉保護。下一次升級批次時，把已經滿 24 小時的項目清掉。
 
 ## 測試檔案位置

@@ -1,8 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
 import { coerce, satisfies, validRange } from 'semver';
 import { parse as parseYaml } from 'yaml';
-import { NITRO_SERVER_CHAIN, NITROPACK_CHAIN, resolvePackageJsonAlongChain } from './resolve-along-chain';
+import {
+  NITRO_SERVER_CHAIN,
+  NITROPACK_CHAIN,
+  resolvePackageJsonAlongChain,
+  ROOT_PACKAGE_JSON,
+} from './resolve-along-chain';
 
 /**
  * 刻意鎖版的一致性守衛（鎖版本身的理由見 CLAUDE.md〈依賴版本策略〉）。
@@ -17,6 +23,8 @@ import { NITRO_SERVER_CHAIN, NITROPACK_CHAIN, resolvePackageJsonAlongChain } fro
  * - pnpm 11 起不再讀 `package.json` 的 `pnpm` 欄位，整個欄位被忽略、只印一行 WARN。
  *   設定寫回那裡，override 就悄悄失效，非 frozen 的 install 還會把 lockfile 裡的
  *   override 刪掉並 exit 0。
+ * - `minimumReleaseAge` 沒寫時 pnpm 預設雖然也是 1440，strict 卻不會開：刪掉那行
+ *   install 照樣成功，找不到夠舊的版本時就悄悄裝進太新的版本。
  * - `.nvmrc`（CI 的 setup-node 讀）與 `engines.node`（Vercel 讀）各自獨立。
  *   只改其中一邊，CI 與正式環境就跑在不同的 Node major 上，一樣沒有任何訊號。
  *
@@ -36,6 +44,10 @@ interface PinSnapshot {
   nitropackOverride: string;
   /** `package.json` 是否還留著 pnpm 11 起不再讀取的 `pnpm` 欄位 */
   hasLegacyPnpmField: boolean;
+  /** `pnpm-workspace.yaml` 的 `minimumReleaseAge`（分鐘），沒寫時為 undefined */
+  minimumReleaseAge: unknown;
+  /** `pnpm-workspace.yaml` 的 `minimumReleaseAgeStrict`，沒寫時為 undefined */
+  minimumReleaseAgeStrict: unknown;
   /** 實際裝進 `node_modules` 的 nitropack 版本 */
   nitropackInstalled: string;
   /** `.nvmrc` 的內容 */
@@ -47,6 +59,9 @@ interface PinSnapshot {
 const DOC_POINTER = '見 CLAUDE.md〈依賴版本策略〉';
 
 const OVERRIDE_LABEL = 'pnpm-workspace.yaml 的 overrides.nitropack';
+
+/** CLAUDE.md〈pnpm 設定〉的政策下限：24 小時 */
+const MIN_RELEASE_AGE_MINUTES = 1440;
 
 /** 沿路徑取值，中途不是物件就回 undefined，讓 JSON 結構變動時不會直接炸 TypeError */
 function dig(value: unknown, path: readonly string[]): unknown {
@@ -69,7 +84,7 @@ function requireString(value: unknown, label: string): string {
 
 /** 讀專案根目錄下的檔案 */
 function readRootFile(name: string): string {
-  return readFileSync(new URL(`../../../${name}`, import.meta.url), 'utf8');
+  return readFileSync(join(dirname(ROOT_PACKAGE_JSON), name), 'utf8');
 }
 
 function readJson(path: string): unknown {
@@ -77,7 +92,7 @@ function readJson(path: string): unknown {
 }
 
 function readPins(): PinSnapshot {
-  const rootPkg: unknown = JSON.parse(readRootFile('package.json'));
+  const rootPkg = readJson(ROOT_PACKAGE_JSON);
   const workspace: unknown = parseYaml(readRootFile('pnpm-workspace.yaml'));
   const nitroServerPkg = readJson(resolvePackageJsonAlongChain(NITRO_SERVER_CHAIN));
   const nitropackPkg = readJson(resolvePackageJsonAlongChain(NITROPACK_CHAIN));
@@ -89,6 +104,8 @@ function readPins(): PinSnapshot {
     ),
     nitropackOverride: requireString(dig(workspace, ['overrides', 'nitropack']), OVERRIDE_LABEL),
     hasLegacyPnpmField: dig(rootPkg, ['pnpm']) !== undefined,
+    minimumReleaseAge: dig(workspace, ['minimumReleaseAge']),
+    minimumReleaseAgeStrict: dig(workspace, ['minimumReleaseAgeStrict']),
     nitropackInstalled: requireString(
       dig(nitropackPkg, ['version']),
       'node_modules 裡 nitropack 的 version',
@@ -107,6 +124,31 @@ function checkLegacyPnpmField({ hasLegacyPnpmField }: PinSnapshot): string[] {
     'package.json 有 pnpm 欄位。pnpm 11 起整個欄位都不讀、只印一行 WARN，寫在裡面的 overrides 等設定會悄悄失效；'
     + `改寫進 pnpm-workspace.yaml（${DOC_POINTER}）`,
   ];
+}
+
+function checkReleaseAgePolicy({ minimumReleaseAge, minimumReleaseAgeStrict }: PinSnapshot): string[] {
+  const problems: string[] = [];
+
+  if (minimumReleaseAge === undefined) {
+    problems.push(
+      'pnpm-workspace.yaml 沒有明確寫 minimumReleaseAge。pnpm 預設雖然也是 1440，但沒寫時 strict 不會開：'
+      + `找不到夠舊的版本時會悄悄裝進太新的版本。補回 minimumReleaseAge: ${MIN_RELEASE_AGE_MINUTES}（${DOC_POINTER}）`,
+    );
+  } else if (typeof minimumReleaseAge !== 'number' || minimumReleaseAge < MIN_RELEASE_AGE_MINUTES) {
+    problems.push(
+      `pnpm-workspace.yaml 的 minimumReleaseAge=${JSON.stringify(minimumReleaseAge)} 低於政策的 ${MIN_RELEASE_AGE_MINUTES}（24 小時）。`
+      + `急件請改用 minimumReleaseAgeExclude 針對單一版本破例，不要整體調低（${DOC_POINTER}）`,
+    );
+  }
+
+  if (minimumReleaseAgeStrict === false) {
+    problems.push(
+      'pnpm-workspace.yaml 把 minimumReleaseAgeStrict 設成 false：找不到夠舊的版本時會悄悄裝進太新的版本。'
+      + `拿掉這行，急件改用 minimumReleaseAgeExclude（${DOC_POINTER}）`,
+    );
+  }
+
+  return problems;
 }
 
 function checkNitropackPin({
@@ -165,7 +207,12 @@ function checkNodeVersion({ nvmrc, enginesNode }: PinSnapshot): string[] {
 
 /** 回傳違反的項目；空陣列代表全部一致。每條訊息都說清楚該改哪一邊 */
 function checkPins(pins: PinSnapshot): string[] {
-  return [...checkLegacyPnpmField(pins), ...checkNitropackPin(pins), ...checkNodeVersion(pins)];
+  return [
+    ...checkLegacyPnpmField(pins),
+    ...checkReleaseAgePolicy(pins),
+    ...checkNitropackPin(pins),
+    ...checkNodeVersion(pins),
+  ];
 }
 
 /** 一份自洽的快照，反向案例各改一個欄位；第一條先證明它本身乾淨 */
@@ -173,6 +220,8 @@ const CONSISTENT: PinSnapshot = {
   nitroServerRange: '^2.13.6',
   nitropackOverride: '2.13.6',
   hasLegacyPnpmField: false,
+  minimumReleaseAge: 1440,
+  minimumReleaseAgeStrict: undefined,
   nitropackInstalled: '2.13.6',
   nvmrc: 'v24.22.2',
   enginesNode: '24.x',
@@ -202,6 +251,30 @@ describe('刻意鎖版的一致性守衛', () => {
       expect(problems).toHaveLength(1);
       expect(problems[0]).toContain('pnpm 11 起整個欄位都不讀');
       expect(problems[0]).toContain('pnpm-workspace.yaml');
+    });
+
+    it('拿掉 minimumReleaseAge 時，應該指出 strict 會跟著關掉', () => {
+      const problems = checkPins({ ...CONSISTENT, minimumReleaseAge: undefined });
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0]).toContain('沒有明確寫 minimumReleaseAge');
+      expect(problems[0]).toContain('strict');
+    });
+
+    it('把 minimumReleaseAge 調到低於 24 小時時，應該指向用 minimumReleaseAgeExclude 單點破例', () => {
+      const problems = checkPins({ ...CONSISTENT, minimumReleaseAge: 0 });
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0]).toContain('minimumReleaseAge=0 低於');
+      expect(problems[0]).toContain('minimumReleaseAgeExclude');
+    });
+
+    it('把 minimumReleaseAgeStrict 設成 false 時，應該指出會悄悄裝進太新的版本', () => {
+      const problems = checkPins({ ...CONSISTENT, minimumReleaseAgeStrict: false });
+
+      expect(problems).toHaveLength(1);
+      expect(problems[0]).toContain('minimumReleaseAgeStrict');
+      expect(problems[0]).toContain('悄悄裝進太新的版本');
     });
 
     it('override 提了但 node_modules 還是舊版時，應該指向重跑 pnpm install', () => {
