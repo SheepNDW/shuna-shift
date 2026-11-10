@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import { fileURLToPath } from 'node:url';
 import { IMAGE_HOSTS } from './shared/constant';
 
 export default defineNuxtConfig({
@@ -95,6 +96,12 @@ export default defineNuxtConfig({
   // 這裡蓋得掉模組預設，是因為 providerSetup 用 defu(nuxt.options.nitro, {...})，
   // 使用者設定優先。
   nitro: {
+    // nitro 預設把 server/utils/** 整個收進 server 端 auto-import，連 test/ 底下的
+    // fixture 與測試 helper 也會變成正式程式碼的全域名稱。unimport 的 dirs 支援 `!`
+    // 排除；寫成絕對路徑，是因為相對 glob 會解析在 process.cwd()，不一定是專案根目錄。
+    imports: {
+      dirs: [`!${fileURLToPath(new URL('./server/utils', import.meta.url))}/**/test/**`],
+    },
     vercel: {
       config: {
         images: {
