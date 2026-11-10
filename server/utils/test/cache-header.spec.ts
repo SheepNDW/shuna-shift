@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { buildCacheOptions } from '../cache';
+import { NITROPACK_CHAIN, resolvePackageJsonAlongChain } from './resolve-along-chain';
 
 /**
  * nitropack 升版 canary（issue #44）。
@@ -25,15 +25,13 @@ import { buildCacheOptions } from '../cache';
  * 抽原始碼跑的仍是 nitro 的程式碼，但不需要它的任何相依。代價是與該段的文字結構
  * 耦合 —— nitro 改寫時抽取會失敗，測試轉紅並吐出指向 #44 的訊息。那正是要的訊號。
  *
- * ## 前提：`.npmrc` 的 `shamefully-hoist=true`
+ * ## 讀的是 app 實際載入的那份 nitropack
  *
- * nitropack 是 transitive dependency（`nuxt → @nuxt/nitro-server`），沒有列在
- * `package.json`。下面的 `require.resolve('nitropack/package.json')` 能成立，
- * 靠的是 `.npmrc` 把它攤平到根 `node_modules`。拿掉那行 hoist 設定，這支會以
- * `MODULE_NOT_FOUND` 失敗 —— `.npmrc` 那側也留了對應註解。
+ * nitropack 是 transitive dependency（`nuxt → @nuxt/nitro-server → nitropack`），沒有
+ * 列在 `package.json`，也沒有被 hoist 到根 `node_modules`。這裡沿那條依賴鏈逐層解析
+ * （`resolvePackageJsonAlongChain`），讀到的就是 app 執行時用的那一份；不依賴任何
+ * hoist 設定，也不依賴 pnpm `.bin` shim 設的 `NODE_PATH`。
  */
-
-const require = createRequire(import.meta.url);
 
 /** 兩種失敗路徑共用的收尾，抽出來避免各寫一版而漂移 */
 const CANARY_TAIL = '請回頭確認 server/utils/cache.ts 的 s-maxage 推論是否還成立（issue #44）。';
@@ -43,10 +41,10 @@ const CANARY_BROKEN = `nitropack 的 cache.mjs 與預期不符 —— nitro 很�
 
 /**
  * 連檔案都拿不到。刻意與 `CANARY_BROKEN` 分開：這條路徑除了「nitro 改了 dist 結構」，
- * 也涵蓋「`.npmrc` 的 shamefully-hoist 被移除 → `require.resolve` 丟 MODULE_NOT_FOUND」，
- * 用同一句「nitro 改寫了實作」會把人指往錯的方向。
+ * 也涵蓋「依賴鏈變了 → 沿鏈解析不到 nitropack」（例如 nuxt 不再經由 `@nuxt/nitro-server`
+ * 帶入 nitro），用同一句「nitro 改寫了實作」會把人指往錯的方向。
  */
-const CANARY_UNREADABLE = `讀不到 nitropack 的 cache.mjs —— 可能是 nitro 改了 dist 結構，或 .npmrc 的 shamefully-hoist 被移除。${CANARY_TAIL}`;
+const CANARY_UNREADABLE = `讀不到 nitropack 的 cache.mjs —— 可能是 nitro 改了 dist 結構，或 nuxt → @nuxt/nitro-server → nitropack 這條依賴鏈變了。${CANARY_TAIL}`;
 
 /**
  * nitro 組 cache-control 的那一段（`nitropack/dist/runtime/internal/cache.mjs`）。
@@ -61,7 +59,7 @@ const CACHE_CONTROL_BLOCK =
 function readNitroCacheSource(): string {
   try {
     return readFileSync(
-      join(dirname(require.resolve('nitropack/package.json')), 'dist/runtime/internal/cache.mjs'),
+      join(dirname(resolvePackageJsonAlongChain(NITROPACK_CHAIN)), 'dist/runtime/internal/cache.mjs'),
       'utf8',
     );
   } catch (error) {

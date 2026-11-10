@@ -1,0 +1,20 @@
+# pnpm 11 起專案設定只從這裡讀：package.json 的 `pnpm` 欄位整個被忽略，
+# .npmrc 的 hoist 類設定也不再生效 —— 兩者都只印一行 WARN，install 照樣 exit 0。
+# 每一項為什麼這樣設，見 CLAUDE.md〈依賴版本策略〉。
+
+# nitropack 是 transitive dependency，pin 的理由見 CLAUDE.md〈API 快取〉。
+overrides:
+  nitropack: 2.13.6
+
+# 預設一律不放行；只有「不跑 build script 就會壞」的才設 true。
+allowBuilds:
+  # postinstall 只檢查／最佳化原生執行檔；執行檔本身來自 pnpm 照裝的
+  # `@esbuild/<平台>` optional dependency，不跑也能用
+  esbuild: false
+  # postinstall 只在 Vue 2 / 2.7 / 3 之間切換產物，套件預設的就是 Vue 3 版
+  vue-demi: false
+
+# 發布未滿 24 小時的版本不解析，frozen install 也會逐筆檢查 lockfile。
+# 明確寫出這個值會讓 minimumReleaseAgeStrict 預設為 true：範圍內找不到夠舊的版本時
+# install 直接失敗，而不是悄悄裝進太新的版本。急件 patch 的破例方式見 CLAUDE.md。
+minimumReleaseAge: 1440
