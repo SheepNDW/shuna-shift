@@ -143,6 +143,24 @@ Vercel 專案設定要有 **`ENABLE_EXPERIMENTAL_COREPACK=1`**（Production 與 
 
 新增刻意鎖版時，把理由寫在這裡 —— 一個沒有理由的 exact 版本，日後沒人敢動也沒人知道能不能動。
 
+### 暫不升的 major
+
+`pnpm outdated` 會一直列出下面三組。它們不是漏掉，是上游還沒準備好。caret 範圍本來就不跨 major，所以不需要額外鎖版；每次升級批次照「解除條件」回頭查一次，成立就升，一組一個 PR。（以下為 2026-11-11 實測）
+
+- **`typescript` 留在 6.x**（最新 7.0.2）。TS 7 是原生移植版，套件的 `exports` 只剩版本資訊與 `./unstable/*`，原本的 JS compiler API 不在了。實際裝起來有兩處直接掛：
+  - `pnpm typecheck` —— `vue-tsc` 3.3.14 啟動時 `require.resolve('typescript/lib/tsc')`，吐 `ERR_PACKAGE_PATH_NOT_EXPORTED`。
+  - `pnpm lint` —— `typescript-eslint` 8.72.2 載入時直接丟 `typescript-eslint does not support TS 7.0`。
+
+  不要拿 `vue-tsc` 自己宣告的 peer（`typescript: >=5.0.0`）判斷，那個範圍寬到沒有參考價值。解除條件：裝上 TS 7 後 `pnpm peers check` 不再列出 `typescript`（目前列的是 `@volar/typescript` 的 `<7` 與 `@typescript-eslint/*` 的 `>=4.8.4 <6.1.0`），且 `pnpm typecheck`、`pnpm lint` 都過。
+
+- **`@vueuse/core`、`@vueuse/nuxt` 留在 14.x**（最新 15.0.0）、**`@nuxt/fonts` 留在 0.14.x**（最新 1.2.0）。兩組都卡在 `@nuxt/ui`：4.12.0 的 `dependencies` 是 `@vueuse/core: ^14.4.0`（連同 `@vueuse/shared`、`@vueuse/integrations`）與 `@nuxt/fonts: ^0.14.0`，而且它把 `@nuxt/fonts` 宣告成自己的 module dependency。專案這邊單獨升，`@nuxt/ui` 仍會帶著自己那份舊 major，同一套東西在 app 裡就有兩個 major。解除條件：下面印出的範圍接受新 major。
+
+  ```bash
+  npm view @nuxt/ui dependencies --json | grep -E 'vueuse|nuxt/fonts'
+  ```
+
+  `@vueuse` 那側專案只用到 `useWindowScroll` 與 `usePreferredReducedMotion`（靠 `@vueuse/nuxt` auto-import），解除後升級的風險很小。不要用 `overrides` 逼 `@nuxt/ui` 吃新 major —— 那等於替它宣稱相容。
+
 ### pnpm 設定
 
 pnpm 11 起專案設定只從 `pnpm-workspace.yaml` 讀：`package.json` 的 `pnpm` 欄位整個被忽略，`.npmrc` 的 hoist 類設定也不再生效，兩者都只印一行 WARN、`install` 照樣 exit 0。override 寫回 `package.json` 就會悄悄失效，非 frozen 的 install 還會順手把 lockfile 裡的 override 刪掉 —— `dependency-pins.spec.ts` 擋這條：`package.json` 出現 `pnpm` 欄位就紅。（#55）
