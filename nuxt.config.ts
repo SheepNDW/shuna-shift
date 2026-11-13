@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import { fileURLToPath } from 'node:url';
-import { IMAGE_HOSTS, SHEETS_API_BASE } from './shared/constant';
+import { IMAGE_HOSTS } from './shared/constant';
 
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
@@ -119,9 +119,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     gsheetsKey: '',
     spreadsheetId: '',
-    // 只有 e2e 會用 NUXT_SHEETS_API_BASE 蓋掉它（指向本機的假 Sheets server）。
+    // 空字串代表打 Google（預設的位址在 server/utils/sheets.ts）。
+    // 只有 e2e 會用 NUXT_SHEETS_API_BASE 蓋掉它，指向本機的假 Sheets server。
     // 正式環境不要設：API key 會跟著請求送到這個位址。
-    sheetsApiBase: SHEETS_API_BASE,
+    // 這個欄位不能刪：runtimeConfig 裡沒宣告的 key，環境變數蓋不進來。
+    sheetsApiBase: '',
     public: {
       // canonical 與 og:url 必須是絕對網址（相對路徑會被 LINE / Facebook 直接忽略），
       // 而站台自己不知道對外的網域是哪一個。預設值指向目前的 Vercel production URL，

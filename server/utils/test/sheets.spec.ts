@@ -1,6 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { dirname, join } from 'node:path';
-import { ROOT_PACKAGE_JSON } from './resolve-along-chain';
 import {
   buildSheetsUrl,
   fetchSheetRanges,
@@ -91,22 +89,9 @@ describe('Sheets 請求的目的地', () => {
     vi.unstubAllGlobals();
   });
 
-  it('nuxt.config 的 runtimeConfig 預設值應該是 Google 的端點', async () => {
-    vi.stubGlobal('defineNuxtConfig', (config: unknown) => config);
-    // 路徑放在變數裡再 import：寫成字面值的話，TypeScript 會把 nuxt.config.ts 拉進
-    // server 這一側的型別檢查，而那裡沒有 `defineNuxtConfig` 這個全域
-    const configPath = join(dirname(ROOT_PACKAGE_JSON), 'nuxt.config.ts');
-
-    const { default: config } = (await import(configPath)) as {
-      default: { runtimeConfig?: Record<string, unknown> };
-    };
-
-    expect(config.runtimeConfig?.sheetsApiBase).toBe(GOOGLE_SHEETS_ENDPOINT);
-  });
-
   it.each([
     ['沒有這個欄位', {}],
-    ['被設成空字串', { sheetsApiBase: '' }],
+    ['是空字串（nuxt.config 的預設值）', { sheetsApiBase: '' }],
   ])('runtimeConfig %s時，應該打到 Google', async (_label, runtimeConfig) => {
     const requestedUrls = stubSheetsRuntime(runtimeConfig);
 

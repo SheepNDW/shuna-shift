@@ -1,6 +1,8 @@
 import { z } from 'zod';
-import { SHEETS_API_BASE } from '~~/shared/constant';
 import type { RowData } from '~~/shared/types';
+
+/** Google Sheets API spreadsheets.get 端點 */
+const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 
 /**
  * 只取轉換班表所需的欄位，縮小回應體積。
@@ -195,8 +197,9 @@ interface SheetsConfig {
 /**
  * 取得並驗證 Sheets API 所需的設定。
  *
- * `sheetsApiBase` 只有 e2e 會設（指向本機的假 Sheets server）。API key 會跟著請求
- * 送到這個位址，所以空值一律退回 Google，而不是組出一個相對網址。
+ * `sheetsApiBase` 只有 e2e 會設（指向本機的假 Sheets server），平常是空字串。
+ * 「沒設就打 Google」只在這裡決定：API key 會跟著請求送到這個位址，預設值散在
+ * 兩個地方的話，改了一邊、漏了另一邊也不會有任何訊號。
  */
 function getSheetsConfig(): SheetsConfig {
   const { gsheetsKey, spreadsheetId, sheetsApiBase } = useRuntimeConfig();

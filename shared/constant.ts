@@ -64,15 +64,6 @@ export const AGENT_FILTER_PRIORITY: readonly string[] = ['景子', '和実', '�
 export const SCHEDULE_SHEET_URL =
   'https://docs.google.com/spreadsheets/d/1Fe39ZrJdp8LFIIg886VoqiAC6H5k8Td4fwZVp85sInw/';
 
-/**
- * Google Sheets API `spreadsheets.get` 的端點。
- *
- * 放在 shared 而不是 `server/utils/sheets.ts`，是因為 `nuxt.config.ts` 的 runtimeConfig
- * 預設值與 server 端的 fallback 必須是同一個字串，而 nuxt.config 不適合去 import
- * server util（會連 zod 一起載進設定檔）。
- */
-export const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
-
 export const AGENTS = new Map<string, Agent>([
   [
     '泠泠',
