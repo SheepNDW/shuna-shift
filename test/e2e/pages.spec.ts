@@ -61,15 +61,28 @@ test('/shifts?date= 會捲到那一天，停在畫面上方附近', async ({ pag
 
   // 頁面用 rAF 持續校正（最多 3 秒），所以用輪詢等它停下來，不用固定的 sleep
   await expect(async () => {
-    const { top, scrollY } = await page.locator(`#${cardId(targetIso)}`).evaluate((element) => ({
-      top: element.getBoundingClientRect().top,
-      scrollY: window.scrollY,
-    }));
+    // 量兩次、中間隔幾個 frame：只量一次的話，「捲到了又被拉走」也會過
+    const { top, topAfterFrames, scrollY } = await page
+      .locator(`#${cardId(targetIso)}`)
+      .evaluate(async (element) => {
+        const FRAMES_TO_WAIT = 5;
+        const top = element.getBoundingClientRect().top;
+        for (let frame = 0; frame < FRAMES_TO_WAIT; frame++) {
+          await new Promise((resolve) => requestAnimationFrame(resolve));
+        }
+
+        return {
+          top,
+          topAfterFrames: element.getBoundingClientRect().top,
+          scrollY: window.scrollY,
+        };
+      });
 
     // 沒捲動的話這張卡片在第一屏以下；scrollY > 0 排除「視窗剛好夠高」的假陽性
     expect(scrollY).toBeGreaterThan(0);
     expect(top).toBeGreaterThanOrEqual(0);
     expect(top).toBeLessThanOrEqual(NEAR_TOP_PX);
+    expect(topAfterFrames).toBe(top);
   }).toPass({ timeout: 5_000 });
 });
 

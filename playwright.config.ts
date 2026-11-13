@@ -27,7 +27,8 @@ export default defineConfig<ConfigOptions>({
   testDir: './test/e2e',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
-  // 不重試：重試會把偶發失敗蓋掉，而這裡的斷言都是輪詢式的，本來就不該偶發
+  // 不重試：重試會把偶發失敗蓋掉。唯一已知會偶發的是跨台北午夜（見 pages.spec.ts），
+  // 那種失敗寧可看到再手動重跑
   retries: 0,
   reporter: process.env.CI ? [['github'], ['list']] : 'list',
 

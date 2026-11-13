@@ -115,7 +115,7 @@ export interface FakeSpreadsheet {
   sheets: FakeSheet[];
 }
 
-const text = (stringValue: string): FakeCell => ({ userEnteredValue: { stringValue } });
+const textCell = (stringValue: string): FakeCell => ({ userEnteredValue: { stringValue } });
 
 /** 一天兩列：早班列的 A 欄有日期，緊接著的晚班列 A 欄是空的 */
 function scheduledRows(todayIso: string, offset: number): FakeRow[] {
@@ -123,8 +123,8 @@ function scheduledRows(todayIso: string, offset: number): FakeRow[] {
   const serial = isoToExcelSerial(addDays(todayIso, offset));
 
   return [
-    { values: [{ userEnteredValue: { numberValue: serial } }, text('早'), text(day.join('、'))] },
-    { values: [{}, text('晚'), text(night.join('、'))] },
+    { values: [{ userEnteredValue: { numberValue: serial } }, textCell('早'), textCell(day.join('、'))] },
+    { values: [{}, textCell('晚'), textCell(night.join('、'))] },
   ];
 }
 
@@ -137,11 +137,11 @@ function unscheduledRows(todayIso: string, offset: number): FakeRow[] {
     {
       values: [
         { userEnteredValue: { numberValue: serial }, userEnteredFormat: white },
-        text('早'),
+        textCell('早'),
         {},
       ],
     },
-    { values: [{}, text('晚'), {}] },
+    { values: [{}, textCell('晚'), {}] },
   ];
 }
 
