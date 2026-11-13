@@ -1,6 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildSheetsUrl,
+  fetchSheetRanges,
+  fetchSheetTitles,
   parseSheetTitles,
   parseSheetsResponse,
   resolveSheetTitle,
@@ -37,6 +39,83 @@ describe('buildSheetsUrl', () => {
 
     expect(parsed.searchParams.getAll('ranges')).toEqual([]);
     expect(parsed.searchParams.get('fields')).toBe('sheets.properties.title');
+  });
+
+  it('給了 apiBase 時，應該改打那個位址，其餘參數不變', () => {
+    const url = buildSheetsUrl(
+      'sheet-id',
+      ['每日班表!A5:C'],
+      'my-key',
+      'sheets.properties.title',
+      'http://127.0.0.1:4010/v4/spreadsheets',
+    );
+    const parsed = new URL(url);
+
+    expect(parsed.origin + parsed.pathname).toBe('http://127.0.0.1:4010/v4/spreadsheets/sheet-id');
+    expect(parsed.searchParams.getAll('ranges')).toEqual(['每日班表!A5:C']);
+    expect(parsed.searchParams.get('key')).toBe('my-key');
+  });
+});
+
+/**
+ * Sheets 的位址可以從 runtimeConfig 換掉，是為了讓 e2e 指向本機的假 server。
+ * 這組測試釘住反方向：正式環境什麼都不設時，請求一定還是打到 Google。
+ * 期望值刻意寫成字面值而不是 import 常數 —— 拿常數比常數，改錯了也會綠。
+ */
+describe('Sheets 請求的目的地', () => {
+  const GOOGLE_SHEETS_ENDPOINT = 'https://sheets.googleapis.com/v4/spreadsheets';
+
+  /** 把 nitro 的兩個全域換成假的，回傳「實際被請求的 URL」清單 */
+  function stubSheetsRuntime(runtimeConfig: Record<string, unknown>): string[] {
+    const requestedUrls: string[] = [];
+    vi.stubGlobal('useRuntimeConfig', () => ({
+      gsheetsKey: 'my-key',
+      spreadsheetId: 'sheet-id',
+      ...runtimeConfig,
+    }));
+    vi.stubGlobal('$fetch', async (url: string) => {
+      requestedUrls.push(url);
+      return { sheets: [] };
+    });
+    return requestedUrls;
+  }
+
+  function endpointOf(url: string | undefined): string {
+    const parsed = new URL(url ?? '');
+    return parsed.origin + parsed.pathname;
+  }
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it.each([
+    ['沒有這個欄位', {}],
+    ['是空字串（nuxt.config 的預設值）', { sheetsApiBase: '' }],
+  ])('runtimeConfig %s時，應該打到 Google', async (_label, runtimeConfig) => {
+    const requestedUrls = stubSheetsRuntime(runtimeConfig);
+
+    await fetchSheetRanges(['每日班表!A5:C']);
+    await fetchSheetTitles();
+
+    expect(requestedUrls.map(endpointOf)).toEqual([
+      `${GOOGLE_SHEETS_ENDPOINT}/sheet-id`,
+      `${GOOGLE_SHEETS_ENDPOINT}/sheet-id`,
+    ]);
+  });
+
+  it('runtimeConfig 指定了別的位址時，兩種請求都應該改打那裡', async () => {
+    const requestedUrls = stubSheetsRuntime({
+      sheetsApiBase: 'http://127.0.0.1:4010/v4/spreadsheets',
+    });
+
+    await fetchSheetRanges(['每日班表!A5:C']);
+    await fetchSheetTitles();
+
+    expect(requestedUrls.map(endpointOf)).toEqual([
+      'http://127.0.0.1:4010/v4/spreadsheets/sheet-id',
+      'http://127.0.0.1:4010/v4/spreadsheets/sheet-id',
+    ]);
   });
 });
 

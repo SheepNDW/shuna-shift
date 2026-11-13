@@ -23,6 +23,11 @@ export default defineNuxtConfig({
     // （.github/workflows/ci.yml）與 husky pre-commit 都已獨立跑 `pnpm typecheck`，
     // 開著等於每次啟動 dev server 都重跑一次同樣的檢查。
     typeCheck: false,
+    // Nuxt 產生的 node tsconfig 只收 nuxt.config / vitest.config。e2e 的設定與測試檔
+    // 不補進來的話，`pnpm typecheck` 完全不會看它們。
+    nodeTsConfig: {
+      include: ['../playwright.config.ts', '../test/e2e/**/*'],
+    },
   },
 
   modules: [
@@ -114,6 +119,11 @@ export default defineNuxtConfig({
   runtimeConfig: {
     gsheetsKey: '',
     spreadsheetId: '',
+    // 空字串代表打 Google（預設的位址在 server/utils/sheets.ts）。
+    // 只有 e2e 會用 NUXT_SHEETS_API_BASE 蓋掉它，指向本機的假 Sheets server。
+    // 正式環境不要設：API key 會跟著請求送到這個位址。
+    // 這個欄位不能刪：runtimeConfig 裡沒宣告的 key，環境變數蓋不進來。
+    sheetsApiBase: '',
     public: {
       // canonical 與 og:url 必須是絕對網址（相對路徑會被 LINE / Facebook 直接忽略），
       // 而站台自己不知道對外的網域是哪一個。預設值指向目前的 Vercel production URL，

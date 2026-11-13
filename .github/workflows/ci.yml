@@ -43,3 +43,11 @@ jobs:
 
       - name: Build
         run: pnpm run build
+
+      # e2e 測的是上一步的 build 產物，不會再 build 一次（見 playwright.config.ts）。
+      # 只裝 chromium：e2e 只跑這一個瀏覽器
+      - name: Install Playwright chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E
+        run: pnpm run test:e2e

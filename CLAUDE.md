@@ -19,13 +19,17 @@ pnpm typecheck    # TypeScript 型別檢查
 pnpm test              # 執行所有測試（watch mode）
 pnpm test:unit         # 只跑 unit 測試（node 環境）
 pnpm test:nuxt         # 只跑 nuxt 元件測試（nuxt 環境）
+pnpm test:e2e          # Playwright e2e（測的是 build 產物，要先 pnpm build）
 ```
 
 執行單一測試檔：
 ```bash
 pnpm vitest run server/utils/test/parser.spec.ts
 pnpm vitest run --project=nuxt app/components/test/nuxt/ShiftCard.spec.ts
+pnpm exec playwright test test/e2e/cache-control.spec.ts
 ```
+
+e2e 第一次跑之前要裝瀏覽器：`pnpm exec playwright install chromium`。
 
 ## 環境變數
 
@@ -34,7 +38,10 @@ pnpm vitest run --project=nuxt app/components/test/nuxt/ShiftCard.spec.ts
 NUXT_GSHEETS_KEY=       # Google Sheets API Key
 NUXT_SPREADSHEET_ID=    # Google Spreadsheet ID
 NUXT_PUBLIC_SITE_URL=   # 選填。canonical / og:url 的站台網址，未設時用 nuxt.config 的預設值
+NUXT_SHEETS_API_BASE=   # 只給 e2e 用，正式環境不要設。Sheets API 的位址，未設時打 Google
 ```
+
+`NUXT_SHEETS_API_BASE` 由 `playwright.config.ts` 設給 build 出來的 server，指向本機的假 Sheets server。API key 會跟著請求送到這個位址，所以 `.env` 與 Vercel 都不該有它；`server/utils/test/sheets.spec.ts` 釘住「沒設時一定打 Google」。
 
 ## 程式架構
 
@@ -180,6 +187,11 @@ pnpm 11 起專案設定只從 `pnpm-workspace.yaml` 讀：`package.json` 的 `pn
 | unit | `shared/**/test/**/*.spec.ts` | node |
 | unit | `app/**/test/unit/**/*.spec.ts` | node |
 | nuxt | `app/**/test/nuxt/**/*.spec.ts` | nuxt |
+| e2e | `test/e2e/**/*.spec.ts` | Playwright（chromium），對 `pnpm build` 的產物 |
+
+e2e 不走 vitest。`playwright.config.ts` 會起兩個 process：`test/e2e/fake-sheets/server.ts`（假的 Google Sheets）與 `.output/server/index.mjs`（帶假 key，Sheets 位址指向前者），所以兩支 API 跑的都是正式程式碼，也不需要真的憑證。假資料依「台北的今天」動態產生（`test/e2e/fake-sheets/data.ts`）；它的形狀由 `server/utils/test/fake-sheets-contract.spec.ts` 拿正式的 parser 驗，改假資料時先跑那一支，比 build 完再開瀏覽器快得多。
+
+e2e 不會自己 build：CI 沿用 Build 步驟的產物，本機改完程式要先 `pnpm build`，否則測到的是舊的。它也不在 husky 的 pre-commit 裡。
 
 ## 型別定義位置
 
