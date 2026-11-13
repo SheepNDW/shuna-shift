@@ -37,6 +37,7 @@ pnpm typecheck    # TypeScript 型別檢查
 pnpm test         # 全部測試（watch）
 pnpm test:unit    # 只跑 unit（node 環境）
 pnpm test:nuxt    # 只跑元件測試（nuxt 環境）
+pnpm test:e2e     # Playwright e2e（測 build 產物，要先 pnpm build）
 ```
 
 執行單一測試檔：

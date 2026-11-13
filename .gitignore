@@ -20,6 +20,10 @@ logs
 .idea
 .playwright-cli
 
+# Playwright 的執行產物（trace、報告）
+test-results/
+playwright-report/
+
 # Local-only code review reports（內容寫進 PR，本地留存自查即可）
 .claude/reviews/
 

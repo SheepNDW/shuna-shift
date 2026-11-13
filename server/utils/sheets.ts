@@ -1,8 +1,6 @@
 import { z } from 'zod';
+import { SHEETS_API_BASE } from '~~/shared/constant';
 import type { RowData } from '~~/shared/types';
-
-/** Google Sheets API spreadsheets.get 端點 */
-const SHEETS_API_BASE = 'https://sheets.googleapis.com/v4/spreadsheets';
 
 /**
  * 只取轉換班表所需的欄位，縮小回應體積。
@@ -56,12 +54,14 @@ export function sheetTitleFromRange(range: string): string {
  * @param ranges A1 notation 範圍陣列，例如 `['每日班表!A5:C']`；傳空陣列代表只取 metadata
  * @param apiKey Google Sheets API key
  * @param fields 要取的欄位遮罩，預設為轉換班表所需的完整欄位
+ * @param apiBase `spreadsheets.get` 的端點，預設為 Google
  */
 export function buildSheetsUrl(
   spreadsheetId: string,
   ranges: string[],
   apiKey: string,
   fields: string = SHEETS_FIELDS,
+  apiBase: string = SHEETS_API_BASE,
 ): string {
   const params = new URLSearchParams();
   for (const range of ranges) {
@@ -70,7 +70,7 @@ export function buildSheetsUrl(
   params.append('fields', fields);
   params.append('key', apiKey);
 
-  return `${SHEETS_API_BASE}/${spreadsheetId}?${params.toString()}`;
+  return `${apiBase}/${spreadsheetId}?${params.toString()}`;
 }
 
 /**
@@ -186,9 +186,20 @@ export function resolveSheetTitle(titles: string[], prefix: string): string {
   throw new Error(`找到多個使用中的「${prefix}」sheet，無法判定：${active.join('、')}`);
 }
 
-/** 取得並驗證 Sheets API 所需的設定 */
-function getSheetsConfig(): { gsheetsKey: string; spreadsheetId: string } {
-  const { gsheetsKey, spreadsheetId } = useRuntimeConfig();
+interface SheetsConfig {
+  gsheetsKey: string;
+  spreadsheetId: string;
+  apiBase: string;
+}
+
+/**
+ * 取得並驗證 Sheets API 所需的設定。
+ *
+ * `sheetsApiBase` 只有 e2e 會設（指向本機的假 Sheets server）。API key 會跟著請求
+ * 送到這個位址，所以空值一律退回 Google，而不是組出一個相對網址。
+ */
+function getSheetsConfig(): SheetsConfig {
+  const { gsheetsKey, spreadsheetId, sheetsApiBase } = useRuntimeConfig();
 
   if (!gsheetsKey || !spreadsheetId) {
     throw createError({
@@ -197,7 +208,7 @@ function getSheetsConfig(): { gsheetsKey: string; spreadsheetId: string } {
     });
   }
 
-  return { gsheetsKey, spreadsheetId };
+  return { gsheetsKey, spreadsheetId, apiBase: sheetsApiBase || SHEETS_API_BASE };
 }
 
 /**
@@ -206,8 +217,8 @@ function getSheetsConfig(): { gsheetsKey: string; spreadsheetId: string } {
  * @param fields 要取的欄位遮罩
  */
 async function fetchSheetsRaw(ranges: string[], fields: string): Promise<unknown> {
-  const { gsheetsKey, spreadsheetId } = getSheetsConfig();
-  const url = buildSheetsUrl(spreadsheetId, ranges, gsheetsKey, fields);
+  const { gsheetsKey, spreadsheetId, apiBase } = getSheetsConfig();
+  const url = buildSheetsUrl(spreadsheetId, ranges, gsheetsKey, fields, apiBase);
 
   return $fetch<unknown>(url);
 }

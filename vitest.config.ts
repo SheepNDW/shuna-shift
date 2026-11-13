@@ -11,10 +11,10 @@ export default defineConfig({
         test: {
           name: 'unit',
           include: [
-            'test/{e2e,unit}/**/*.{test,spec}.ts',
+            'test/unit/**/*.{test,spec}.ts',
             'server/**/test/**/*.{test,spec}.ts',
             'shared/**/test/**/*.{test,spec}.ts',
-            'app/**/test/{e2e,unit}/**/*.{test,spec}.ts',
+            'app/**/test/unit/**/*.{test,spec}.ts',
           ],
           environment: 'node',
         },
