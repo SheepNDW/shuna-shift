@@ -11,6 +11,7 @@ import {
   hasFilterAgent,
   taipeiTodayIso,
 } from '~~/test/e2e/fake-sheets/data';
+import { AGENTS } from '~~/shared/constant';
 import { parseSheetTitles, parseSheetsResponse, resolveSheetTitle } from '../sheets';
 import { calculateAgentStatistics, filterRecentMonths } from '../statistics';
 import { transformSheetDataToSchedules } from '../transformer';
@@ -51,6 +52,14 @@ describe('假 Sheets 資料：當期班表', () => {
     const fromToday = schedules.filter((schedule) => schedule.date.iso >= TODAY);
 
     expect(fromToday.map((schedule) => schedule.date.iso)).toEqual(futureIsos);
+  });
+
+  it('篩選用的探員要在 AGENTS 裡，而且還沒畢業（畢業的探員不會出現在篩選列）', () => {
+    // 少了這條，那位探員畢業時只有 e2e 會紅，而且症狀是「點不到按鈕而逾時」，看不出原因
+    const agent = AGENTS.get(FILTER_AGENT);
+
+    expect(agent).toBeDefined();
+    expect(agent?.isGraduated ?? false).toBe(false);
   });
 
   it('篩選用的探員只在部分日子有班（全有或全無的話，篩選測試就測不出東西）', () => {

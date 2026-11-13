@@ -86,6 +86,15 @@ test('/shifts?date= 會捲到那一天，停在畫面上方附近', async ({ pag
   }).toPass({ timeout: 5_000 });
 });
 
+// 與下面的 404 成對：/agents/[id] 整頁壞掉或被刪掉時，沒對到的路由一樣回 404，
+// 只測反面的話那種情況照樣是綠的
+test('存在的探員頁回 200，而且顯示那位探員的名字', async ({ page }) => {
+  const response = await page.goto('/agents/keiko');
+
+  expect(response?.status()).toBe(200);
+  await expect(page.getByTestId('agent-profile-name')).toContainText('景子');
+});
+
 test('不存在的探員頁回 404', async ({ page }) => {
   const response = await page.goto('/agents/no-such-agent');
 

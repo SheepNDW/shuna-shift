@@ -12,22 +12,30 @@ import { expect, test } from '@nuxt/test-utils/playwright';
  */
 
 /**
- * 單獨的 `max-age` 指令。要看指令邊界：`s-maxage=…` 這個字串本身就含有 `max-age`，
- * 用 `includes('max-age')` 會永遠命中。
+ * 把 cache-control 拆成一條條指令再比。不能直接對整個字串用 `includes('max-age')`：
+ * `s-maxage=…` 這個字串本身就含有 `max-age`，會永遠命中。
  */
-const BARE_MAX_AGE = /(^|[,\s])max-age=/;
-const S_MAXAGE = /(^|[,\s])s-maxage=\d+/;
+function parseDirectives(cacheControl: string | undefined): string[] {
+  return (cacheControl ?? '').split(',').map((directive) => directive.trim());
+}
 
-for (const path of ['/api/sheet', '/api/statistics']) {
+/** 各端點在 CDN 上該快取多久（秒），對應各自 handler 的 `maxAge` */
+const ENDPOINTS = [
+  { path: '/api/sheet', sMaxAge: 60 * 60 * 3 },
+  { path: '/api/statistics', sMaxAge: 60 * 60 * 6 },
+];
+
+for (const { path, sMaxAge } of ENDPOINTS) {
   test.describe(`${path} 的 cache-control`, () => {
-    test('一般請求帶 s-maxage，而且沒有單獨的 max-age', async ({ request }) => {
+    test(`一般請求帶 s-maxage=${sMaxAge}，而且沒有單獨的 max-age`, async ({ request }) => {
       const response = await request.get(path);
 
       // 上游失敗的回應不帶快取 header；先確認成功，失敗時才看得出是哪一邊的問題
       expect(response.status()).toBe(200);
-      const cacheControl = response.headers()['cache-control'] ?? '';
-      expect(cacheControl).toMatch(S_MAXAGE);
-      expect(cacheControl).not.toMatch(BARE_MAX_AGE);
+      const directives = parseDirectives(response.headers()['cache-control']);
+      // 釘住數值而不只是「有 s-maxage」：`s-maxage=0` 也算有，但等於沒快取
+      expect(directives).toContain(`s-maxage=${sMaxAge}`);
+      expect(directives.filter((directive) => directive.startsWith('max-age='))).toEqual([]);
     });
 
     test('帶 ?nocache 時是 no-store', async ({ request }) => {
